@@ -1,6 +1,9 @@
 #ifndef SLD_HPP
 #define SLD_HPP
 
+#include <cstdint>
+#include <xmmintrin.h>
+
 /**********************************************************************************/
 /* SCOPES                                                                         */
 /**********************************************************************************/
@@ -88,22 +91,23 @@ namespace sld {
     typedef __m128i xmm_u128; // 4 u32
     typedef __m128  xmm_f128; // 4 f32
 
-    using xmm_f128_load_aligned   = _mm_load_ps;
-    using xmm_f128_load_unaligned = _mm_loadu_ps;
-    using xmm_f128_add            = _mm_add_ps;
-    using xmm_f128_subtract       = _mm_sub_ps;
-    using xmm_f128_multiply       = _mm_mul_ps;
-    using xmm_f128_divide         = _mm_div_ps;
-    using xmm_f128_sqrt           = _mm_sqrt_ps;
-    using xmm_f128_store          = _mm_store_ps;
 
-    using xmm_u128_load_aligned   = _mm_load_si128;
-    using xmm_u128_load_unaligned = _mm_loadu_si128;
-    using xmm_u128_add            = _mm_add_epi32;
-    using xmm_u128_subtract       = _mm_sub_epi32;
-    using xmm_u128_multiply       = _mm_mul_epi32;
-    using xmm_u128_divide         = _mm_div_epi32;
-    using xmm_u128_store          = _mm_store_si128;
+    static inline xmm_f128 xmm_f128_load_aligned   (const f32* ptr)                             { return(_mm_load_ps  (ptr));          }
+    static inline xmm_f128 xmm_f128_load_unaligned (const f32* ptr)                             { return(_mm_loadu_ps (ptr));          }
+    static inline xmm_f128 xmm_f128_add            (const xmm_f128 xmm_a, const xmm_f128 xmm_b) { return(_mm_add_ps   (xmm_a, xmm_b)); }
+    static inline xmm_f128 xmm_f128_subtract       (const xmm_f128 xmm_a, const xmm_f128 xmm_b) { return(_mm_sub_ps   (xmm_a, xmm_b)); }
+    static inline xmm_f128 xmm_f128_multiply       (const xmm_f128 xmm_a, const xmm_f128 xmm_b) { return(_mm_mul_ps   (xmm_a, xmm_b)); }
+    static inline xmm_f128 xmm_f128_divide         (const xmm_f128 xmm_a, const xmm_f128 xmm_b) { return(_mm_div_ps   (xmm_a, xmm_b)); }
+    static inline xmm_f128 xmm_f128_sqrt           (const xmm_f128 xmm)                         { return(_mm_sqrt_ps  (xmm));          }
+    static inline void     xmm_f128_store          (const xmm_f128 xmm, f32* ptr)               { return(_mm_store_ps (ptr, xmm));     }
+
+    static inline xmm_u128 xmm_u128_load_aligned   (const u32* ptr)                             { return(_mm_load_si128  ((xmm_u128*)ptr));      }
+    static inline xmm_u128 xmm_u128_load_unaligned (const u32* ptr)                             { return(_mm_loadu_si128 ((xmm_u128*)ptr));      }
+    static inline xmm_u128 xmm_u128_add            (const xmm_u128 xmm_a, const xmm_u128 xmm_b) { return(_mm_add_epi32   (xmm_a, xmm_b));        }
+    static inline xmm_u128 xmm_u128_subtract       (const xmm_u128 xmm_a, const xmm_u128 xmm_b) { return(_mm_sub_epi32   (xmm_a, xmm_b));        }
+    static inline xmm_u128 xmm_u128_multiply       (const xmm_u128 xmm_a, const xmm_u128 xmm_b) { return(_mm_mul_epi32   (xmm_a, xmm_b));        }
+    static inline xmm_u128 xmm_u128_divide         (const xmm_u128 xmm_a, const xmm_u128 xmm_b) { return(_mm_div_epi32   (xmm_a, xmm_b));        }
+    static inline void     xmm_u128_store          (const xmm_u128 xmm, u32* ptr)               { return(_mm_store_si128 ((xmm_u128*)ptr, xmm)); }
 };
 
 /**********************************************************************************/
@@ -121,7 +125,7 @@ namespace sld {
 }
 
 /**********************************************************************************/
-/* UTILITIES                                                                      */
+/* MEMORY                                                                         */
 /**********************************************************************************/
 
 namespace sld {
@@ -131,5 +135,59 @@ namespace sld {
     utility u32  memory_size_megabytes (const u32 mb)           { return(mb * 1024 * 1024);                      }
     utility u32  memory_size_gigabytes (const u32 gb)           { return(gb * 1024 * 1024 * 1024);               }
 };
+
+/**********************************************************************************/
+/* BIT LOGIC                                                                      */
+/**********************************************************************************/
+
+namespace sld {
+    
+    utility bool
+    bit_test(
+        const u32 value,
+        const u32 bit) {
+
+        return((value >> bit) & 1);
+    }
+
+    utility void 
+    bit_set(
+        u32&       value,
+        const u32  bit,
+        const bool state) {
+
+        if (state) {
+            value |=  (1 << bit);
+        }
+        else {
+            value &= ~(1 << bit);
+        }
+    }
+
+    utility void
+    bit_set_high(
+        u32&      value,
+        const u32 bit) {
+        
+        value |= (1 << bit);
+    }
+
+    utility void
+    bit_set_low(
+        u32&      value,
+        const u32 bit) {
+
+        value &= ~(1 << bit);
+    }
+
+    utility void 
+    bit_toggle(
+        u32&      value,
+        const u32 bit) {
+
+        value ^=  (1 << bit);
+    }
+};
+
 
 #endif //SLD_HPP

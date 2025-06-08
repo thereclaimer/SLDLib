@@ -1,7 +1,7 @@
 #ifndef SLD_OS_HPP
 #define SLD_OS_HPP
 
-#include "sld.hpp"
+#include <sld.hpp>
 
 namespace sld {
 
@@ -13,7 +13,7 @@ namespace sld {
         u32 logical_core_count;
     };
 
-    using os_system_get_info_f = void (os_system_info_t& system_info);
+    using os_system_get_info_f = bool (os_system_info_t& system_info);
 
     struct os_memory_t {
         ptr start;
