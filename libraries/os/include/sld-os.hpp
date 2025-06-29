@@ -88,8 +88,6 @@ namespace sld {
     using os_window_create_f = bool (os_window_create_t& window_create);
     using os_window_show_f   = bool (os_window_op_t&     window_op);
     using os_window_hide_f   = bool (os_window_op_t&     window_op);
-
-
 };
 
 
