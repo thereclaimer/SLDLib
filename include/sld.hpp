@@ -3,12 +3,16 @@
 
 #include <cstdint>
 
-#define utility  constexpr static inline 
-#define global   constexpr static 
-#define internal static inline
-#define local    static const
+#define sld_ct_inline  static constexpr inline // compile time inline
+#define sld_ct_const   static constexpr const  // compile time const
+#define sld_rt_inline  static inline           // run time inline
+#define sld_rt_const   static const            // run time const
 
 namespace sld {
+
+    //-------------------------------------------------------------------
+    // PRIMITIVES
+    //-------------------------------------------------------------------
 
     // signed integers
     typedef int8_t   s8;
@@ -41,20 +45,28 @@ namespace sld {
     typedef uint8_t  byte;
     typedef intptr_t addr;
 
+    //-------------------------------------------------------------------
+    // SIZE UTILITIES
+    //-------------------------------------------------------------------
+    
+    sld_ct_inline const u64 size_kilobytes   (const u64 n_kilobytes)               { return (n_kilobytes * 1024);                               }
+    sld_ct_inline const u64 size_megabytes   (const u64 n_megabytes)               { return (n_megabytes * 1024 * 1024);                        }
+    sld_ct_inline const u64 size_gigabytes   (const u64 n_gigabytes)               { return (n_gigabytes * 1024 * 1024 * 1024);                 }
+    sld_ct_inline const u64 size_align       (const u64 size, const u64 alignment) { return ((size + alignment - 1) / (alignment * alignment)); }
+    sld_ct_inline const u64 size_align_pow_2 (const u64 size, const u64 alignment) { return ((a + b - 1) & ~(b - 1));                           }
+    sld_ct_inline bool      size_is_pow_2    (const u64 size)                      { return (((size > 0) && ((size & (size - 1)) == 0)));       }               
+
+    //-------------------------------------------------------------------
+    // BITWISE UTILITIES
+    //-------------------------------------------------------------------
+    
+    sld_ct_inline const u32 bit_value    (const u32 bit)                  { return (1 << bit);           }
+    sld_ct_inline bool      bit_test     (const u32 bit, const u32 value) { return ((value >> bit) & 1); }
+    sld_ct_inline void      bit_set_high (const u32 bit, u32&      value) { value |=  (1 << bit);        }
+    sld_ct_inline void      bit_set_low  (const u32 bit, u32&      value) { value &= ~(1 << bit);        }
+    sld_ct_inline void      bit_toggle   (const u32 bit, u32&      value) { value ^=  (1 << bit);        }
+
 };
-
-#define sld_size_kilobytes(n)                 (n * 1024)
-#define sld_size_megabytes(n)                 (n * 1024 * 1024)
-#define sld_size_gigabytes(n)                 (n * 1024 * 1024 * 1024)
-#define sld_size_align(size, alignment)       ((a + b - 1) / b * b)
-#define sld_size_align_pow_2(size, alignment) ((a + b - 1) & ~(b - 1))
-#define sld_size_is_pow_2(size)               ((size > 0) && ((size & (size - 1)) == 0))
-
-#define sld_bit_test(bit, value)      ((value >> bit) & 1)
-#define sld_bit_set_high(bit, value)  (value |=  (1 << bit))
-#define sld_bit_set_low(bit, value)   (value &= ~(1 << bit))
-#define sld_bit_toggle(bit, value)    (value ^=  (1 << bit))
-#define sld_bit_value(bit)            (1 << bit)
 
 
 #endif //SLD_HPP
