@@ -89,11 +89,11 @@ namespace sld {
     typedef u32   os_window_flags_t;
     typedef void* os_window_handle_t;
 
-    using os_window_create_f       = const os_window_handle_t (*) (const os_window_t&       window);
-    using os_window_destroy_f      = bool                     (*) (const os_window_handle_t window_handle);
-    using os_window_show_f         = bool                     (*) (const os_window_handle_t window_handle);
-    using os_window_get_size_f     = bool                     (*) (const os_window_handle_t window_handle, os_window_size_t&     window_size);
-    using os_window_get_position_f = bool                     (*) (const os_window_handle_t window_handle, os_window_position_t& window_position);
+    using os_window_create_f       = bool (*) (os_window_t& window);
+    using os_window_destroy_f      = bool (*) (const os_window_handle_t window_handle);
+    using os_window_show_f         = bool (*) (const os_window_handle_t window_handle);
+    using os_window_get_size_f     = bool (*) (const os_window_handle_t window_handle, os_window_size_t&     window_size);
+    using os_window_get_position_f = bool (*) (const os_window_handle_t window_handle, os_window_position_t& window_position);
 
     extern os_window_create_f       os_window_create;
     extern os_window_destroy_f      os_window_destroy;
@@ -123,6 +123,7 @@ namespace sld {
         const c8*            title;
         os_window_size_t     size;
         os_window_position_t position;
+        os_window_handle_t   handle;
     };
 
     //-------------------------------------------------------------------
@@ -143,33 +144,47 @@ namespace sld {
     // FILES
     //-------------------------------------------------------------------
 
+    struct os_file_t;
+    struct os_file_io_t;
+
     typedef void* os_file_handle_t;
     typedef byte  os_file_permission_flags_t;
 
-    enum os_file_permission_flag_e {
-        os_file_permission_flag_e_none  = 0,
-        os_file_permission_flag_e_read  = sld_bit_value(0),
-        os_file_permission_flag_e_write = sld_bit_value(1)
+    enum os_file_flag_e {
+        os_file_flag_e_none         = 0,
+        os_file_flag_e_async        = bit_value(0),
+        os_file_flag_e_read         = bit_value(1),
+        os_file_flag_e_write        = bit_value(2)
+        os_file_flag_e_share_read   = bit_value(2),
+        os_file_flag_e_share_write  = bit_value(2),
+        os_file_flag_e_share_delete = bit_value(2),
     };
 
     using os_file_io_callback_f = void (*) (const os_file_handle_t handle, const u32 bytes_transferred); 
-    using os_file_size_f        = bool (*) (const u32              count,  const os_file_handle_t* handle, u32* size);
-    using os_file_read_f        = bool (*) (const u32              count,  const os_file_handle_t* handle, const u32 offset, buffer_t&       read_buffer);    
-    using os_file_read_f        = bool (*) (const u32              count,  const os_file_handle_t* handle, const u32 offset, const buffer_t& write_buffer);    
-    using os_file_open_f = const os_file_handle_t (*) (
-        const u32                         count,
-        const c8*                         path,
-        const os_file_permission_flags_t* flags,
-        const os_file_io_callback_f       read_callback,
-        const os_file_io_callback_f       write_callback,
-        os_file_handle_t*                 handle);
+    using os_file_open_f        = bool (*) (const u32 count,  os_file_t*    file);
+    using os_file_size_f        = bool (*) (const u32 count,  os_file_io_t* file_io);
+    using os_file_read_f        = bool (*) (const u32 count,  os_file_io_t* file_io);    
+    using os_file_write_f       = bool (*) (const u32 count,  os_file_io_t* file_io);    
 
-    extern os_file_io_callback_f os_file_io_callback;
-    extern os_file_size_f        os_file_size;
-    extern os_file_read_f        os_file_read;
-    extern os_file_read_f        os_file_read;
-    extern os_file_open_f        os_file_open;
+    extern os_file_size_f  os_file_size;
+    extern os_file_read_f  os_file_read;
+    extern os_file_write_f os_file_read;
+    extern os_file_open_f  os_file_open;
 
+    struct os_file_t {
+        const c8*                  path;
+        os_file_permission_flags_t flags;
+        os_file_handle_t           handle;
+    };
+
+    struct os_file_io_t {
+        os_file_handle_t      handle;
+        os_file_io_callback_f callback;
+        byte*                 data;
+        u32                   offset;
+        u32                   size;
+        u32                   length;        
+    };
 
     //-------------------------------------------------------------------
     // THREADS

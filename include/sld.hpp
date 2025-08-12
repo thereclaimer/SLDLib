@@ -60,11 +60,11 @@ namespace sld {
     // BITWISE UTILITIES
     //-------------------------------------------------------------------
     
-    sld_ct_inline const u32 bit_value    (const u32 bit)                  { return (1 << bit);           }
-    sld_ct_inline bool      bit_test     (const u32 bit, const u32 value) { return ((value >> bit) & 1); }
-    sld_ct_inline void      bit_set_high (const u32 bit, u32&      value) { value |=  (1 << bit);        }
-    sld_ct_inline void      bit_set_low  (const u32 bit, u32&      value) { value &= ~(1 << bit);        }
-    sld_ct_inline void      bit_toggle   (const u32 bit, u32&      value) { value ^=  (1 << bit);        }
+    sld_ct_inline const u32 bit_value        (const u32 bit)                       { return (1 << bit);           }
+    sld_ct_inline bool      bit_test         (const u32 bit, const u32 value)      { return ((value >> bit) & 1); }
+    sld_ct_inline void      bit_set_high     (const u32 bit, u32&      value)      { value |=  (1 << bit);        }
+    sld_ct_inline void      bit_set_low      (const u32 bit, u32&      value)      { value &= ~(1 << bit);        }
+    sld_ct_inline void      bit_toggle       (const u32 bit, u32&      value)      { value ^=  (1 << bit);        }
 
 };
 
