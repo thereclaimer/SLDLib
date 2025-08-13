@@ -27,8 +27,6 @@ namespace sld {
     const heap_allocator_t*  heap_allocator_init_from_arena           (memory_arena_t* arena,  const u32 heap_size, const u32 heap_granularity);
                       void*  heap_alloc                               (heap_allocator_t*  heap_allocator,  const u32   size);
                       bool   heap_free                                (heap_allocator_t*  heap_allocator,  const void* memory);
-    
-
 };
 
 #endif //SLD_ALLOCATOR_HPP

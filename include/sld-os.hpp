@@ -18,35 +18,29 @@ namespace sld {
     // SYSTEM
     //-------------------------------------------------------------------
 
-    struct os_system_info_memory_t;
-    struct os_system_info_cpu_cache_t;
-    struct os_system_info_cpu_t;
+    struct os_system_cpu_info_t;
+    struct os_system_cpu_cache_info_t;
+    struct os_system_memory_info_t;
 
-    using os_system_get_info_cpu_f    = const b8  (*) (os_system_info_cpu_t*    cpu_info);
-    using os_system_get_info_memory_f = const b8  (*) (os_system_info_memory_t* memory_info);
-    using os_system_time_ms_f         = const u64 (*) (void);
-    using os_system_sleep_f           = void      (*) (const u32 ms);
-    using os_system_debug_print_f     = void      (*) (const c8* debug_string);
+    using os_system_get_cpu_info_f              = const b8  (*) (os_system_cpu_info_t&       cpu_info);
+    using os_system_get_cpu_cache_info_f        = bool      (*) (os_system_cpu_cache_info_t& cpu_cache_info);
+    using os_system_get_memory_info_f           = const b8  (*) (os_system_info_memory_t* memory_info);
+    using os_system_time_ms_f                   = const u64 (*) (void);
+    using os_system_sleep_f                     = void      (*) (const u32 ms);
+    using os_system_debug_print_f               = void      (*) (const c8* debug_string);
 
-    extern os_system_get_info_cpu_f    os_system_get_info_cpu;
-    extern os_system_get_info_memory_f os_system_get_info_memory;
-    extern os_system_time_ms_f         os_system_time_ms;
-    extern os_system_sleep_f           os_system_sleep;
-    extern os_system_debug_print_f     os_system_debug_print;    
-
-    struct os_system_info_cpu_cache_t {
+    struct os_system_cpu_cache_info_t {
+        u32 level;
         u32 total_size;
         u32 line_size;
     };
 
     struct os_system_info_cpu_t {
-        u32                        parent_core_number;
-        u32                        speed_mhz;
-        u32                        core_count_physical;
-        u32                        core_count_logical;
-        os_system_info_cpu_cache_t cache_l1;
-        os_system_info_cpu_cache_t cache_l2;
-        os_system_info_cpu_cache_t cache_l3;
+        u32 parent_core_number;
+        u32 speed_mhz;
+        u32 core_count_physical;
+        u32 core_count_logical;
+        u32 cache_levels;
     };
 
     struct os_system_info_memory_t {
@@ -95,12 +89,6 @@ namespace sld {
     using os_window_get_size_f     = bool (*) (const os_window_handle_t window_handle, os_window_size_t&     window_size);
     using os_window_get_position_f = bool (*) (const os_window_handle_t window_handle, os_window_position_t& window_position);
 
-    extern os_window_create_f       os_window_create;
-    extern os_window_destroy_f      os_window_destroy;
-    extern os_window_show_f         os_window_show;
-    extern os_window_get_size_f     os_window_get_size;
-    extern os_window_get_position_f os_window_get_position;
-
     enum os_window_flag_e {
         os_window_flag_e_none    = 0,
         os_window_flag_e_visible = bit_value(0),
@@ -135,11 +123,6 @@ namespace sld {
     using os_memory_commit_f   = void* (*) (const void* start, const u64 size);
     using os_memory_decommit_f = void* (*) (const void* start, const u64 size);
 
-    extern os_memory_reserve_f  os_memory_reserve;
-    extern os_memory_release_f  os_memory_release;
-    extern os_memory_commit_f   os_memory_commit;
-    extern os_memory_decommit_f os_memory_decommit;
-
     //-------------------------------------------------------------------
     // FILES
     //-------------------------------------------------------------------
@@ -148,16 +131,16 @@ namespace sld {
     struct os_file_io_t;
 
     typedef void* os_file_handle_t;
-    typedef byte  os_file_permission_flags_t;
+    typedef byte  os_file_flags_t;
 
     enum os_file_flag_e {
         os_file_flag_e_none         = 0,
         os_file_flag_e_async        = bit_value(0),
         os_file_flag_e_read         = bit_value(1),
-        os_file_flag_e_write        = bit_value(2)
-        os_file_flag_e_share_read   = bit_value(2),
-        os_file_flag_e_share_write  = bit_value(2),
-        os_file_flag_e_share_delete = bit_value(2),
+        os_file_flag_e_write        = bit_value(2),
+        os_file_flag_e_share_read   = bit_value(3),
+        os_file_flag_e_share_write  = bit_value(4),
+        os_file_flag_e_share_delete = bit_value(5),
     };
 
     using os_file_io_callback_f = void (*) (const os_file_handle_t handle, const u32 bytes_transferred); 
@@ -166,15 +149,10 @@ namespace sld {
     using os_file_read_f        = bool (*) (const u32 count,  os_file_io_t* file_io);    
     using os_file_write_f       = bool (*) (const u32 count,  os_file_io_t* file_io);    
 
-    extern os_file_size_f  os_file_size;
-    extern os_file_read_f  os_file_read;
-    extern os_file_write_f os_file_read;
-    extern os_file_open_f  os_file_open;
-
     struct os_file_t {
-        const c8*                  path;
-        os_file_permission_flags_t flags;
-        os_file_handle_t           handle;
+        const c8*        path;
+        os_file_flags_t  flags;
+        os_file_handle_t handle;
     };
 
     struct os_file_io_t {
@@ -192,6 +170,36 @@ namespace sld {
 
     typedef void* os_thread_handle_t;
 
+    //-------------------------------------------------------------------
+    // API
+    //-------------------------------------------------------------------
+
+    extern os_system_get_cpu_info_f       os_system_get_cpu_info;
+    extern os_system_get_cpu_cache_info_f os_system_get_cpu_cache_info;
+    extern os_system_get_memory_info_f    os_system_get_memory_info;
+    extern os_system_time_ms_f            os_system_time_ms;
+    extern os_system_sleep_f              os_system_sleep;
+    extern os_system_debug_print_f        os_system_debug_print;
+
+    extern os_monitor_count_f             os_monitor_count;
+    extern os_monitor_screen_size_f       os_monitor_screen_size;
+    extern os_monitor_info_f              os_monitor_info;
+
+    extern os_window_create_f             os_window_create;
+    extern os_window_destroy_f            os_window_destroy;
+    extern os_window_show_f               os_window_show;
+    extern os_window_get_size_f           os_window_get_size;
+    extern os_window_get_position_f       os_window_get_position;
+
+    extern os_memory_reserve_f            os_memory_reserve;
+    extern os_memory_release_f            os_memory_release;
+    extern os_memory_commit_f             os_memory_commit;
+    extern os_memory_decommit_f           os_memory_decommit;
+
+    extern os_file_size_f                 os_file_size;
+    extern os_file_read_f                 os_file_read;
+    extern os_file_write_f                os_file_read;
+    extern os_file_open_f                 os_file_open;
 
 };
 
