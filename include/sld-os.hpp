@@ -80,21 +80,23 @@ namespace sld {
     struct os_window_size_t;
     struct os_window_position_t;
 
-    typedef u32   os_window_flags_t;
+    typedef u32   os_window_events_t;
     typedef void* os_window_handle_t;
 
-    using os_window_create_f       = bool (*) (os_window_t& window);
-    using os_window_destroy_f      = bool (*) (const os_window_handle_t window_handle);
-    using os_window_show_f         = bool (*) (const os_window_handle_t window_handle);
-    using os_window_get_size_f     = bool (*) (const os_window_handle_t window_handle, os_window_size_t&     window_size);
-    using os_window_get_position_f = bool (*) (const os_window_handle_t window_handle, os_window_position_t& window_position);
+    using os_window_create_f         = bool (*) (os_window_t& window);
+    using os_window_destroy_f        = bool (*) (const os_window_handle_t window_handle);
+    using os_window_show_f           = bool (*) (const os_window_handle_t window_handle);
+    using os_window_swap_buffers_f   = bool (*) (const os_window_handle_t window_handle);
+    using os_window_get_size_f       = bool (*) (const os_window_handle_t window_handle, os_window_size_t&     window_size);
+    using os_window_get_position_f   = bool (*) (const os_window_handle_t window_handle, os_window_position_t& window_position);
+    using os_window_process_events_f = bool (*) (const os_window_handle_t window_handle, os_window_events_t&   window_events);
 
-    enum os_window_flag_e {
-        os_window_flag_e_none    = 0,
-        os_window_flag_e_visible = bit_value(0),
-        os_window_flag_e_closed  = bit_value(1),
-        os_window_flag_e_moved   = bit_value(2),
-        os_window_flag_e_resized = bit_value(3)
+    enum os_window_event_e {
+        os_window_event_e_none      = 0,
+        os_window_event_e_quit      = bit_value(0),
+        os_window_event_e_destroyed = bit_value(1),
+        os_window_event_e_moved     = bit_value(2),
+        os_window_event_e_resized   = bit_value(3)
     };
 
     struct os_window_size_t {
