@@ -227,7 +227,7 @@ namespace sld {
 
     extern os_file_size_f                   os_file_size;
     extern os_file_read_f                   os_file_read;
-    extern os_file_write_f                  os_file_read;
+    extern os_file_write_f                  os_file_write;
     extern os_file_open_f                   os_file_open;
 
 };

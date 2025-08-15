@@ -28,7 +28,7 @@ namespace sld {
     
     static bool
     win32_system_get_memory_info(
-        os_system_info_memory_t* memory_info) {
+        os_system_memory_info_t& memory_info) {
 
     }
     
