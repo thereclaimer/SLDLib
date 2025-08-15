@@ -126,25 +126,10 @@ namespace sld {
     // MEMORY
     //-------------------------------------------------------------------
 
-    struct os_memory_page_table_t {
-        addr start;
-        u64  size_requested;
-        u64  size_actual;
-        u32  page_size;
-        u32  page_count;
-        u32  granularity;
-    };
-
-    struct os_memory_page_commit_t {
-        addr start;
-        u32  page_number;
-        u32  page_stride;
-    };
-
-    using os_memory_reserve_page_table_f = bool (*) (os_memory_page_table_t&       page_table);
-    using os_memory_release_page_table_f = bool (*) (os_memory_page_table_t&       page_table);
-    using os_memory_commit_pages_f       = bool (*) (const os_memory_page_table_t& page_table, os_memory_page_commit_t& page_commit);
-    using os_memory_decommit_pages_f     = bool (*) (const os_memory_page_table_t& page_table, os_memory_page_commit_t& page_commit);
+    using os_memory_reserve_f  = bool (*) (memory_t& reservation);
+    using os_memory_release_f  = bool (*) (memory_t& reservation);
+    using os_memory_commit_f   = bool (*) (memory_t& commit);
+    using os_memory_decommit_f = bool (*) (memory_t& commit);
 
     //-------------------------------------------------------------------
     // FILES
@@ -220,10 +205,10 @@ namespace sld {
     extern os_window_get_position_f         os_window_get_position; 
     extern os_window_process_events_f       os_window_process_events; 
 
-    extern os_memory_reserve_page_table_f   os_memory_reserve_page_table;
-    extern os_memory_release_page_table_f   os_memory_release_page_table;
-    extern os_memory_commit_pages_f         os_memory_commit_pages;
-    extern os_memory_decommit_pages_f       os_memory_decommit_pages;
+    extern os_memory_reserve_f              os_memory_reserve;
+    extern os_memory_release_f              os_memory_release;
+    extern os_memory_commit_f               os_memory_commit;
+    extern os_memory_decommit_f             os_memory_decommit;
 
     extern os_file_size_f                   os_file_size;
     extern os_file_read_f                   os_file_read;

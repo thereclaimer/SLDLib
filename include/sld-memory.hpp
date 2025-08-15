@@ -9,9 +9,11 @@
 
 namespace sld {
 
-    typedef s32 memory_reservation_id_t;
-    typedef s32 memory_arena_id_t;
+    typedef s32 memory_id_t;
     typedef s32 memory_error_t;
+
+    typedef memory_id_t memory_reservation_id_t;
+    typedef memory_id_t memory_arena_id_t;
 
     struct memory_t;
     struct memory_reservation_t;
@@ -48,12 +50,13 @@ namespace sld {
         memory_error_e_invalid_id                      = -2,
         memory_error_e_invalid_reservation             = -3,
         memory_error_e_invalid_arena                   = -4,
-        memory_error_e_reservation_out_of_memory       = -5,
-        memory_error_e_arena_out_of_memory             = -6,
-        memory_error_e_os_failed_to_reserve_page_table = -7,
-        memory_error_e_os_failed_to_commit_pages       = -8,
-        memory_error_e_os_failed_to_dcommit_pages      = -9,
-        memory_error_e_os_failed_to_release_page_table = -10
+        memory_error_e_invalid_address                 = -5,
+        memory_error_e_reservation_out_of_memory       = -6,
+        memory_error_e_arena_out_of_memory             = -7,
+        memory_error_e_os_failed_to_reserve_page_table = -8,
+        memory_error_e_os_failed_to_release_page_table = -9,
+        memory_error_e_os_failed_to_commit_pages       = -10,
+        memory_error_e_os_failed_to_dcommit_pages      = -11 
 
     };
 };
