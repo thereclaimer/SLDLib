@@ -148,7 +148,7 @@ namespace sld {
         os_file_flag_e_write        = bit_value(2),
         os_file_flag_e_share_read   = bit_value(3),
         os_file_flag_e_share_write  = bit_value(4),
-        os_file_flag_e_share_delete = bit_value(5),
+        os_file_flag_e_share_delete = bit_value(5)
     };
 
     using os_file_io_callback_f = void (*) (const os_file_handle_t handle, const u32 bytes_transferred); 
