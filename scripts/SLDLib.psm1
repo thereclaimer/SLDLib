@@ -27,7 +27,7 @@ $Script:ClIncludeFlags = @(
     "/I" + (Join-Path $PSScriptRoot '..\src\memory'),
     "/I" + (Join-Path $PSScriptRoot '..\src\string'),
     "/I" + (Join-Path $PSScriptRoot '..\src\win32'),
-    "/I" + (Join-Path $PSScriptRoot '..\vcpkg_installed\x64-windows')
+    "/I" + (Join-Path $PSScriptRoot '..\vcpkg_installed\x64-windows\include')
 )
 
 $Script:ClDebugFlags = @(

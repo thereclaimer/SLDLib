@@ -1,4 +1,3 @@
 {
     "C_Cpp.default.compilerPath": "cl.exe",
-    "terminal.integrated.cwd": "${workspaceFolder}"
 }

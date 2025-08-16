@@ -22,12 +22,12 @@ namespace sld {
     struct os_system_cpu_cache_info_t;
     struct os_system_memory_info_t;
 
-    using os_system_get_cpu_info_f              = bool      (*) (os_system_cpu_info_t&       cpu_info);
-    using os_system_get_cpu_cache_info_f        = bool      (*) (os_system_cpu_cache_info_t& cpu_cache_info);
-    using os_system_get_memory_info_f           = bool      (*) (os_system_info_memory_t* memory_info);
-    using os_system_time_ms_f                   = const u64 (*) (void);
-    using os_system_sleep_f                     = void      (*) (const u32 ms);
-    using os_system_debug_print_f               = void      (*) (const c8* debug_string);
+    using os_system_get_cpu_info_f       = void      (*) (os_system_cpu_info_t&       cpu_info);
+    using os_system_get_cpu_cache_info_f = void      (*) (os_system_cpu_cache_info_t& cpu_cache_info);
+    using os_system_get_memory_info_f    = void      (*) (os_system_memory_info_t&    memory_info);
+    using os_system_time_ms_f            = const u64 (*) (void);
+    using os_system_sleep_f              = void      (*) (const u32 ms);
+    using os_system_debug_print_f        = void      (*) (const c8* debug_string);
 
     struct os_system_cpu_cache_info_t {
         u32 level;
@@ -126,10 +126,10 @@ namespace sld {
     // MEMORY
     //-------------------------------------------------------------------
 
-    using os_memory_reserve_f  = bool (*) (memory_t& reservation);
-    using os_memory_release_f  = bool (*) (memory_t& reservation);
-    using os_memory_commit_f   = bool (*) (memory_t& commit);
-    using os_memory_decommit_f = bool (*) (memory_t& commit);
+    using os_memory_reserve_f  = void* (*) (void* start, const u64 size);
+    using os_memory_release_f  = bool  (*) (void* start, const u64 size);
+    using os_memory_commit_f   = void* (*) (void* start, const u64 size);
+    using os_memory_decommit_f = bool  (*) (void* start, const u64 size);
 
     //-------------------------------------------------------------------
     // FILES

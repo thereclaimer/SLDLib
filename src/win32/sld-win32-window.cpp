@@ -1,9 +1,12 @@
 #pragma once
 
+#include <imgui.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_win32.h>
 #include <Windows.h>
+
 #include "sld.hpp"
 #include "sld-os.hpp"
-
 
 namespace sld {
 
@@ -30,7 +33,7 @@ namespace sld {
         if (!window_class) return(NULL);
         
         os_window_handle_t window_handle = CreateWindowA(
-            window_class->lpszClassName
+            window_class->lpszClassName,
             title,
             WS_OVERLAPPEDWINDOW,
             position.screen_x,
@@ -56,7 +59,7 @@ namespace sld {
         if (!window_class) return(NULL);
         
         os_window_handle_t window_handle = CreateWindowA(
-            window_class->lpszClassName
+            window_class->lpszClassName,
             title,
             WS_OVERLAPPEDWINDOW,
             position.screen_x,
@@ -83,8 +86,8 @@ namespace sld {
     win32_window_show(
         const os_window_handle_t handle) {
 
-        static const u32 cmd_show_true  = 1;
-        const bool       result         = ShowWindow(handle, cmd_show_true);
+        static const s32 cmd_show_true  = 1;
+        const bool       result         = ShowWindow((HWND)handle, cmd_show_true);
 
         return(result);
     }
@@ -116,7 +119,7 @@ namespace sld {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     
-        HDC device_context = GetDC(handle);
+        HDC device_context = GetDC((HWND)handle);
         const bool result = SwapBuffers(device_context);
         return(result);
     }
@@ -133,7 +136,7 @@ namespace sld {
         
         RECT window_rect;
 
-        const bool result = GetWindowRect(handle, &window_rect);
+        const bool result = GetWindowRect((HWND)handle, &window_rect);
         size.width  = (window_rect.right  - window_rect.left);  
         size.height = (window_rect.bottom - window_rect.top);  
 
@@ -147,7 +150,7 @@ namespace sld {
 
         RECT window_rect;
 
-        const bool result = GetWindowRect(handle, &window_rect);
+        const bool result = GetWindowRect((HWND)handle, &window_rect);
         position.screen_x = window_rect.left;
         position.screen_y = window_rect.top;
 
@@ -170,7 +173,7 @@ namespace sld {
         MSG  window_message;
         bool process_message = PeekMessage(
                 &window_message,
-                handle,
+                (HWND)handle,
                 filter_min,
                 filter_max,
                 PM_REMOVE);
@@ -202,13 +205,13 @@ namespace sld {
             }
 
             //handle the message
-            result &= TranslateMessage (&window_message);
+            result &= (bool)TranslateMessage (&window_message);
             (void)DispatchMessage      (&window_message);
 
             // peek next message
             process_message = PeekMessage(
                 &window_message,
-                handle,
+                (HWND)handle,
                 filter_min,
                 filter_max,
                 PM_REMOVE);
@@ -241,29 +244,29 @@ namespace sld {
             preferred_format_descriptor.iPixelType = PFD_TYPE_RGBA;
             preferred_format_descriptor.cColorBits = 32;
 
-            //get the window
-            IFBWin32Window* window_ptr = ifb_win32::context_get_window();
+            // //get the window
+            // IFBWin32Window* window_ptr = ifb_win32::context_get_window();
             
-            //query for the closest format descriptor
-            const IFBS32 chosen_format_descriptor = 
-                ChoosePixelFormat(
-                    window_ptr->device_context,
-                    &preferred_format_descriptor);
+            // //query for the closest format descriptor
+            // const IFBS32 chosen_format_descriptor = 
+            //     ChoosePixelFormat(
+            //         window_ptr->device_context,
+            //         &preferred_format_descriptor);
 
-            //set the chosen pixel format
-            const IFBB8 pixel_format_is_set = 
-                SetPixelFormat(
-                    window_ptr->device_context,
-                    chosen_format_descriptor,
-                    &preferred_format_descriptor);
+            // //set the chosen pixel format
+            // const IFBB8 pixel_format_is_set = 
+            //     SetPixelFormat(
+            //         window_ptr->device_context,
+            //         chosen_format_descriptor,
+            //         &preferred_format_descriptor);
 
-            //create the opengl context
-            window_ptr->opengl_context = wglCreateContext(window_ptr->device_context);
+            // //create the opengl context
+            // window_ptr->opengl_context = wglCreateContext(window_ptr->device_context);
 
-            //make the context current
-            const IFBB8 context_active = wglMakeCurrent(
-                window_ptr->device_context,
-                window_ptr->opengl_context);
+            // //make the context current
+            // const IFBB8 context_active = wglMakeCurrent(
+            //     window_ptr->device_context,
+            //     window_ptr->opengl_context);
 
 
             registered = (RegisterClass(&window_class) == ERROR_SUCCESS);

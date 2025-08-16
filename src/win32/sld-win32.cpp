@@ -34,10 +34,10 @@ namespace sld {
     os_window_get_position_f         os_window_get_position         = win32_window_get_position; 
     os_window_process_events_f       os_window_process_events       = win32_window_process_events; 
 
-    os_memory_reserve_page_table_f   os_memory_reserve_page_table   = win32_memory_reserve_page_table;
-    os_memory_release_page_table_f   os_memory_release_page_table   = win32_memory_release_page_table;
-    os_memory_commit_pages_f         os_memory_commit_pages         = win32_memory_commit_pages;
-    os_memory_decommit_pages_f       os_memory_decommit_pages       = win32_memory_decommit_pages;
+    os_memory_reserve_f              os_memory_reserve              = win32_memory_reserve;
+    os_memory_release_f              os_memory_release              = win32_memory_release;
+    os_memory_commit_f               os_memory_commit               = win32_memory_commit;
+    os_memory_decommit_f             os_memory_decommit             = win32_memory_decommit;
 
     os_file_size_f                   os_file_size                   = win32_file_size;
     os_file_read_f                   os_file_read                   = win32_file_read;
