@@ -3,6 +3,14 @@
 
 #include <cstdint>
 
+#include <imgui.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_win32.h>
+
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/glext.h>
+
 #define sld_ct_inline  static constexpr inline // compile time inline
 #define sld_ct_const   static constexpr const  // compile time const
 #define sld_rt_inline  static inline           // run time inline
