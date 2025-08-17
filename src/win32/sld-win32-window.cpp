@@ -2,7 +2,6 @@
 
 #include <Windows.h>
 
-#include "sld.hpp"
 #include "sld-os.hpp"
 
 namespace sld {
@@ -15,6 +14,8 @@ namespace sld {
     WNDCLASSA*       win32_window_get_class_dx12    (void);
     LRESULT CALLBACK win32_window_callback_opengl3  (HWND handle, UINT message, WPARAM w_param, LPARAM l_param);
     LRESULT CALLBACK win32_window_callback_dx12     (HWND handle, UINT message, WPARAM w_param, LPARAM l_param);
+    LRESULT CALLBACK win32_window_callback          (HWND handle, UINT message, WPARAM w_param, LPARAM l_param);
+
 
     //-------------------------------------------------------------------
     // OS API METHODS
@@ -77,6 +78,7 @@ namespace sld {
     win32_window_destroy(
         const os_window_handle_t handle) {
 
+        return(false);
     }
 
     static bool
@@ -163,12 +165,12 @@ namespace sld {
 
         events = os_window_event_e_none;
 
-        static const u32 filter_min = 0;
-        static const u32 filter_max = 0;
+        sld_rt_const u32 filter_min = 0;
+        sld_rt_const u32 filter_max = 0;
 
         // peek first message
         MSG  window_message;
-        bool process_message = PeekMessage(
+        bool can_process_message = PeekMessage(
                 &window_message,
                 (HWND)handle,
                 filter_min,
@@ -177,7 +179,7 @@ namespace sld {
 
 
         bool result = true;
-        while (process_message) {
+        while (can_process_message) {
 
             // toggle os event flags
             switch (window_message.message) {
@@ -206,13 +208,15 @@ namespace sld {
             (void)DispatchMessage      (&window_message);
 
             // peek next message
-            process_message = PeekMessage(
+            can_process_message = PeekMessage(
                 &window_message,
                 (HWND)handle,
                 filter_min,
                 filter_max,
                 PM_REMOVE);
         }
+
+        return(result);
     }
 
     //-------------------------------------------------------------------
@@ -223,15 +227,18 @@ namespace sld {
     win32_window_get_class_opengl3(
         void) {
 
-        static WNDCLASSA window_class = {0};
-        static bool      registered   = false;
+        sld_rt_const HDC device_context = GetDC(NULL);
+        static WNDCLASSA window_class   = {0};
+        static bool      result         = false;
 
-        if (!registered) {
+        if (!result && device_context != NULL) {
         
+            // register the window class
             window_class.lpfnWndProc   = (WNDPROC)win32_window_callback_opengl3;
             window_class.hInstance     = GetModuleHandle(NULL);  
             window_class.lpszClassName = "sld::os_window_t | opengl3";
             window_class.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
+            const bool is_window_class_registered = (RegisterClass(&window_class) == ERROR_SUCCESS);
 
             //set our preferred format descriptor
             PIXELFORMATDESCRIPTOR preferred_format_descriptor = {0};
@@ -240,36 +247,23 @@ namespace sld {
             preferred_format_descriptor.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
             preferred_format_descriptor.iPixelType = PFD_TYPE_RGBA;
             preferred_format_descriptor.cColorBits = 32;
-
-            // //get the window
-            // IFBWin32Window* window_ptr = ifb_win32::context_get_window();
             
-            // //query for the closest format descriptor
-            // const IFBS32 chosen_format_descriptor = 
-            //     ChoosePixelFormat(
-            //         window_ptr->device_context,
-            //         &preferred_format_descriptor);
+            //query for the closest format descriptor
+            // and set the pixel format
+            const s32  chosen_pixel_format = ChoosePixelFormat (device_context, &preferred_format_descriptor);
+            const bool is_pixel_format_set = SetPixelFormat    (device_context, chosen_pixel_format, &preferred_format_descriptor);
 
-            // //set the chosen pixel format
-            // const IFBB8 pixel_format_is_set = 
-            //     SetPixelFormat(
-            //         window_ptr->device_context,
-            //         chosen_format_descriptor,
-            //         &preferred_format_descriptor);
+            //create the opengl context and make it current
+            const HGLRC gl_context            = wglCreateContext (device_context);
+            const bool  is_gl_context_current = wglMakeCurrent   (device_context, gl_context);
 
-            // //create the opengl context
-            // window_ptr->opengl_context = wglCreateContext(window_ptr->device_context);
-
-            // //make the context current
-            // const IFBB8 context_active = wglMakeCurrent(
-            //     window_ptr->device_context,
-            //     window_ptr->opengl_context);
-
-
-            registered = (RegisterClass(&window_class) == ERROR_SUCCESS);
+            // update the result
+            result &= is_window_class_registered; 
+            result &= is_pixel_format_set; 
+            result &= is_gl_context_current; 
         }
 
-        return(registered ? &window_class : NULL);
+        return(result ? &window_class : NULL);
     }
 
     sld_rt_inline WNDCLASSA*
@@ -299,7 +293,7 @@ namespace sld {
         WPARAM w_param,
         LPARAM l_param) {
 
-
+        return(0);
     }
 
     LRESULT CALLBACK
@@ -309,5 +303,18 @@ namespace sld {
         WPARAM w_param,
         LPARAM l_param) {
 
+        return(0);
+    }
+
+    LRESULT CALLBACK
+    win32_window_callback(
+        HWND   handle,
+        UINT   message,
+        WPARAM w_param,
+        LPARAM l_param) {
+
+        ImGui_ImplWin32_
+
+        return(0);
     }
 };

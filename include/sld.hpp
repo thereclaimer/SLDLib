@@ -15,8 +15,10 @@
 #define sld_ct_const   static constexpr const  // compile time const
 #define sld_rt_inline  static inline           // run time inline
 #define sld_rt_const   static const            // run time const
+#define sld_os_api     extern                  // os api function
 
 namespace sld {
+
 
     //-------------------------------------------------------------------
     // PRIMITIVES

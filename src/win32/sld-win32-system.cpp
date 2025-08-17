@@ -28,6 +28,7 @@ namespace sld {
     win32_system_time_ms(
         void) {
 
+        return(0);
     }
     
     static void

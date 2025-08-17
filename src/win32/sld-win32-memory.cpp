@@ -63,4 +63,25 @@ namespace sld {
         return(result);
     }
 
+    static u64
+    win32_memory_align_to_page(
+        const u64 size) {
+
+        static SYSTEM_INFO sys_info;
+        GetSystemInfo(&sys_info);
+
+        const u64 size_aligned = size_align_pow_2(size, sys_info.dwPageSize);
+        return(size_aligned);
+    }
+
+    static u64
+    win32_memory_align_to_granularity(
+        const u64 size) {
+
+        static SYSTEM_INFO sys_info;
+        GetSystemInfo(&sys_info);
+
+        const u64 size_aligned = size_align_pow_2(size, sys_info.dwAllocationGranularity);
+        return(size_aligned);
+    }
 };

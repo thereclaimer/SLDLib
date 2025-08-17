@@ -1,47 +1,20 @@
 #pragma once
 
 #include "sld-memory.hpp"
-#include "sld-stack.hpp"
-#include "sld-os.hpp"
+#include "sld-memory-internal.cpp"
 
 namespace sld {
 
-    struct memory_manager_t;
-    struct memory_reservation_t;
-    struct memory_arena_t;
-
-    memory_manager_t&     memory_manager_instance            (void);
-    const memory_id_t     memory_manager_get_id_from_address (const addr        address);
-    const addr            memory_manager_get_address_from_id (const memory_id_t id);
-    memory_reservation_t* memory_manager_alloc_reservation   (void);
-    memory_arena_t*       memory_manager_alloc_arena         (void);
-    memory_reservation_t* memory_manager_get_reservation     (const memory_reservation_id_t reservation_id);
-    memory_arena_t*       memory_manager_get_arena           (const memory_arena_id_t       arena_id);
-
-    struct memory_manager_t {
-        stack_t                 stack;
-        os_system_memory_info_t system_memory_info;
-        memory_reservation_t*   reservations;
-        memory_arena_t*         arenas;
-        memory_error_t          last_error;
-    };
-
-    struct memory_reservation_t {
-        memory_reservation_t*   next;
-        memory_reservation_t*   prev;
-        addr                    start;
-        u32                     total_page_count;
-        u32                     arena_page_count;
-        memory_reservation_id_t id;
-    };
-
-    struct memory_arena_t {
-        memory_reservation_t* reservation;
-        memory_arena_t*       next;
-        memory_arena_t*       prev;
-        stack_t               stack;
-        memory_arena_id_t     id;
-    };
+    memory_manager_t&     memory_manager_instance                (void);
+    memory_reservation_t* memory_manager_alloc_reservation       (memory_manager_t& memory_manager);
+    memory_reservation_t* memory_manager_find_free_reservation   (memory_manager_t& memory_manager);
+    memory_arena_t*       memory_manager_alloc_arena             (memory_manager_t& memory_manager);
+    memory_arena_t*       memory_manager_find_free_arena         (memory_manager_t& memory_manager);
+    const memory_id_t     memory_manager_get_id_from_address     (memory_manager_t& memory_manager, const addr        address);
+    const addr            memory_manager_get_address_from_id     (memory_manager_t& memory_manager, const memory_id_t id);
+    memory_reservation_t* memory_manager_get_reservation         (memory_manager_t& memory_manager, const memory_reservation_id_t reservation_id);
+    memory_arena_t*       memory_manager_get_arena               (memory_manager_t& memory_manager, const memory_arena_id_t       arena_id);
+    
 
     sld_rt_inline memory_manager_t&
     memory_manager_instance(
@@ -57,12 +30,14 @@ namespace sld {
 
             initialized = true;
 
-            memory_manager.stack.start    = stack_memory;
+
+            memory_manager.stack.start    = (addr)stack_memory;
             memory_manager.stack.size     = stack_size;
             memory_manager.stack.position = 0;
             memory_manager.stack.save     = 0;
             memory_manager.reservations   = NULL;
             memory_manager.arenas         = NULL;
+            os_system_get_memory_info(memory_manager.system_memory_info);
         };
 
         return(memory_manager);
@@ -70,9 +45,8 @@ namespace sld {
 
     sld_rt_inline const memory_id_t
     memory_manager_get_id_from_address(
-        const addr address) {
-
-        static memory_manager_t& memory_manager = memory_manager_instance();
+        memory_manager_t& memory_manager,
+        const addr        address) {
 
         const s64 addr_diff = address - memory_manager.stack.start;
 
@@ -80,52 +54,32 @@ namespace sld {
         is_valid &= (addr_diff >= 0);
         is_valid &= (addr_diff <  memory_manager.stack.size);
 
-        memory_id_t memory_id;
-
-        if (is_valid) {
-
-            memory_id                 = (memory_id_t)addr_diff;
-            memory_manager.last_error = memory_error_e_success;
-        }
-        else {
-
-            memory_id                 = SLD_MEMORY_INVALID_ID;
-            memory_manager.last_error = memory_error_e_invalid_address;
-        }      
+        memory_id_t memory_id = (is_valid)
+            ? (memory_id_t)addr_diff
+            : SLD_MEMORY_INVALID_ID;
 
         return(memory_id);
     }
 
     sld_rt_inline const addr
     memory_manager_get_address_from_id(
+        memory_manager_t& memory_manager,
         const memory_id_t id) {
-
-        static memory_manager_t& memory_manager = memory_manager_instance();
 
         bool is_valid = true;
         is_valid &= (id >= 0);
         is_valid &= (id <  memory_manager.stack.size);
 
-        addr memory_address;
-        if (is_valid) {
-
-            memory_address            = memory_manager.stack.start + id;
-            memory_manager.last_error = memory_error_e_success;
-        }
-        else {
-            memory_address = 0;
-            memory_manager.last_error = memory_error_e_invalid_id;
-        }
+        addr memory_address = (is_valid)
+            ? memory_manager.stack.start + id
+            : 0;
 
         return(memory_address);
     }
 
-
     sld_rt_inline memory_reservation_t*
     memory_manager_alloc_reservation(
-        void) {
-
-        static memory_manager_t& memory_manager = memory_manager_instance();
+        memory_manager_t& memory_manager) {
 
         memory_reservation_t* new_reservation = (memory_reservation_t*)stack_push(
             memory_manager.stack, 
@@ -134,32 +88,50 @@ namespace sld {
         if (new_reservation != NULL) {
 
             // initialize the reservation
-            new_reservation->next             = memory_manager.reservations;
-            new_reservation->prev             = NULL;
-            new_reservation->start            = 0;
-            new_reservation->total_page_count = 0;
-            new_reservation->arena_page_count = 0;
-            new_reservation->id               = memory_manager_get_id_from_address((addr)reservation);
+            new_reservation->next       = memory_manager.reservations;
+            new_reservation->prev       = NULL;
+            new_reservation->start      = 0;
+            new_reservation->total_size = 0;
+            new_reservation->arena_size = 0;
+            new_reservation->id         = memory_manager_get_id_from_address(
+                memory_manager,
+                (addr)new_reservation);
 
             // put the new reservation at the front of the list
             if (memory_manager.reservations != NULL) {
                 memory_manager.reservations->prev = new_reservation; 
             }
             memory_manager.reservations = new_reservation;
-            memory_manager.last_error   = memory_error_e_success;
-        }
-        else {
-            memory_manager.last_error   = memory_error_e_stack_out_of_memory;
         }
 
         return(new_reservation);
     }
 
+    sld_rt_inline memory_reservation_t*
+    memory_manager_find_free_reservation(
+        memory_manager_t& memory_manager) {
+
+        memory_reservation_t* res_free = NULL;
+
+        for (
+            memory_reservation_t* res_current = memory_manager.reservations;
+            (
+                res_current != NULL &&
+                res_free    == NULL
+            );
+            res_current = res_current->next) {
+
+            if (res_current->start == 0) {
+                res_free = res_current;
+            }
+        }
+
+        return(res_free);
+    }
+
     sld_rt_inline memory_arena_t*
     memory_manager_alloc_arena(
-        void) {
-
-        static memory_manager_t& memory_manager = memory_manager_instance();
+        memory_manager_t& memory_manager) {
 
         memory_arena_t* new_arena = (memory_arena_t*)stack_push(
             memory_manager.stack, 
@@ -175,17 +147,15 @@ namespace sld {
             new_arena->stack.size     = 0;
             new_arena->stack.position = 0;
             new_arena->stack.save     = 0;
-            new_arena->id             = memory_manager_get_id_from_address((addr)new_arena);
+            new_arena->id             = memory_manager_get_id_from_address(
+                memory_manager,
+                (addr)new_arena);
 
             // put the new reservation at the front of the list
             if (memory_manager.arenas != NULL) {
                 memory_manager.arenas->prev = new_arena; 
             }
             memory_manager.arenas     = new_arena;
-            memory_manager.last_error = memory_error_e_success;
-        }
-        else {
-            memory_manager.last_error = memory_error_e_stack_out_of_memory;
         }
 
         return(new_arena); 
@@ -193,39 +163,49 @@ namespace sld {
 
     sld_rt_inline memory_reservation_t*
     memory_manager_get_reservation(
+        memory_manager_t&             memory_manager,
         const memory_reservation_id_t reservation_id) {
 
-        static memory_manager_t& memory_manager = memory_manager_instance();
-        memory_reservation_t*    reservation    = (memory_reservation_t*)memory_manager_get_address_from_id(reservation_id);
-        
-        const bool is_valid = (
-            reservation     != NULL &&
-            reservation->id == reservation_id
-        );
-
-        memory_manager.last_error = (is_valid)
-            ? memory_error_e_success
-            : memory_error_e_invalid_reservation;
+        memory_reservation_t* reservation = (memory_reservation_t*)memory_manager_get_address_from_id(
+            memory_manager,
+            reservation_id);
 
         return(reservation);
     }
 
     sld_rt_inline memory_arena_t*
     memory_manager_get_arena(
+        memory_manager_t&       memory_manager,
         const memory_arena_id_t arena_id) {
 
-        static memory_manager_t& memory_manager = memory_manager_instance();
-        memory_arena_t*          arena          = (memory_arena_t*)memory_manager_get_address_from_id(arena_id);
+        memory_arena_t* arena = (memory_arena_t*)memory_manager_get_address_from_id(
+            memory_manager,
+            arena_id);
         
-        const bool is_valid = (
-            reservation     != NULL &&
-            reservation->id == reservation_id
-        );
-
-        memory_manager.last_error = (is_valid)
-            ? memory_error_e_success
-            : memory_error_e_invalid_reservation;
-
-        return(reservation);
+        return(arena);
     }
+
+    sld_rt_inline memory_arena_t*
+    memory_manager_find_free_arena(
+        memory_manager_t& memory_manager) {
+
+        memory_arena_t* arena_free = NULL;
+
+        for (
+            memory_arena_t* arena_current = memory_manager.arenas;
+            (
+                arena_current != NULL &&
+                arena_free    == NULL
+            );
+            arena_current = arena_current->next) {
+
+            if (arena_current->reservation == NULL) {
+                arena_free = arena_current;
+            }
+        }
+
+        return(arena_free);
+
+    }
+
 };

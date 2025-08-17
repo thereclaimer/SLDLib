@@ -15,6 +15,20 @@
 namespace sld {
 
     //-------------------------------------------------------------------
+    // CONTEXT
+    //-------------------------------------------------------------------
+
+    typedef u32 os_context_graphics_t; 
+
+    enum os_context_graphics_e {
+        os_context_graphics_e_none   = 0,
+        os_context_graphics_e_opengl = 1,
+        os_context_graphics_e_dx12   = 2      
+    };
+
+    using os_context_init_f = bool (*) (const os_context_graphics_t graphics);
+
+    //-------------------------------------------------------------------
     // SYSTEM
     //-------------------------------------------------------------------
 
@@ -82,17 +96,14 @@ namespace sld {
     typedef void* os_window_handle_t;
     typedef u32   os_window_events_t;
 
-    using os_window_create_opengl3_f       = os_window_handle_t (*) (const c8* title, const os_window_size_t& size, const os_window_position_t& position);
-    using os_window_create_dx12_f          = os_window_handle_t (*) (const c8* title, const os_window_size_t& size, const os_window_position_t& position);
-    using os_window_frame_start_opengl3_f  = bool               (*) (const os_window_handle_t handle);
-    using os_window_frame_start_dx12_f     = bool               (*) (const os_window_handle_t handle);
-    using os_window_frame_render_opengl3_f = bool               (*) (const os_window_handle_t handle);
-    using os_window_frame_render_dx12_f    = bool               (*) (const os_window_handle_t handle);
-    using os_window_destroy_f              = bool               (*) (const os_window_handle_t handle);
-    using os_window_show_f                 = bool               (*) (const os_window_handle_t handle);
-    using os_window_get_size_f             = bool               (*) (const os_window_handle_t handle, os_window_size_t&     size);
-    using os_window_get_position_f         = bool               (*) (const os_window_handle_t handle, os_window_position_t& position);
-    using os_window_process_events_f       = bool               (*) (const os_window_handle_t handle, os_window_events_t&   events);
+    using os_window_create_f         = os_window_handle_t (*) (const c8* title, const os_window_size_t& size, const os_window_position_t& position);
+    using os_window_frame_start_f    = bool               (*) (const os_window_handle_t handle);
+    using os_window_frame_render_f   = bool               (*) (const os_window_handle_t handle);
+    using os_window_process_events_f = bool               (*) (const os_window_handle_t handle, os_window_events_t&   events);
+    using os_window_destroy_f        = bool               (*) (const os_window_handle_t handle);
+    using os_window_show_f           = bool               (*) (const os_window_handle_t handle);
+    using os_window_get_size_f       = bool               (*) (const os_window_handle_t handle, os_window_size_t&     size);
+    using os_window_get_position_f   = bool               (*) (const os_window_handle_t handle, os_window_position_t& position);
 
     enum os_window_event_e {
         os_window_event_e_none                  = 0,
@@ -126,10 +137,12 @@ namespace sld {
     // MEMORY
     //-------------------------------------------------------------------
 
-    using os_memory_reserve_f  = void* (*) (void* start, const u64 size);
-    using os_memory_release_f  = bool  (*) (void* start, const u64 size);
-    using os_memory_commit_f   = void* (*) (void* start, const u64 size);
-    using os_memory_decommit_f = bool  (*) (void* start, const u64 size);
+    using os_memory_reserve_f              = void* (*) (void* start, const u64 size);
+    using os_memory_release_f              = bool  (*) (void* start, const u64 size);
+    using os_memory_commit_f               = void* (*) (void* start, const u64 size);
+    using os_memory_decommit_f             = bool  (*) (void* start, const u64 size);
+    using os_memory_align_to_page_f        = u64   (*) (const u64 size);
+    using os_memory_align_to_granularity_f = u64   (*) (const u64 size);
 
     //-------------------------------------------------------------------
     // FILES
@@ -182,39 +195,37 @@ namespace sld {
     // API
     //-------------------------------------------------------------------
 
-    extern os_system_get_cpu_info_f         os_system_get_cpu_info;
-    extern os_system_get_cpu_cache_info_f   os_system_get_cpu_cache_info;
-    extern os_system_get_memory_info_f      os_system_get_memory_info;
-    extern os_system_time_ms_f              os_system_time_ms;
-    extern os_system_sleep_f                os_system_sleep;
-    extern os_system_debug_print_f          os_system_debug_print;
+    sld_os_api os_system_get_cpu_info_f         os_system_get_cpu_info;
+    sld_os_api os_system_get_cpu_cache_info_f   os_system_get_cpu_cache_info;
+    sld_os_api os_system_get_memory_info_f      os_system_get_memory_info;
+    sld_os_api os_system_time_ms_f              os_system_time_ms;
+    sld_os_api os_system_sleep_f                os_system_sleep;
+    sld_os_api os_system_debug_print_f          os_system_debug_print;
 
-    extern os_monitor_count_f               os_monitor_count;
-    extern os_monitor_screen_size_f         os_monitor_screen_size;
-    extern os_monitor_info_f                os_monitor_info;
+    sld_os_api os_monitor_count_f               os_monitor_count;
+    sld_os_api os_monitor_screen_size_f         os_monitor_screen_size;
+    sld_os_api os_monitor_info_f                os_monitor_info;
 
-    extern os_window_create_opengl3_f       os_window_create_opengl3; 
-    extern os_window_create_dx12_f          os_window_create_dx12; 
-    extern os_window_frame_start_opengl3_f  os_window_frame_start_opengl3; 
-    extern os_window_frame_start_dx12_f     os_window_frame_start_dx12; 
-    extern os_window_frame_render_opengl3_f os_window_frame_render_opengl3; 
-    extern os_window_frame_render_dx12_f    os_window_frame_render_dx12; 
-    extern os_window_destroy_f              os_window_destroy; 
-    extern os_window_show_f                 os_window_show; 
-    extern os_window_get_size_f             os_window_get_size; 
-    extern os_window_get_position_f         os_window_get_position; 
-    extern os_window_process_events_f       os_window_process_events; 
+    sld_os_api os_window_create_f               os_window_create; 
+    sld_os_api os_window_frame_start_f          os_window_frame_start; 
+    sld_os_api os_window_frame_render_f         os_window_frame_render; 
+    sld_os_api os_window_process_events_f       os_window_process_events; 
+    sld_os_api os_window_destroy_f              os_window_destroy; 
+    sld_os_api os_window_show_f                 os_window_show; 
+    sld_os_api os_window_get_size_f             os_window_get_size; 
+    sld_os_api os_window_get_position_f         os_window_get_position; 
 
-    extern os_memory_reserve_f              os_memory_reserve;
-    extern os_memory_release_f              os_memory_release;
-    extern os_memory_commit_f               os_memory_commit;
-    extern os_memory_decommit_f             os_memory_decommit;
+    sld_os_api os_memory_reserve_f              os_memory_reserve;
+    sld_os_api os_memory_release_f              os_memory_release;
+    sld_os_api os_memory_commit_f               os_memory_commit;
+    sld_os_api os_memory_decommit_f             os_memory_decommit;
+    sld_os_api os_memory_align_to_page_f        os_memory_align_to_page;
+    sld_os_api os_memory_align_to_granularity_f os_memory_align_to_granularity;
 
-    extern os_file_size_f                   os_file_size;
-    extern os_file_read_f                   os_file_read;
-    extern os_file_write_f                  os_file_write;
-    extern os_file_open_f                   os_file_open;
-
+    sld_os_api os_file_size_f                   os_file_size;
+    sld_os_api os_file_read_f                   os_file_read;
+    sld_os_api os_file_write_f                  os_file_write;
+    sld_os_api os_file_open_f                   os_file_open;
 };
 
 #endif //SLD_OS_HPP
