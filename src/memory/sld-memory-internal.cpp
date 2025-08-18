@@ -32,6 +32,7 @@ namespace sld {
         memory_reservation_t* reservation;
         memory_arena_t*       next;
         memory_arena_t*       prev;
+        u32                   index;
         stack_t               stack;
         memory_arena_id_t     id;
     };
