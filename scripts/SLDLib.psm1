@@ -1,6 +1,6 @@
 $Script:BatFiles = [PSCustomObject]@{
-    Debug   = Join-Path $PSScriptRoot '..\scripts\build-debug.bat'
-    Release = Join-Path $PSScriptRoot '..\scripts\build-release.bat'
+    Debug   = '..\scripts\build-debug.bat'
+    Release = '..\scripts\build-release.bat'
 }
 
 $Script:Commands = [PSCustomObject]@{
@@ -9,25 +9,25 @@ $Script:Commands = [PSCustomObject]@{
 }
 
 $Script:DebugOutDirs = [PSCustomObject]@{
-    Bin = Join-Path $PSScriptRoot '..\build\debug\bin'
-    Obj = Join-Path $PSScriptRoot '..\build\debug\obj'
-    Lib = Join-Path $PSScriptRoot '..\build\debug\lib'
+    Bin = '..\build\debug\bin'
+    Obj = '..\build\debug\obj'
+    Lib = '..\build\debug\lib'
 }
 
 $Script:ReleaseOutDirs = [PSCustomObject]@{
-    Bin = Join-Path $PSScriptRoot '..\build\release\bin'
-    Obj = Join-Path $PSScriptRoot '..\build\release\obj'
-    Lib = Join-Path $PSScriptRoot '..\build\release\lib'
+    Bin = '..\build\release\bin'
+    Obj = '..\build\release\obj'
+    Lib = '..\build\release\lib'
 }
 
 $Script:ClIncludeFlags = @(
-    "/I" + (Join-Path $PSScriptRoot '..\include'),
-    "/I" + (Join-Path $PSScriptRoot '..\src'),
-    "/I" + (Join-Path $PSScriptRoot '..\src\core'),
-    "/I" + (Join-Path $PSScriptRoot '..\src\memory'),
-    "/I" + (Join-Path $PSScriptRoot '..\src\string'),
-    "/I" + (Join-Path $PSScriptRoot '..\src\win32'),
-    "/I" + (Join-Path $PSScriptRoot '..\vcpkg_installed\x64-windows\include')
+    '/I' + '..\include',
+    '/I' + '..\src',
+    '/I' + '..\src\core',
+    '/I' + '..\src\memory',
+    '/I' + '..\src\string',
+    '/I' + '..\src\win32',
+    '/I' + '..\vcpkg_installed\x64-windows\include'
 )
 
 $Script:ClDebugFlags = @(
@@ -63,7 +63,7 @@ $Script:LibCommand = @(
     $Script:LibFlags
 ) -join " "
 
-function Invoke-DebugBuild {
+function Invoke-SLDDebugBuild {
 
     Write-Output $Script:ClDebugCommand
     Write-Output $Script:LibCommand
@@ -72,21 +72,21 @@ function Invoke-DebugBuild {
     Invoke-Expression $Script:LibCommand
 }
 
-function Export-DebugOutDirs {
+function Export-SLDDebugOutDirs {
 
 	if (!(Test-Path -Path $Script:DebugOutDirs.Bin)) { New-Item -ItemType Directory -Path $Script:DebugOutDirs.Bin }
 	if (!(Test-Path -Path $Script:DebugOutDirs.Obj)) { New-Item -ItemType Directory -Path $Script:DebugOutDirs.Obj }
 	if (!(Test-Path -Path $Script:DebugOutDirs.Lib)) { New-Item -ItemType Directory -Path $Script:DebugOutDirs.Lib }
 }
 
-function Export-ReleaseOutDirs {
+function Export-SLDReleaseOutDirs {
 
 	if (!(Test-Path -Path $Script:ReleaseOutDirs.Bin)) { New-Item -ItemType Directory -Path $Script:ReleaseOutDirs.Bin }
 	if (!(Test-Path -Path $Script:ReleaseOutDirs.Obj)) { New-Item -ItemType Directory -Path $Script:ReleaseOutDirs.Obj }
 	if (!(Test-Path -Path $Script:ReleaseOutDirs.Lib)) { New-Item -ItemType Directory -Path $Script:ReleaseOutDirs.Lib }
 }
 
-function Export-BatchScripts {
+function Export-SLDBatchScripts {
 
     # create files
     if (Test-Path $Script:BatFiles.Debug)   { Remove-Item $Script:BatFiles.Debug   -Force }
@@ -105,15 +105,15 @@ function Export-BatchScripts {
 
 }
 
-function Install-Dependencies {
+function Install-SLDDependencies {
 
     $vcpkg = "vcpkg install"
 
     Invoke-Expression $vcpkg
 }
 
-Export-ModuleMember -Function Install-Dependencies
-Export-ModuleMember -Function Invoke-DebugBuild
-Export-ModuleMember -Function Export-DebugOutDirs
-Export-ModuleMember -Function Export-ReleaseOutDirs
-Export-ModuleMember -Function Export-BatchScripts
+Export-ModuleMember -Function Install-SLDDependencies
+Export-ModuleMember -Function Invoke-SLDDebugBuild
+Export-ModuleMember -Function Export-SLDDebugOutDirs
+Export-ModuleMember -Function Export-SLDReleaseOutDirs
+Export-ModuleMember -Function Export-SLDBatchScripts
