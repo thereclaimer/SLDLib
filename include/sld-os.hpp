@@ -153,15 +153,17 @@ namespace sld {
 
     typedef void* os_file_handle_t;
     typedef byte  os_file_flags_t;
-
+ 
     enum os_file_flag_e {
-        os_file_flag_e_none         = 0,
-        os_file_flag_e_async        = bit_value(0),
-        os_file_flag_e_read         = bit_value(1),
-        os_file_flag_e_write        = bit_value(2),
-        os_file_flag_e_share_read   = bit_value(3),
-        os_file_flag_e_share_write  = bit_value(4),
-        os_file_flag_e_share_delete = bit_value(5)
+        os_file_flag_e_none          = 0,
+        os_file_flag_e_async         = bit_value(0),
+        os_file_flag_e_read          = bit_value(1),
+        os_file_flag_e_write         = bit_value(2),
+        os_file_flag_e_share_read    = bit_value(3), 
+        os_file_flag_e_share_write   = bit_value(4),
+        os_file_flag_e_share_delete  = bit_value(5),
+        os_file_flag_e_open_existing = bit_value(6),
+        os_file_flag_e_overwrite     = bit_value(7),
     };
 
     using os_file_io_callback_f = void (*) (const os_file_handle_t handle, const u32 bytes_transferred); 
@@ -223,9 +225,9 @@ namespace sld {
     sld_os_api os_memory_align_to_granularity_f os_memory_align_to_granularity;
 
     sld_os_api os_file_size_f                   os_file_size;
+    sld_os_api os_file_open_f                   os_file_open;
     sld_os_api os_file_read_f                   os_file_read;
     sld_os_api os_file_write_f                  os_file_write;
-    sld_os_api os_file_open_f                   os_file_open;
 };
 
 #endif //SLD_OS_HPP
