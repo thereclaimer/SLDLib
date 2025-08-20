@@ -8,13 +8,13 @@ $Script:Commands = [PSCustomObject]@{
     Lib = "lib.exe" 
 }
 
-$Script:DebugOutDirs = [PSCustomObject]@{
+$Script:OutDirsDebug = [PSCustomObject]@{
     Bin = '..\build\debug\bin'
     Obj = '..\build\debug\obj'
     Lib = '..\build\debug\lib'
 }
 
-$Script:ReleaseOutDirs = [PSCustomObject]@{
+$Script:OutDirsRelease = [PSCustomObject]@{
     Bin = '..\build\release\bin'
     Obj = '..\build\release\obj'
     Lib = '..\build\release\lib'
@@ -31,7 +31,7 @@ $Script:ClIncludeFlags = @(
 )
 
 $Script:ClDebugFlags = @(
-    "/Fo:" + $Script:DebugOutDirs.Obj + "\SLD.Win32.obj", # obj output
+    "/Fo:" + $Script:OutDirsDebug.Obj + "\SLD.Win32.obj", # obj output
     "/nologo",                                            # startup banner disabled
     "/c",                                                 # compile without linking
     "/MD",                                                # link against multithreaded runtime library (MSVCRT.dll)
@@ -54,8 +54,8 @@ $Script:ClDebugCommand       = @(
 
 $Script:LibFlags = @(
     "/nologo",
-    ("/OUT:" + $Script:DebugOutDirs.Lib + "\SLD.Win32.lib"),
-    ($Script:DebugOutDirs.Obj + "\SLD.Win32.obj")
+    ("/OUT:" + $Script:OutDirsDebug.Lib + "\SLD.Win32.lib"),
+    ($Script:OutDirsDebug.Obj + "\SLD.Win32.obj")
 ) -join " "
 
 $Script:LibCommand = @(
@@ -72,18 +72,18 @@ function Invoke-SLDDebugBuild {
     Invoke-Expression $Script:LibCommand
 }
 
-function Export-SLDDebugOutDirs {
+function Export-SLDOutDirsDebug {
 
-	if (!(Test-Path -Path $Script:DebugOutDirs.Bin)) { New-Item -ItemType Directory -Path $Script:DebugOutDirs.Bin }
-	if (!(Test-Path -Path $Script:DebugOutDirs.Obj)) { New-Item -ItemType Directory -Path $Script:DebugOutDirs.Obj }
-	if (!(Test-Path -Path $Script:DebugOutDirs.Lib)) { New-Item -ItemType Directory -Path $Script:DebugOutDirs.Lib }
+	if (!(Test-Path -Path $Script:OutDirsDebug.Bin)) { New-Item -ItemType Directory -Path $Script:OutDirsDebug.Bin }
+	if (!(Test-Path -Path $Script:OutDirsDebug.Obj)) { New-Item -ItemType Directory -Path $Script:OutDirsDebug.Obj }
+	if (!(Test-Path -Path $Script:OutDirsDebug.Lib)) { New-Item -ItemType Directory -Path $Script:OutDirsDebug.Lib }
 }
 
-function Export-SLDReleaseOutDirs {
+function Export-SLDOutDirsRelease {
 
-	if (!(Test-Path -Path $Script:ReleaseOutDirs.Bin)) { New-Item -ItemType Directory -Path $Script:ReleaseOutDirs.Bin }
-	if (!(Test-Path -Path $Script:ReleaseOutDirs.Obj)) { New-Item -ItemType Directory -Path $Script:ReleaseOutDirs.Obj }
-	if (!(Test-Path -Path $Script:ReleaseOutDirs.Lib)) { New-Item -ItemType Directory -Path $Script:ReleaseOutDirs.Lib }
+	if (!(Test-Path -Path $Script:OutDirsRelease.Bin)) { New-Item -ItemType Directory -Path $Script:OutDirsRelease.Bin }
+	if (!(Test-Path -Path $Script:OutDirsRelease.Obj)) { New-Item -ItemType Directory -Path $Script:OutDirsRelease.Obj }
+	if (!(Test-Path -Path $Script:OutDirsRelease.Lib)) { New-Item -ItemType Directory -Path $Script:OutDirsRelease.Lib }
 }
 
 function Export-SLDBatchScripts {
@@ -114,6 +114,6 @@ function Install-SLDDependencies {
 
 Export-ModuleMember -Function Install-SLDDependencies
 Export-ModuleMember -Function Invoke-SLDDebugBuild
-Export-ModuleMember -Function Export-SLDDebugOutDirs
-Export-ModuleMember -Function Export-SLDReleaseOutDirs
+Export-ModuleMember -Function Export-SLDOutDirsDebug
+Export-ModuleMember -Function Export-SLDOutDirsRelease
 Export-ModuleMember -Function Export-SLDBatchScripts
