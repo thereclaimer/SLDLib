@@ -8,9 +8,9 @@
 /* OS                                                                             */
 /**********************************************************************************/
 
-#define SLD_OS_WINDOW_TABLE_COUNT 8
-#define SLD_OS_FILE_TABLE_COUNT   32
-#define SLD_OS_THREAD_TABLE_COUNT 32
+#ifndef    SLD_OS_FILE_ASYNC_CONTEXT_SIZE
+#   define SLD_OS_FILE_ASYNC_CONTEXT_SIZE 1024
+#endif
 
 namespace sld {
 
@@ -148,12 +148,38 @@ namespace sld {
     // FILES
     //-------------------------------------------------------------------
 
-    struct os_file_t;
-    struct os_file_io_t;
-
     typedef void* os_file_handle_t;
     typedef byte  os_file_flags_t;
- 
+    typedef u32   os_file_error_t;
+
+    struct os_file_buffer_t;
+    struct os_file_async_context_t;
+
+    using os_file_last_error_f     = const os_file_error_t  (*) (void); 
+    using os_file_open_f           = const os_file_handle_t (*) (const c8* path, const os_file_flags_t flags);
+    using os_file_size_f           = bool                   (*) (const os_file_handle_t handle, u64& size);
+    using os_file_async_callback_f = void                   (*) (const os_file_async_context_t* async_context); 
+    using os_file_read_f           = const u32              (*) (const os_file_handle_t handle, os_file_buffer_t& buffer);    
+    using os_file_write_f          = const u32              (*) (const os_file_handle_t handle, os_file_buffer_t& buffer);    
+    using os_file_read_async_f     = bool                   (*) (const os_file_handle_t handle, os_file_buffer_t& buffer, os_file_async_context_t& async_context);    
+    using os_file_write_async_f    = bool                   (*) (const os_file_handle_t handle, os_file_buffer_t& buffer, os_file_async_context_t& async_context);    
+
+    struct os_file_buffer_t {
+        byte* data;
+        u32   offset;
+        u32   size;
+        u32   length;
+    };
+
+    struct os_file_async_context_t {
+        os_file_handle_t      handle;
+        os_file_async_callback_f callback;
+        os_file_error_t       error;
+        u32                   bytes_transferred;
+        byte                  os_data[SLD_OS_FILE_ASYNC_CONTEXT_SIZE];                 
+    };
+
+
     enum os_file_flag_e {
         os_file_flag_e_none          = 0,
         os_file_flag_e_async         = bit_value(0),
@@ -166,26 +192,43 @@ namespace sld {
         os_file_flag_e_overwrite     = bit_value(7),
     };
 
-    using os_file_io_callback_f = void (*) (const os_file_handle_t handle, const u32 bytes_transferred); 
-    using os_file_open_f        = bool (*) (const u32 count,  os_file_t*    file);
-    using os_file_size_f        = bool (*) (const u32 count,  os_file_io_t* file_io);
-    using os_file_read_f        = bool (*) (const u32 count,  os_file_io_t* file_io);    
-    using os_file_write_f       = bool (*) (const u32 count,  os_file_io_t* file_io);    
-
-    struct os_file_t {
-        const c8*        path;
-        os_file_flags_t  flags;
-        os_file_handle_t handle;
+    enum os_file_error_e {
+        os_file_error_e_success             =  0,
+        os_file_error_e_unknown             = -1,
+        os_file_error_e_invalid_args        = -2,
+        os_file_error_e_invalid_handle      = -3,
+        os_file_error_e_invalid_disk        = -4,
+        os_file_error_e_invalid_device      = -5,
+        os_file_error_e_invalid_buffer      = -6,
+        os_file_error_e_invalid_file        = -7,
+        os_file_error_e_sharing_violation   = -8,
+        os_file_error_e_already_exists      = -9,
+        os_file_error_e_not_found           = -10,
+        os_file_error_e_access_denied       = -11,
+        os_file_error_e_pipe_busy           = -12,
+        os_file_error_e_reached_end_of_file = -13,
+        os_file_error_e_broken_pipe         = -14,
+        os_file_error_e_no_data             = -15,
+        os_file_error_e_more_data           = -16,
+        os_file_error_e_io_incomplete       = -17,
+        os_file_error_e_io_pending          = -18,
+        os_file_error_e_operation_aborted   = -19,
+        os_file_error_e_disk_io_failure     = -20,
+        os_file_error_e_disk_corrupt        = -21,
+        os_file_error_e_device_not_ready    = -22,
+        os_file_error_e_out_of_memory       = -23
     };
 
-    struct os_file_io_t {
-        os_file_handle_t      handle;
-        os_file_io_callback_f callback;
-        byte*                 data;
-        u32                   offset;
-        u32                   size;
-        u32                   length;        
-    };
+    static inline bool
+    os_file_buffer_validate(
+        const os_file_buffer_t& buffer) {
+        
+        bool is_valid = true;
+        is_valid &= (buffer.data   != NULL);
+        is_valid &= (buffer.size   != 0);
+        is_valid &= (buffer.length <= buffer.size);
+        return(is_valid);
+    }
 
     //-------------------------------------------------------------------
     // THREADS
@@ -224,10 +267,13 @@ namespace sld {
     sld_os_api os_memory_align_to_page_f        os_memory_align_to_page;
     sld_os_api os_memory_align_to_granularity_f os_memory_align_to_granularity;
 
-    sld_os_api os_file_size_f                   os_file_size;
+    sld_os_api os_file_last_error_f             os_file_last_error;
     sld_os_api os_file_open_f                   os_file_open;
+    sld_os_api os_file_size_f                   os_file_size;
     sld_os_api os_file_read_f                   os_file_read;
     sld_os_api os_file_write_f                  os_file_write;
+    sld_os_api os_file_read_async_f             os_file_read_async;
+    sld_os_api os_file_write_async_f            os_file_write_async;
 };
 
 #endif //SLD_OS_HPP
