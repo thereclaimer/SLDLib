@@ -159,16 +159,16 @@ namespace sld {
     using os_file_open_f           = const os_file_handle_t (*) (const c8* path, const os_file_flags_t flags);
     using os_file_size_f           = bool                   (*) (const os_file_handle_t handle, u64& size);
     using os_file_async_callback_f = void                   (*) (const os_file_async_context_t* async_context); 
-    using os_file_read_f           = const u32              (*) (const os_file_handle_t handle, os_file_buffer_t& buffer);    
-    using os_file_write_f          = const u32              (*) (const os_file_handle_t handle, os_file_buffer_t& buffer);    
+    using os_file_read_f           = const u64              (*) (const os_file_handle_t handle, os_file_buffer_t& buffer);    
+    using os_file_write_f          = const u64              (*) (const os_file_handle_t handle, os_file_buffer_t& buffer);    
     using os_file_read_async_f     = bool                   (*) (const os_file_handle_t handle, os_file_buffer_t& buffer, os_file_async_context_t& async_context);    
     using os_file_write_async_f    = bool                   (*) (const os_file_handle_t handle, os_file_buffer_t& buffer, os_file_async_context_t& async_context);    
 
     struct os_file_buffer_t {
         byte* data;
-        u32   offset;
-        u32   size;
-        u32   length;
+        u64   offset;
+        u64   size;
+        u64   length;
     };
 
     struct os_file_async_context_t {
@@ -216,7 +216,8 @@ namespace sld {
         os_file_error_e_disk_io_failure     = -20,
         os_file_error_e_disk_corrupt        = -21,
         os_file_error_e_device_not_ready    = -22,
-        os_file_error_e_out_of_memory       = -23
+        os_file_error_e_out_of_memory       = -23,
+        os_file_error_e_device_failure      = -24
     };
 
     static inline bool

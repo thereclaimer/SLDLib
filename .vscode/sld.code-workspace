@@ -5,5 +5,10 @@
 			"name": "SLDLib"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"xstring": "cpp",
+			"xutility": "cpp"
+		}
+	}
 }

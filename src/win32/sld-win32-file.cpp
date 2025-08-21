@@ -3,8 +3,10 @@
 #include <Windows.h>
 #include "sld-os.hpp"
 
-#define SLD_OS_FILE_ASYNC_CONTEXT_SIZE sizeof(OVERLAPPED);
-
+#ifdef     SLD_OS_FILE_ASYNC_CONTEXT_SIZE
+#   undef  SLD_OS_FILE_ASYNC_CONTEXT_SIZE
+#   define SLD_OS_FILE_ASYNC_CONTEXT_SIZE sizeof(OVERLAPPED)
+#endif
 
 namespace sld {
 
@@ -16,7 +18,7 @@ namespace sld {
 
     struct win32_file_args_t {
         LPSECURITY_ATTRIBUTES security;
-        HANDLE                template;
+        HANDLE                template_handle;
         DWORD                 access;
         DWORD                 share;
         DWORD                 on_create;
@@ -43,17 +45,9 @@ namespace sld {
         const c8*             path,
         const os_file_flags_t flags) {
 
-        const bool result = true;
-        result &= (count != 0);
-        result &= (file  != NULL);
-        if (!result) {
-            _win32_file_last_error = os_file_error_e_args_invalid;
-            return(false);
-        } 
-
         win32_file_args_t file_args = {0};
         file_args.security  = NULL;
-        file_args.template  = NULL;
+        file_args.template_handle  = NULL;
         file_args.on_create = CREATE_NEW;
         file_args.flags     = FILE_ATTRIBUTE_NORMAL; 
 
@@ -73,11 +67,11 @@ namespace sld {
         const bool open_existing = (!overwrite && existing);
         const bool open_always   = (overwrite  && existing); 
         if      (create_always)  file_args.on_create = CREATE_ALWAYS;
-        else if (open_existing)  file_args.on_create = OPEN_EXISTING
-        else if (open_always)    file_args.on_create = OPEN_ALWAYS
+        else if (open_existing)  file_args.on_create = OPEN_EXISTING;
+        else if (open_always)    file_args.on_create = OPEN_ALWAYS;
 
         // flags
-        if (flags & os_file_flag_e_async) file_attributes |= FILE_FLAG_OVERLAPPED;
+        if (flags & os_file_flag_e_async) file_args.flags |= FILE_FLAG_OVERLAPPED;
 
         // create file
         const os_file_handle_t handle = (os_file_handle_t)CreateFile(
@@ -86,8 +80,8 @@ namespace sld {
             file_args.share,
             file_args.security,
             file_args.on_create,
-            file_args.attributes,
-            file_args.template
+            file_args.flags,
+            file_args.template_handle
         );
 
         _win32_file_last_error = GetLastError();
@@ -113,23 +107,17 @@ namespace sld {
         return(result);
     }
 
-    const u32
+    const u64
     win32_file_read(
         const os_file_handle_t handle,
         os_file_buffer_t&      buffer) {
 
-        u32 bytes_read = 0;
-
-        const bool is_valid = os_file_buffer_validate(buffer);
-        if (!is_valid) {
-            _win32_file_last_error = os_file_error_e_args_invalid;
-            return(bytes_read);
-        }
+        DWORD bytes_read = 0;
 
         OVERLAPPED overlapped;
         overlapped.Offset = buffer.offset;
 
-        const bool result = ReadFile(
+        BOOL result = ReadFile(
             (HANDLE)handle,      // hFile
             (LPVOID)buffer.data, // lpBuffer
             buffer.length,       // nNumberOfBytesToRead
@@ -146,28 +134,22 @@ namespace sld {
         return(bytes_read);    
     }
 
-    const u32
+    const u64
     win32_file_write(
         const os_file_handle_t handle,
         os_file_buffer_t&      buffer) {
 
-        u32 bytes_written = 0;
-
-        const bool is_valid = os_file_buffer_validate(buffer);
-        if (!is_valid) {
-            _win32_file_last_error = os_file_error_e_args_invalid;
-            return(bytes_written);
-        }
+        DWORD bytes_written = 0;
 
         OVERLAPPED overlapped;
         overlapped.Offset = buffer.offset;
 
         const BOOL result = WriteFile(
-            (HANDLE)handle       // hFile,
-            (LPCVOID)buffer.data // lpBuffer,
-            buffer.length        // nNumberOfBytesToWrite,
-            &bytes_written       // lpNumberOfBytesWritten,
-            &overlapped          // lpOverlapped
+            (HANDLE)handle,       // hFile,
+            (LPCVOID)buffer.data, // lpBuffer,
+            buffer.length,        // nNumberOfBytesToWrite,
+            &bytes_written,       // lpNumberOfBytesWritten,
+            &overlapped           // lpOverlapped
         );
 
         if (!result) {
@@ -185,7 +167,7 @@ namespace sld {
         os_file_buffer_t&        buffer,
         os_file_async_context_t& async_context) {
 
-        LPOVERLAPPED overlapped = (LPOVERLAPPED)async_context.data;
+        LPOVERLAPPED overlapped = (LPOVERLAPPED)async_context.os_data;
         overlapped->Pointer     = (PVOID)&async_context;
         overlapped->Offset      = buffer.offset;
         async_context.handle    = handle;
@@ -209,7 +191,7 @@ namespace sld {
         os_file_buffer_t&        buffer,
         os_file_async_context_t& async_context) {
 
-        LPOVERLAPPED overlapped = (LPOVERLAPPED)async_context.data;
+        LPOVERLAPPED overlapped = (LPOVERLAPPED)async_context.os_data;
         overlapped->Pointer     = (PVOID)&async_context;
         overlapped->Offset      = buffer.offset;
         async_context.handle    = handle;
