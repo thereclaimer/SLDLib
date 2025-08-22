@@ -8,7 +8,9 @@
 	"settings": {
 		"files.associations": {
 			"xstring": "cpp",
-			"xutility": "cpp"
+			"xutility": "cpp",
+			"cstdint": "cpp",
+			"utility": "cpp"
 		}
 	}
 }

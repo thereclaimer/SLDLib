@@ -10,6 +10,7 @@ namespace sld {
     // DECLARATIONS
     //-------------------------------------------------------------------
 
+    LPWNDCLASSA      win32_window_get_class         (void);
     WNDCLASSA*       win32_window_get_class_opengl3 (void);
     WNDCLASSA*       win32_window_get_class_dx12    (void);
     LRESULT CALLBACK win32_window_callback_opengl3  (HWND handle, UINT message, WPARAM w_param, LPARAM l_param);
@@ -223,47 +224,37 @@ namespace sld {
     // INTERNAL METHODS
     //-------------------------------------------------------------------
 
+    sld_rt_inline LPWNDCLASSA
+    win32_window_get_class(
+        void) {
+    
+        
+
+    
+
     sld_rt_inline WNDCLASSA*
     win32_window_get_class_opengl3(
         void) {
 
-        sld_rt_const HDC device_context = GetDC(NULL);
-        static WNDCLASSA window_class   = {0};
-        static bool      result         = false;
+        static WNDCLASSA   window_class;
+        static LPWNDCLASSA window_class_ptr = NULL;
 
-        if (!result && device_context != NULL) {
-        
+        if (!window_class_ptr) {
+
             // register the window class
             window_class.lpfnWndProc   = (WNDPROC)win32_window_callback_opengl3;
             window_class.hInstance     = GetModuleHandle(NULL);  
             window_class.lpszClassName = "sld::os_window_t | opengl3";
             window_class.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
-            const bool is_window_class_registered = (RegisterClass(&window_class) == ERROR_SUCCESS);
 
-            //set our preferred format descriptor
-            PIXELFORMATDESCRIPTOR preferred_format_descriptor = {0};
-            preferred_format_descriptor.nSize      = sizeof(preferred_format_descriptor);
-            preferred_format_descriptor.nVersion   = 1;
-            preferred_format_descriptor.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-            preferred_format_descriptor.iPixelType = PFD_TYPE_RGBA;
-            preferred_format_descriptor.cColorBits = 32;
-            
-            //query for the closest format descriptor
-            // and set the pixel format
-            const s32  chosen_pixel_format = ChoosePixelFormat (device_context, &preferred_format_descriptor);
-            const bool is_pixel_format_set = SetPixelFormat    (device_context, chosen_pixel_format, &preferred_format_descriptor);
-
-            //create the opengl context and make it current
-            const HGLRC gl_context            = wglCreateContext (device_context);
-            const bool  is_gl_context_current = wglMakeCurrent   (device_context, gl_context);
-
-            // update the result
-            result &= is_window_class_registered; 
-            result &= is_pixel_format_set; 
-            result &= is_gl_context_current; 
+            const DWORD result = RegisterClass(&window_class);
+            window_class_ptr   = (result == ERROR_SUCCESS)
+                ? &window_class 
+                : NULL;                
+            }
         }
 
-        return(result ? &window_class : NULL);
+        return(window_class_ptr);
     }
 
     sld_rt_inline WNDCLASSA*
