@@ -9,7 +9,10 @@
 /**********************************************************************************/
 
 #ifndef    SLD_OS_FILE_ASYNC_CONTEXT_SIZE
-#   define SLD_OS_FILE_ASYNC_CONTEXT_SIZE 1024
+#   define SLD_OS_FILE_ASYNC_CONTEXT_SIZE      1024
+#endif
+#ifndef    SLD_OS_INPUT_KEYCODE_QUEUE_CAPACITY
+#   define SLD_OS_INPUT_KEYCODE_QUEUE_CAPACITY 8
 #endif
 
 namespace sld {
@@ -85,6 +88,18 @@ namespace sld {
         u32 position_x;
         u32 position_y;
     };
+
+    //-------------------------------------------------------------------
+    // INPUT
+    //-------------------------------------------------------------------
+
+    struct os_input_t;
+    struct os_input_mouse_t;
+    struct os_input_keyboard_t;
+
+    typedef byte os_input_keycode_t;
+
+
 
     //-------------------------------------------------------------------
     // WINDOW

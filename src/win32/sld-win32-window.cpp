@@ -10,13 +10,10 @@ namespace sld {
     // DECLARATIONS
     //-------------------------------------------------------------------
 
-    LPWNDCLASSA      win32_window_get_class         (void);
-    WNDCLASSA*       win32_window_get_class_opengl3 (void);
-    WNDCLASSA*       win32_window_get_class_dx12    (void);
+    LPWNDCLASSA      win32_window_get_class_opengl3 (void);
+    LPWNDCLASSA      win32_window_get_class_dx12    (void);
     LRESULT CALLBACK win32_window_callback_opengl3  (HWND handle, UINT message, WPARAM w_param, LPARAM l_param);
     LRESULT CALLBACK win32_window_callback_dx12     (HWND handle, UINT message, WPARAM w_param, LPARAM l_param);
-    LRESULT CALLBACK win32_window_callback          (HWND handle, UINT message, WPARAM w_param, LPARAM l_param);
-
 
     //-------------------------------------------------------------------
     // OS API METHODS
@@ -225,14 +222,6 @@ namespace sld {
     //-------------------------------------------------------------------
 
     sld_rt_inline LPWNDCLASSA
-    win32_window_get_class(
-        void) {
-    
-        
-
-    
-
-    sld_rt_inline WNDCLASSA*
     win32_window_get_class_opengl3(
         void) {
 
@@ -257,21 +246,24 @@ namespace sld {
         return(window_class_ptr);
     }
 
-    sld_rt_inline WNDCLASSA*
+    sld_rt_inline LPWNDCLASSA
     win32_window_get_class_dx12(
         void) {
 
-        static WNDCLASSA window_class = {0};
-        static bool      registered   = false;
+        static WNDCLASSA   window_class     = {0};
+        static LPWNDCLASSA window_class_ptr = NULL;
 
-        if (!registered) {
+        if (!window_class_ptr) {
         
             window_class.lpfnWndProc   = (WNDPROC)win32_window_callback_dx12;
             window_class.hInstance     = GetModuleHandle(NULL);  
             window_class.lpszClassName = "sld::os_window_t | dx12";
             window_class.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
-        
-            registered = (RegisterClass(&window_class) == ERROR_SUCCESS);
+
+            const DWORD result = RegisterClass(&window_class);
+            window_class_ptr   = (result == ERROR_SUCCESS)
+                ? &window_class 
+                : NULL;
         }
 
         return(registered ? &window_class : NULL);
@@ -293,18 +285,6 @@ namespace sld {
         UINT   message,
         WPARAM w_param,
         LPARAM l_param) {
-
-        return(0);
-    }
-
-    LRESULT CALLBACK
-    win32_window_callback(
-        HWND   handle,
-        UINT   message,
-        WPARAM w_param,
-        LPARAM l_param) {
-
-        ImGui_ImplWin32_
 
         return(0);
     }
