@@ -107,7 +107,8 @@ namespace sld {
     struct os_input_keycode_list_t {
         static const u8    capacity = SLD_OS_INPUT_KEYCODE_LIST_CAPACITY;
         u8                 count;
-        os_input_keycode_t keycodes[capacity];
+        os_input_keycode_t keys_up   [capacity];
+        os_input_keycode_t keys_down [capacity];
     };
 
     struct os_input_gamepad_sticks_t {
