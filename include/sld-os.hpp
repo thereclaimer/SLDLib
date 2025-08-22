@@ -11,8 +11,8 @@
 #ifndef    SLD_OS_FILE_ASYNC_CONTEXT_SIZE
 #   define SLD_OS_FILE_ASYNC_CONTEXT_SIZE      1024
 #endif
-#ifndef    SLD_OS_INPUT_KEYCODE_QUEUE_CAPACITY
-#   define SLD_OS_INPUT_KEYCODE_QUEUE_CAPACITY 8
+#ifndef    SLD_OS_INPUT_KEYCODE_LIST_CAPACITY
+#   define SLD_OS_INPUT_KEYCODE_LIST_CAPACITY 8
 #endif
 
 namespace sld {
@@ -96,10 +96,224 @@ namespace sld {
     struct os_input_t;
     struct os_input_mouse_t;
     struct os_input_keyboard_t;
+    struct os_input_keycode_list_t;
+    struct os_input_gamepad_t;
+    struct os_input_gamepad_stick_t;
+    struct os_input_gamepad_triggers_t;
 
-    typedef byte os_input_keycode_t;
+    typedef u16 os_input_keycode_t;
+    typedef u16 os_input_gamepad_button_flags_t;
 
+    struct os_input_keycode_list_t {
+        static const u8    capacity = SLD_OS_INPUT_KEYCODE_LIST_CAPACITY;
+        u8                 count;
+        os_input_keycode_t keycodes[capacity];
+    };
 
+    struct os_input_gamepad_sticks_t {
+        f32 left_x;
+        f32 left_y;
+        f32 right_x;
+        f32 right_y;
+    };
+
+    struct os_input_gamepad_triggers_t {
+        f32 left;
+        f32 right;
+    };
+
+    struct os_input_gamepad_t {
+        os_input_gamepad_sticks_t       sticks;
+        os_input_gamepad_triggers_t     triggers;
+        os_input_gamepad_button_flags_t button_flags;
+    };
+
+    static inline void
+    os_input_keycode_list_add(
+        os_input_keycode_list_t& keycode_list,
+        const os_input_keycode_t keycode) {
+
+        if (keycode_list.count >= keycode_list.capacity) {
+            keycode_list.count = keycode_list.capacity;
+            return;
+        }
+
+        const u8 index = keycode_list.count;
+
+        keycode_list.keycodes[index] = keycode;
+        ++keycode_list.count;
+    }
+
+    static inline void
+    os_input_keycode_list_reset(
+        os_input_keycode_list_t& keycode_list) {
+
+        keycode_list.count = 0;
+    }
+
+    static inline bool
+    os_input_keycode_list_iterate(
+        const os_input_keycode_list_t& keycode_list,
+        os_input_keycode_t&            keycode,
+        u8&                            index) {
+
+        if (index >= keycode_list.count) {
+            index = keycode_list.count;
+            return(false);
+        }
+
+        keycode = keycode_list.keycodes[index];
+        ++index;
+        return(true);
+    }
+
+    enum os_input_keycode_e {
+        
+        // control
+        os_input_keycode_e_null         = 0x00,
+        os_input_keycode_e_escape       = 0x01,  // esc
+        os_input_keycode_e_tab          = 0x0F,
+        os_input_keycode_e_enter        = 0x1C,
+        os_input_keycode_e_backspace    = 0x0E,
+        os_input_keycode_e_space        = 0x39,
+
+        // modifiers
+        os_input_keycode_e_shift_left   = 0x2A,
+        os_input_keycode_e_shift_right  = 0x36,
+        os_input_keycode_e_ctrl_left    = 0x1D,
+        os_input_keycode_e_ctrl_right   = 0x11D,
+        os_input_keycode_e_alt_left     = 0x38,
+        os_input_keycode_e_alt_right    = 0x138,
+        os_input_keycode_e_caps_lock    = 0x3A,
+        os_input_keycode_e_num_lock     = 0x45,
+        os_input_keycode_e_scroll_lock  = 0x46,
+        os_input_keycode_e_super_left   = 0x15B, // win / command
+        os_input_keycode_e_super_right  = 0x15C,
+        os_input_keycode_e_menu         = 0x15D,
+
+        // function keys
+        os_input_keycode_e_f1           = 0x3B,
+        os_input_keycode_e_f2           = 0x3C,
+        os_input_keycode_e_f3           = 0x3D,
+        os_input_keycode_e_f4           = 0x3E,
+        os_input_keycode_e_f5           = 0x3F,
+        os_input_keycode_e_f6           = 0x40,
+        os_input_keycode_e_f7           = 0x41,
+        os_input_keycode_e_f8           = 0x42,
+        os_input_keycode_e_f9           = 0x43,
+        os_input_keycode_e_f10          = 0x44,
+        os_input_keycode_e_f11          = 0x57,
+        os_input_keycode_e_f12          = 0x58,
+
+        // navigation cluster
+        os_input_keycode_e_insert       = 0x152,
+        os_input_keycode_e_delete       = 0x153,
+        os_input_keycode_e_home         = 0x147,
+        os_input_keycode_e_end          = 0x14F,
+        os_input_keycode_e_page_up      = 0x149,
+        os_input_keycode_e_page_down    = 0x151,
+        os_input_keycode_e_arrow_up     = 0x148,
+        os_input_keycode_e_arrow_down   = 0x150,
+        os_input_keycode_e_arrow_left   = 0x14B,
+        os_input_keycode_e_arrow_right  = 0x14D,
+
+        // number row (shifted versions are symbols)
+        os_input_keycode_e_1            = 0x02,
+        os_input_keycode_e_2            = 0x03,
+        os_input_keycode_e_3            = 0x04,
+        os_input_keycode_e_4            = 0x05,
+        os_input_keycode_e_5            = 0x06,
+        os_input_keycode_e_6            = 0x07,
+        os_input_keycode_e_7            = 0x08,
+        os_input_keycode_e_8            = 0x09,
+        os_input_keycode_e_9            = 0x0A,
+        os_input_keycode_e_0            = 0x0B,
+        os_input_keycode_e_minus        = 0x0C, // -
+        os_input_keycode_e_equals       = 0x0D, // =
+
+        // letters
+        os_input_keycode_e_a            = 0x1E,
+        os_input_keycode_e_b            = 0x30,
+        os_input_keycode_e_c            = 0x2E,
+        os_input_keycode_e_d            = 0x20,
+        os_input_keycode_e_e            = 0x12,
+        os_input_keycode_e_f            = 0x21,
+        os_input_keycode_e_g            = 0x22,
+        os_input_keycode_e_h            = 0x23,
+        os_input_keycode_e_i            = 0x17,
+        os_input_keycode_e_j            = 0x24,
+        os_input_keycode_e_k            = 0x25,
+        os_input_keycode_e_l            = 0x26,
+        os_input_keycode_e_m            = 0x32,
+        os_input_keycode_e_n            = 0x31,
+        os_input_keycode_e_o            = 0x18,
+        os_input_keycode_e_p            = 0x19,
+        os_input_keycode_e_q            = 0x10,
+        os_input_keycode_e_r            = 0x13,
+        os_input_keycode_e_s            = 0x1F,
+        os_input_keycode_e_t            = 0x14,
+        os_input_keycode_e_u            = 0x16,
+        os_input_keycode_e_v            = 0x2F,
+        os_input_keycode_e_w            = 0x11,
+        os_input_keycode_e_x            = 0x2D,
+        os_input_keycode_e_y            = 0x15,
+        os_input_keycode_e_z            = 0x2C,
+        
+        // punctuation
+        os_input_keycode_e_grave        = 0x29, /*  `  */
+        os_input_keycode_e_bracket_left = 0x1A, /*  [  */
+        os_input_keycode_e_bracket_right= 0x1B, /*  ]  */
+        os_input_keycode_e_backslash    = 0x2B, /*  \  */
+        os_input_keycode_e_semicolon    = 0x27, /*  ;  */
+        os_input_keycode_e_apostrophe   = 0x28, /*  '  */
+        os_input_keycode_e_comma        = 0x33, /*  ,  */
+        os_input_keycode_e_period       = 0x34, /*  .  */
+        os_input_keycode_e_slash        = 0x35, /*  /  */
+
+        // keypad
+        os_input_keycode_e_kp_divide    = 0x135,
+        os_input_keycode_e_kp_multiply  = 0x37,
+        os_input_keycode_e_kp_subtract  = 0x4A,
+        os_input_keycode_e_kp_add       = 0x4E,
+        os_input_keycode_e_kp_enter     = 0x11C,
+        os_input_keycode_e_kp_decimal   = 0x53,
+        os_input_keycode_e_kp_0         = 0x52,
+        os_input_keycode_e_kp_1         = 0x4F,
+        os_input_keycode_e_kp_2         = 0x50,
+        os_input_keycode_e_kp_3         = 0x51,
+        os_input_keycode_e_kp_4         = 0x4B,
+        os_input_keycode_e_kp_5         = 0x4C,
+        os_input_keycode_e_kp_6         = 0x4D,
+        os_input_keycode_e_kp_7         = 0x47,
+        os_input_keycode_e_kp_8         = 0x48,
+        os_input_keycode_e_kp_9         = 0x49,
+
+        // multimedia
+        os_input_keycode_e_volume_mute  = 0x120,
+        os_input_keycode_e_volume_down  = 0x12E,
+        os_input_keycode_e_volume_up    = 0x130,
+        os_input_keycode_e_media_next   = 0x119,
+        os_input_keycode_e_media_prev   = 0x110,
+        os_input_keycode_e_media_stop   = 0x124,
+        os_input_keycode_e_media_play   = 0x122,
+    };
+
+    enum os_input_gamepad_button_flag_e {
+        os_input_gamepad_button_flag_e_start        = bit_value(0),
+        os_input_gamepad_button_flag_e_select       = bit_value(1),
+        os_input_gamepad_button_flag_e_bumper_left  = bit_value(2),
+        os_input_gamepad_button_flag_e_bumper_right = bit_value(3),
+        os_input_gamepad_button_flag_e_stick_left   = bit_value(4),
+        os_input_gamepad_button_flag_e_stick_right  = bit_value(5),
+        os_input_gamepad_button_flag_e_dpad_up      = bit_value(6),
+        os_input_gamepad_button_flag_e_dpad_down    = bit_value(7),
+        os_input_gamepad_button_flag_e_dpad_left    = bit_value(8),
+        os_input_gamepad_button_flag_e_dpad_right   = bit_value(9),
+        os_input_gamepad_button_flag_e_bpad_up      = bit_value(10),
+        os_input_gamepad_button_flag_e_bpad_down    = bit_value(11),
+        os_input_gamepad_button_flag_e_bpad_left    = bit_value(12),
+        os_input_gamepad_button_flag_e_bpad_right   = bit_value(13)
+    };
 
     //-------------------------------------------------------------------
     // WINDOW

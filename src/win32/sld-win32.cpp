@@ -4,6 +4,7 @@
 #include "sld-win32-system.cpp"
 #include "sld-win32-memory.cpp"
 #include "sld-win32-file.cpp"
+#include "sld-win32-input.cpp"
 
 namespace sld {
 
