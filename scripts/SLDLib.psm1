@@ -23,6 +23,7 @@ $Script:OutDirsRelease = [PSCustomObject]@{
 $Script:ClIncludeFlags = @(
     '/I' + '..\include',
     '/I' + '..\src',
+    '/I' + '..\src\os',
     '/I' + '..\src\core',
     '/I' + '..\src\memory',
     '/I' + '..\src\string',
