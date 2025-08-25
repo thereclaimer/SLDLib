@@ -443,8 +443,38 @@ namespace sld {
     //-------------------------------------------------------------------
 
     typedef void* os_thread_handle_t;
+    typedef void* os_thread_mutex_handle_t;
+    typedef void* os_thread_condition_handle_t;
 
-    
+    struct os_thread_callback_data_t;
+    struct os_thread_context_t;
+
+    using os_thread_callback_function_f = ();
+
+    using os_thread_create            = void (*) (void);
+    using os_thread_destroy           = void (*) (void);
+    using os_thread_exit              = void (*) (void);
+    using os_thread_sleep             = void (*) (void);     
+    using os_thread_yield             = void (*) (void);
+    using os_thread_join              = void (*) (void);
+    using os_thread_mutex_create      = void (*) (void);
+    using os_thread_mutex_destroy     = void (*) (void);
+    using os_thread_mutex_lock        = void (*) (void);
+    using os_thread_mutex_unlock      = void (*) (void);
+    using os_thread_mutex_try_lock    = void (*) (void);
+    using os_thread_condition_create  = void (*) (void);
+    using os_thread_condition_destroy = void (*) (void);
+
+
+    struct os_thread_callback_data_t {
+        void* ptr;
+        u64   size;
+    };
+
+    struct os_thread_context_t {
+        os_thread_callback_function_f function;
+        os_thread_callback_data_t     data;
+    };
 
     //-------------------------------------------------------------------
     // API
