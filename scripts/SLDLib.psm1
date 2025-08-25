@@ -31,9 +31,9 @@ $Script:OutDirsRelease = [PSCustomObject]@{
 }
 
 $Script:OutFilesDebug = [PSCustomObject]@{
-    Obj = ($Script:OutDirsDebug + '\' + $Script:OutFiles.Obj)
-    Pdb = ($Script:OutDirsDebug + '\' + $Script:OutFiles.Pdb)
-    Lib = ($Script:OutDirsDebug + '\' + $Script:OutFiles.Lib)
+    Obj = "$($Script:OutDirsDebug.Obj)\$($Script:OutFiles.Obj)"
+    Pdb = "$($Script:OutDirsDebug.Pdb)\$($Script:OutFiles.Pdb)"
+    Lib = "$($Script:OutDirsDebug.Lib)\$($Script:OutFiles.Lib)"
 }
 
 ############################
@@ -41,28 +41,28 @@ $Script:OutFilesDebug = [PSCustomObject]@{
 ############################
 
 $Script:CompileArgsDebug = [PSCustomObject]@{
-    In      = 'src\sld.cpp'
-    Out     = '/Fo:' + $Script:OutFilesDebug.Obj
+    In      = "src\sld.cpp"
+    Out     = "/Fo:$($Script:OutFilesDebug.Obj)"
     Include = @(
-        '/I' + 'include'
-        '/I' + 'src'
-        '/I' + 'src\core'
-        '/I' + 'src\memory'
-        '/I' + 'src\os'
-        '/I' + 'src\string'
-        '/I' + 'src\win32'
-        '/I' + 'vcpkg_installed\x64-windows\include'
-    ) -join ' '
+        "/Iinclude"
+        "/Isrc"
+        "/Isrc\core"
+        "/Isrc\memory"
+        "/Isrc\os"
+        "/Isrc\string"
+        "/Isrc\win32"
+        "/Ivcpkg_installed\x64-windows\include"
+    ) -join " "
     Flags = @(
-        '/nologo'             # startup banner disabled
-        '/c'                  # compile without linking
-        '/MD'                 # link against multithreaded runtime library (MSVCRT.dll)
-        '/Z7'                 # generate debug info
-        '/EHs-'               # disable exception handling
-        '/std:c++17'          # c++17 standard mode
-        '/Od'                 # disable optimizations
-        '/D_HAS_EXCEPTIONS=0' # disable exceptions for STL and CRT
-    ) -join ' '    
+        "/nologo"             # startup banner disabled
+        "/c"                  # compile without linking
+        "/MD"                 # link against multithreaded runtime library (MSVCRT.dll)
+        "/Z7"                 # generate debug info
+        "/EHs-"               # disable exception handling
+        "/std:c++17"          # c++17 standard mode
+        "/Od"                 # disable optimizations
+        "/D_HAS_EXCEPTIONS=0" # disable exceptions for STL and CRT
+    ) -join " "    
 }
 
 $Script:CompileExpressionDebug = @(
@@ -71,7 +71,7 @@ $Script:CompileExpressionDebug = @(
     $Script:CompileArgsDebug.Out
     $Script:CompileArgsDebug.Include
     $Script:CompileArgsDebug.Flags
-) -join ' '
+) -join " "
 
 ############################
 # LIBRARY
@@ -79,8 +79,8 @@ $Script:CompileExpressionDebug = @(
 
 $Script:LibraryArgsDebug = [PSCustomObject]@{
     In    = $Script:OutFilesDebug.Obj
-    Out   = '/OUT:' + $Script:OutFilesDebug.Lib
-    Flags = '/nologo'
+    Out   = "/OUT:$($Script:OutFilesDebug.Lib)"
+    Flags = "/nologo"
 }
 
 $Script:LibraryExpressionDebug = @(
@@ -88,7 +88,7 @@ $Script:LibraryExpressionDebug = @(
     $Script:DebugLibraryArgs.In
     $Script:DebugLibraryArgs.Out
     $Script:DebugLibraryArgs.Flags
-) -join ' '
+) -join " "
 
 ############################
 # BUILD SCRIPT
@@ -108,12 +108,12 @@ pushd ..
 @set cl_include= $($Script:CompileArgsDebug.Include)
 @set cl_flags=   $($Script:CompileArgsDebug.Flags)
 
-@set lib_in=    $($Script:LibraryArgsDebug.In)
-@set lib_out=   $($Script:LibraryArgsDebug.Out)
-@set lib_flags= $($Script:LibraryArgsDebug.Flags)
+@set lib_in=     $($Script:LibraryArgsDebug.In)
+@set lib_out=    $($Script:LibraryArgsDebug.Out)
+@set lib_flags=  $($Script:LibraryArgsDebug.Flags)
 
-@set cmd_cl=    $($Script:BuildTools.Compiler)  %cl_in%  %cl_out%  %cl_include%  %cl_flags%
-@set cmd_lib=   $($Script:BuildTools.Library) %lib_flags% %lib_in% %lib_out%
+@set cmd_cl=     $($Script:BuildTools.Compiler)  %cl_in%  %cl_out%  %cl_include%  %cl_flags%
+@set cmd_lib=    $($Script:BuildTools.Library) %lib_flags% %lib_in% %lib_out%
 
 IF NOT EXIST %dir_bin% mkdir %dir_bin%
 IF NOT EXIST %dir_lib% mkdir %dir_lib%

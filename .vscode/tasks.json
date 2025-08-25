@@ -3,9 +3,9 @@
 	"tasks": [
 		{
 			"label": "SLD Build Debug",
-			"command": "scripts\\build-debug.bat",
+			"command": "SLD.Build.Debug.bat",
 			"options": {
-				"cwd": "${workspaceFolder}"
+				"cwd": "${workspaceFolder}\\scripts"
 			},
 			"problemMatcher": [
 				"$msCompile"
