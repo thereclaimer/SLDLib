@@ -96,6 +96,7 @@ namespace sld {
     struct os_input_t;
     struct os_input_mouse_t;
     struct os_input_keyboard_t;
+    struct os_input_keycode_array_t;
     struct os_input_gamepad_t;
     struct os_input_gamepad_stick_t;
     struct os_input_gamepad_triggers_t;
@@ -109,16 +110,15 @@ namespace sld {
         f32 wheel;
     };
 
+    struct os_input_keycode_array_t {
+        u8                  capacity;
+        u8                  count;
+        os_input_keycode_t* array;        
+    };
+
     struct os_input_keyboard_t {
-        static const u8 capacity = SLD_OS_INPUT_KEYCODE_LIST_CAPACITY;
-        struct {
-            u8                 count;
-            os_input_keycode_t array[capacity];    
-        } keys_up;
-        struct {
-            u8                 count;
-            os_input_keycode_t array[capacity];    
-        } keys_down;
+        os_input_keycode_array_t keys_down;
+        os_input_keycode_array_t keys_up;
     };
 
     struct os_input_gamepad_sticks_t {
@@ -443,6 +443,8 @@ namespace sld {
     //-------------------------------------------------------------------
 
     typedef void* os_thread_handle_t;
+
+    
 
     //-------------------------------------------------------------------
     // API
