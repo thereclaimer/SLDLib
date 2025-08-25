@@ -17,19 +17,9 @@
 
 namespace sld {
 
-    //-------------------------------------------------------------------
-    // CONTEXT
-    //-------------------------------------------------------------------
-
-    typedef u32 os_context_graphics_t; 
-
-    enum os_context_graphics_e {
-        os_context_graphics_e_none   = 0,
-        os_context_graphics_e_opengl = 1,
-        os_context_graphics_e_dx12   = 2      
-    };
-
-    using os_context_init_f = bool (*) (const os_context_graphics_t graphics);
+    struct os_handle_t { void* val; };
+    struct os_error_t  { u32   val; };
+    struct os_flags_t  { u32   val; };
 
     //-------------------------------------------------------------------
     // SYSTEM
@@ -137,12 +127,6 @@ namespace sld {
         os_input_gamepad_sticks_t       sticks;
         os_input_gamepad_triggers_t     triggers;
         os_input_gamepad_button_flags_t button_flags;
-    };
-
-    struct os_input_t {
-        os_input_mouse_t    mouse;
-        os_input_keyboard_t keyboard;
-        os_input_gamepad_t  gamepad;
     };
 
     enum os_input_keycode_e {
@@ -299,6 +283,7 @@ namespace sld {
 
     struct os_window_size_t;
     struct os_window_position_t;
+    struct os_window_update_t;
 
     typedef void* os_window_handle_t;
     typedef u32   os_window_events_t;
@@ -306,7 +291,7 @@ namespace sld {
     using os_window_create_f         = os_window_handle_t (*) (const c8* title, const os_window_size_t& size, const os_window_position_t& position);
     using os_window_frame_start_f    = bool               (*) (const os_window_handle_t handle);
     using os_window_frame_render_f   = bool               (*) (const os_window_handle_t handle);
-    using os_window_process_events_f = bool               (*) (const os_window_handle_t handle, os_window_events_t&   events);
+    using os_window_update_f = bool               (*) (const os_window_handle_t handle, os_window_events_t&   events);
     using os_window_destroy_f        = bool               (*) (const os_window_handle_t handle);
     using os_window_show_f           = bool               (*) (const os_window_handle_t handle);
     using os_window_get_size_f       = bool               (*) (const os_window_handle_t handle, os_window_size_t&     size);
@@ -355,35 +340,36 @@ namespace sld {
     // FILES
     //-------------------------------------------------------------------
 
-    typedef void* os_file_handle_t;
-    typedef byte  os_file_flags_t;
-    typedef u32   os_file_error_t;
+    struct os_file_handle_t : os_handle_t { };
+    struct os_file_flags_t  : os_flags_t  { };
+    struct os_file_error_t  : os_error_t  { };
 
     struct os_file_buffer_t;
     struct os_file_async_context_t;
 
-    using os_file_last_error_f     = const os_file_error_t  (*) (void); 
-    using os_file_open_f           = const os_file_handle_t (*) (const c8* path, const os_file_flags_t flags);
-    using os_file_size_f           = bool                   (*) (const os_file_handle_t handle, u64& size);
-    using os_file_async_callback_f = void                   (*) (const os_file_async_context_t* async_context); 
-    using os_file_read_f           = const u64              (*) (const os_file_handle_t handle, os_file_buffer_t& buffer);    
-    using os_file_write_f          = const u64              (*) (const os_file_handle_t handle, os_file_buffer_t& buffer);    
-    using os_file_read_async_f     = bool                   (*) (const os_file_handle_t handle, os_file_buffer_t& buffer, os_file_async_context_t& async_context);    
-    using os_file_write_async_f    = bool                   (*) (const os_file_handle_t handle, os_file_buffer_t& buffer, os_file_async_context_t& async_context);    
+    using os_file_callback_async_io = void                   (*) (const os_file_async_context_t* async_context); 
+
+    using os_file_open_f           = const os_file_error_t (*) (os_file_handle_t&      file_handle, const c8* path, const os_file_flags_t flags);
+    using os_file_size_f           = const os_file_error_t (*) (const os_file_handle_t file_handle, u64& size);
+    using os_file_read_f           = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
+    using os_file_write_f          = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
+    using os_file_read_async_f     = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_async_context_t& async_context);    
+    using os_file_write_async_f    = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_async_context_t& async_context);    
 
     struct os_file_buffer_t {
         byte* data;
         u64   offset;
         u64   size;
         u64   length;
+        u64   transferred;
     };
 
     struct os_file_async_context_t {
-        os_file_handle_t      handle;
-        os_file_async_callback_f callback;
-        os_file_error_t       error;
-        u32                   bytes_transferred;
-        byte                  os_data[SLD_OS_FILE_ASYNC_CONTEXT_SIZE];                 
+        os_file_handle_t          handle;
+        os_file_callback_async_io callback;
+        os_file_error_t           error;
+        u32                       bytes_transferred;
+        byte                      os_data[SLD_OS_FILE_ASYNC_CONTEXT_SIZE];                 
     };
 
 
@@ -400,7 +386,7 @@ namespace sld {
     };
 
     enum os_file_error_e {
-        os_file_error_e_success             =  0,
+        os_file_error_e_success             =  1,
         os_file_error_e_unknown             = -1,
         os_file_error_e_invalid_args        = -2,
         os_file_error_e_invalid_handle      = -3,
@@ -442,29 +428,33 @@ namespace sld {
     // THREADS
     //-------------------------------------------------------------------
 
-    typedef void* os_thread_handle_t;
-    typedef void* os_thread_mutex_handle_t;
-    typedef void* os_thread_condition_handle_t;
+    typedef u32 os_thread_error_t;
+
+    struct os_thread_handle_t           : os_handle_t { };
+    struct os_thread_mutex_handle_t     : os_handle_t { };
+    struct os_thread_condition_handle_t : os_handle_t { };
 
     struct os_thread_callback_data_t;
     struct os_thread_context_t;
 
-    using os_thread_callback_function_f = ();
+    using os_thread_callback_function_f   = void (*) (os_thread_context_t& context);
 
-    using os_thread_create            = void (*) (void);
-    using os_thread_destroy           = void (*) (void);
-    using os_thread_exit              = void (*) (void);
-    using os_thread_sleep             = void (*) (void);     
-    using os_thread_yield             = void (*) (void);
-    using os_thread_join              = void (*) (void);
-    using os_thread_mutex_create      = void (*) (void);
-    using os_thread_mutex_destroy     = void (*) (void);
-    using os_thread_mutex_lock        = void (*) (void);
-    using os_thread_mutex_unlock      = void (*) (void);
-    using os_thread_mutex_try_lock    = void (*) (void);
-    using os_thread_condition_create  = void (*) (void);
-    using os_thread_condition_destroy = void (*) (void);
-
+    using os_thread_create_f              = const os_thread_error_t (*) (os_thread_handle_t&            thread_handle);
+    using os_thread_destroy_f             = const os_thread_error_t (*) (const os_thread_handle_t       thread_handle);
+    using os_thread_exit_f                = const os_thread_error_t (*) (const os_thread_handle_t       thread_handle);
+    using os_thread_sleep_f               = const os_thread_error_t (*) (const os_thread_handle_t       thread_handle);     
+    using os_thread_yield_f               = const os_thread_error_t (*) (const os_thread_handle_t       thread_handle);
+    using os_thread_join_f                = const os_thread_error_t (*) (const os_thread_handle_t       thread_handle);
+    using os_thread_mutex_create_f        = const os_thread_error_t (*) (os_thread_mutex_handle_t&      mutex_handle);
+    using os_thread_mutex_destroy_f       = const os_thread_error_t (*) (const os_thread_mutex_handle_t mutex_handle);
+    using os_thread_mutex_lock_f          = const os_thread_error_t (*) (const os_thread_mutex_handle_t mutex_handle);
+    using os_thread_mutex_unlock_f        = const os_thread_error_t (*) (const os_thread_mutex_handle_t mutex_handle);
+    using os_thread_mutex_try_lock_f      = const os_thread_error_t (*) (const os_thread_mutex_handle_t mutex_handle);
+    using os_thread_condition_create_f    = const os_thread_error_t (*) (void);
+    using os_thread_condition_destroy_f   = const os_thread_error_t (*) (void);
+    using os_thread_condition_wait_f      = const os_thread_error_t (*) (void);
+    using os_thread_condition_signal_f    = const os_thread_error_t (*) (void);
+    using os_thread_condition_broadcast_f = const os_thread_error_t (*) (void);
 
     struct os_thread_callback_data_t {
         void* ptr;
@@ -494,7 +484,7 @@ namespace sld {
     sld_os_api os_window_create_f               os_window_create; 
     sld_os_api os_window_frame_start_f          os_window_frame_start; 
     sld_os_api os_window_frame_render_f         os_window_frame_render; 
-    sld_os_api os_window_process_events_f       os_window_process_events; 
+    sld_os_api os_window_update_f               os_window_update; 
     sld_os_api os_window_destroy_f              os_window_destroy; 
     sld_os_api os_window_show_f                 os_window_show; 
     sld_os_api os_window_get_size_f             os_window_get_size; 
@@ -507,7 +497,6 @@ namespace sld {
     sld_os_api os_memory_align_to_page_f        os_memory_align_to_page;
     sld_os_api os_memory_align_to_granularity_f os_memory_align_to_granularity;
 
-    sld_os_api os_file_last_error_f             os_file_last_error;
     sld_os_api os_file_open_f                   os_file_open;
     sld_os_api os_file_size_f                   os_file_size;
     sld_os_api os_file_read_f                   os_file_read;

@@ -55,7 +55,6 @@ namespace sld {
     // files
     //----------------
     
-    os_file_last_error_f             os_file_last_error             = win32_file_last_error; 
     os_file_open_f                   os_file_open                   = win32_file_open; 
     os_file_size_f                   os_file_size                   = win32_file_size; 
     os_file_read_f                   os_file_read                   = win32_file_read; 
