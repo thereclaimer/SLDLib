@@ -23,6 +23,6 @@ IF NOT EXIST %dir_lib% mkdir %dir_lib%
 IF NOT EXIST %dir_obj% mkdir %dir_obj%
 
 call %cmd_cl%
-call %cmd_link%
+call %cmd_lib%
 
 popd
