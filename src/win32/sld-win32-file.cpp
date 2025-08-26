@@ -23,9 +23,9 @@ namespace sld {
         DWORD                 flags;
     };
 
-    void                  win32_file_async_callback (DWORD error_code, DWORD bytes_transferred, LPOVERLAPPED overlapped);
-    const os_file_error_t win32_file_get_last_error (void);
-    const os_file_error_t win32_file_error_success  (void);
+    void                   win32_file_async_callback (DWORD error_code, DWORD bytes_transferred, LPOVERLAPPED overlapped);
+    const os_file_error_t  win32_file_get_last_error (void);
+    const os_file_error_t& win32_file_error_success  (void);
 
     //-------------------------------------------------------------------
     // OS API
@@ -237,7 +237,7 @@ namespace sld {
         
     }
 
-    sld_rt_inline const os_file_error_t
+    sld_rt_inline const os_file_error_t&
     win32_file_error_success(
         void) {
 
@@ -259,5 +259,4 @@ namespace sld {
         context->error             = win32_file_get_last_error();
         context->callback(context);
     }
-
 };

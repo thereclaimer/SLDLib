@@ -19,7 +19,6 @@
 
 namespace sld {
 
-
     //-------------------------------------------------------------------
     // PRIMITIVES
     //-------------------------------------------------------------------
@@ -39,7 +38,7 @@ namespace sld {
     // floats
     typedef float    f32;
     typedef double   f64;
-    
+
     // booleans
     typedef int8_t   b8;
     typedef int16_t  b16;
@@ -55,6 +54,27 @@ namespace sld {
     typedef uint8_t  byte;
     typedef intptr_t addr;
 
+    // structured
+    struct s8_t   { s8   val; };
+    struct s16_t  { s16  val; };
+    struct s32_t  { s32  val; };
+    struct s64_t  { s64  val; };
+    struct u8_t   { u8   val; };
+    struct u16_t  { u16  val; };
+    struct u32_t  { u32  val; };
+    struct u64_t  { u64  val; };
+    struct f32_t  { f32  val; };
+    struct f64_t  { f64  val; };
+    struct b8_t   { b8   val; };
+    struct b16_t  { b16  val; };
+    struct b32_t  { b32  val; };
+    struct b64_t  { b64  val; };
+    struct c8_t   { c8   val; };
+    struct c16_t  { c16  val; };
+    struct c32_t  { c32  val; };
+    struct byte_t { byte val; };
+    struct addr_t { addr val; };
+    
     //-------------------------------------------------------------------
     // SIZE UTILITIES
     //-------------------------------------------------------------------

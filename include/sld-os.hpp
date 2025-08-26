@@ -8,12 +8,16 @@
 /* OS                                                                             */
 /**********************************************************************************/
 
+
 #ifndef    SLD_OS_FILE_ASYNC_CONTEXT_SIZE
 #   define SLD_OS_FILE_ASYNC_CONTEXT_SIZE      1024
 #endif
-#ifndef    SLD_OS_INPUT_KEYCODE_LIST_CAPACITY
-#   define SLD_OS_INPUT_KEYCODE_LIST_CAPACITY 8
+#define    SLD_OS_GRAPHICS_CONTEXT_OPENGL      0
+#define    SLD_OS_GRAPHICS_CONTEXT_DIRECTX12   1
+#ifndef    SLD_OS_GRAPHICS_CONTEXT_TYPE
+#   define SLD_OS_GRAPHICS_CONTEXT_TYPE        SLD_OS_GRAPHICS_CONTEXT_OPENGL
 #endif
+
 
 namespace sld {
 
@@ -86,18 +90,32 @@ namespace sld {
     struct os_input_t;
     struct os_input_mouse_t;
     struct os_input_keyboard_t;
+    struct os_input_keycode_t;
     struct os_input_keycode_array_t;
     struct os_input_gamepad_t;
     struct os_input_gamepad_stick_t;
     struct os_input_gamepad_triggers_t;
 
-    typedef u16 os_input_keycode_t;
     typedef u16 os_input_gamepad_button_flags_t;
+
+    void os_input_keyboard_add_key_down (os_input_keyboard_t* keyboard, const os_input_keycode_t keycode);
+    void os_input_keyboard_add_key_up   (os_input_keyboard_t* keyboard, const os_input_keycode_t keycode);
+    void os_input_keyboard_reset        (os_input_keyboard_t* keyboard);
+
+    struct os_input_t {
+        os_input_mouse_t*    mouse;
+        os_input_keyboard_t* keyboard;
+        os_input_gamepad_t*  gamepad;    
+    };
 
     struct os_input_mouse_t {
         f32 x;
         f32 y;
         f32 wheel;
+    };
+
+    struct os_input_keycode_t {
+        u16 val;
     };
 
     struct os_input_keycode_array_t {
@@ -281,23 +299,38 @@ namespace sld {
     // WINDOW
     //-------------------------------------------------------------------
 
+    struct os_window_handle_t      : os_handle_t { };
+    struct os_window_error_t       : os_error_t  { };
+    struct os_window_event_flags_t : os_flags_t  { }; 
+
     struct os_window_size_t;
     struct os_window_position_t;
     struct os_window_update_t;
 
-    typedef void* os_window_handle_t;
-    typedef u32   os_window_events_t;
+    using os_window_create_f         = const os_window_error_t (*) (os_window_handle_t&      window_handle, const c8* title, const os_window_size_t& size, const os_window_position_t& position);
+    using os_window_destroy_f        = const os_window_error_t (*) (const os_window_handle_t window_handle);
+    using os_window_update_f         = const os_window_error_t (*) (const os_window_handle_t window_handle, os_window_update_t&   update);
+    using os_window_swap_buffers_f   = const os_window_error_t (*) (const os_window_handle_t window_handle);
+    using os_window_show_f           = const os_window_error_t (*) (const os_window_handle_t window_handle);
+    using os_window_get_size_f       = const os_window_error_t (*) (const os_window_handle_t window_handle, os_window_size_t&     size);
+    using os_window_get_position_f   = const os_window_error_t (*) (const os_window_handle_t window_handle, os_window_position_t& position);
 
-    using os_window_create_f         = os_window_handle_t (*) (const c8* title, const os_window_size_t& size, const os_window_position_t& position);
-    using os_window_frame_start_f    = bool               (*) (const os_window_handle_t handle);
-    using os_window_frame_render_f   = bool               (*) (const os_window_handle_t handle);
-    using os_window_update_f = bool               (*) (const os_window_handle_t handle, os_window_events_t&   events);
-    using os_window_destroy_f        = bool               (*) (const os_window_handle_t handle);
-    using os_window_show_f           = bool               (*) (const os_window_handle_t handle);
-    using os_window_get_size_f       = bool               (*) (const os_window_handle_t handle, os_window_size_t&     size);
-    using os_window_get_position_f   = bool               (*) (const os_window_handle_t handle, os_window_position_t& position);
+    struct os_window_update_t {
+        os_input_t              input;
+        os_window_event_flags_t events;
+    };
 
-    enum os_window_event_e {
+    struct os_window_size_t {
+        u32 width;
+        u32 height;
+    };
+
+    struct os_window_position_t {
+        u32 screen_x;
+        u32 screen_y;
+    };
+
+    enum os_window_event_flag_e {
         os_window_event_e_none                  = 0,
         os_window_event_e_quit                  = bit_value(0),
         os_window_event_e_destroyed             = bit_value(1),
@@ -315,15 +348,23 @@ namespace sld {
         os_window_event_e_mouse_wheel           = bit_value(13)
     };
 
-    struct os_window_size_t {
-        u32 width;
-        u32 height;
+    enum os_window_error_e {
+        os_window_error_e_success                = 1,
+        os_window_error_e_unknown                = -1,
+        os_window_error_e_resource_not_found     = ,
+        os_window_error_e_access_denied          = ,
+        os_window_error_e_system_out_of_memory   = ,
+        os_window_error_e_general_out_of_memory  = ,
+        os_window_error_e_invalid_args           = ,
+        os_window_error_e_invalid_handle         = ,
+        os_window_error_e_invalid_class          = ,
+        os_window_error_e_class_already_exists   = ,
+        os_window_error_e_invalid_device_context = ,
+        os_window_error_e_invalid_thread         = ,
+        os_window_error_e_invalid_resource       = ,
+        os_window_error_e_quota_exceeded         = 
     };
 
-    struct os_window_position_t {
-        u32 screen_x;
-        u32 screen_y;
-    };
 
     //-------------------------------------------------------------------
     // MEMORY
@@ -482,9 +523,8 @@ namespace sld {
     sld_os_api os_monitor_info_f                os_monitor_info;
 
     sld_os_api os_window_create_f               os_window_create; 
-    sld_os_api os_window_frame_start_f          os_window_frame_start; 
-    sld_os_api os_window_frame_render_f         os_window_frame_render; 
     sld_os_api os_window_update_f               os_window_update; 
+    sld_os_api os_window_swap_buffers_f         os_window_swap_buffers; 
     sld_os_api os_window_destroy_f              os_window_destroy; 
     sld_os_api os_window_show_f                 os_window_show; 
     sld_os_api os_window_get_size_f             os_window_get_size; 

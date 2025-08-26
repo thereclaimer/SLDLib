@@ -1,10 +1,13 @@
 #pragma once
 
 #include "sld-os.hpp"
+
 #include "sld-win32-system.cpp"
 #include "sld-win32-memory.cpp"
 #include "sld-win32-file.cpp"
 #include "sld-win32-input.cpp"
+#include "sld-win32-window.cpp"
+
 
 namespace sld {
 
@@ -30,15 +33,14 @@ namespace sld {
     //----------------
     // window
     //----------------
-
-    // os_window_create_f       os_window_create_opengl3       = win32_window_create_opengl3; 
-    // os_window_frame_start_f  os_window_frame_start_opengl3  = win32_window_frame_start_opengl3; 
-    // os_window_frame_render_f os_window_frame_render_opengl3 = NULL; 
-    // os_window_destroy_f              os_window_destroy              = win32_window_destroy; 
-    // os_window_show_f                 os_window_show                 = win32_window_show; 
-    // os_window_get_size_f             os_window_get_size             = win32_window_get_size; 
-    // os_window_get_position_f         os_window_get_position         = win32_window_get_position; 
-    // os_window_process_events_f       os_window_process_events       = win32_window_process_events; 
+    
+    os_window_create_f       os_window_create        = win32_window_create;
+    os_window_destroy_f      os_window_destroy       = win32_window_destroy;
+    os_window_update_f       os_window_update        = win32_window_update;
+    os_window_swap_buffers_f os_window_swap_buffers  = win32_window_swap_buffers;
+    os_window_show_f         os_window_show          = win32_window_show;
+    os_window_get_size_f     os_window_get_size      = win32_window_get_size;
+    os_window_get_position_f os_window_get_position  = win32_window_get_position;
 
     //----------------
     // memory

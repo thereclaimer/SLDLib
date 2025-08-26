@@ -10,7 +10,8 @@
 			"xstring": "cpp",
 			"xutility": "cpp",
 			"cstdint": "cpp",
-			"utility": "cpp"
+			"utility": "cpp",
+			"xtr1common": "cpp"
 		}
 	}
 }

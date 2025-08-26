@@ -12,8 +12,8 @@ namespace sld {
 
     struct win32_input_keycode_map_t {
         
-        sld_ct_const u32                capacity           = 256;
-        sld_ct_const os_input_keycode_t keycodes[capacity] = {
+        sld_ct_const u32 capacity           = 256;
+        sld_ct_const u16 keycodes[capacity] = {
 
             /* 0x00-0x07 */ 
             os_input_keycode_e_null, os_input_keycode_e_null, os_input_keycode_e_null, os_input_keycode_e_null,
@@ -143,17 +143,21 @@ namespace sld {
         const LPARAM l_param) {
 
         constexpr win32_input_keycode_map_t keycode_map;
-        if (w_param >= 256) return(os_input_keycode_e_null);
+        os_input_keycode_t                  keycode = {os_input_keycode_e_null};
+        
+        if (w_param >= 256) return(keycode);
 
         const bool is_extended = (l_param & 0x01000000) != 0;
         const u8   scan        = (l_param >> 16) & 0xFF;
 
         switch(w_param) {
             
-            case (VK_SHIFT):   return((scan == 0x36) ? os_input_keycode_e_shift_right : os_input_keycode_e_shift_left);  
-            case (VK_CONTROL): return((is_extended)  ? os_input_keycode_e_ctrl_right  : os_input_keycode_e_ctrl_left);
-            case (VK_MENU):    return((is_extended)  ? os_input_keycode_e_alt_right   : os_input_keycode_e_alt_left);
-            default:           return(keycode_map.keycodes[w_param]);
+            case (VK_SHIFT):   keycode.val = (scan == 0x36) ? os_input_keycode_e_shift_right : os_input_keycode_e_shift_left;  
+            case (VK_CONTROL): keycode.val = (is_extended)  ? os_input_keycode_e_ctrl_right  : os_input_keycode_e_ctrl_left;
+            case (VK_MENU):    keycode.val = (is_extended)  ? os_input_keycode_e_alt_right   : os_input_keycode_e_alt_left;
+            default:           keycode.val = keycode_map.keycodes[w_param];
         }
+
+        return(keycode);
     }
 }
