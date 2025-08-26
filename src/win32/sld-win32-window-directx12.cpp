@@ -6,7 +6,6 @@
 
 namespace sld {
 
-
     //-------------------------------------------------------------------
     // OS API
     //-------------------------------------------------------------------
@@ -19,12 +18,7 @@ namespace sld {
         const os_window_position_t& position) {
 
         os_window_error_t error = {os_window_error_e_success};
-
-        LPWNDCLASSA window_class = win32_window_directx12_get_class();
-        if (!window_class) {
-            error.val = win32_window_
-        }
-
+        return(error);
     }
 
     SLD_OS_API_FUNC const os_window_error_t
@@ -69,6 +63,7 @@ namespace sld {
         return(window_class_ptr);
     }
     
+
     SLD_OS_API_INTERNAL LRESULT CALLBACK
     win32_window_directx12_callback(
         HWND   handle,
@@ -76,6 +71,22 @@ namespace sld {
         WPARAM w_param,
         LPARAM l_param) {
 
-        return(0);
+        LRESULT result = ImGui_ImplWin32_WndProcHandler(
+            handle,
+            message,
+            w_param,
+            l_param            
+        );
+
+        if (result) return(true);
+
+        result = DefWindowProc(
+            handle,
+            message,
+            w_param,
+            l_param
+        );
+
+        return(result);
     }
 };

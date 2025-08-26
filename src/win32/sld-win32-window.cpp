@@ -1,27 +1,20 @@
 #pragma once
 
 #include <Windows.h>
-
 #include "sld-os.hpp"
 
 #if SLD_OS_GRAPHICS_CONTEXT_TYPE == SLD_OS_GRAPHICS_CONTEXT_OPENGL
-#   define win32_window_get_class    win32_window_opengl3_get_class
+#   define win32_window_create       win32_window_opengl3_create
 #   define win32_window_update       win32_window_opengl3_update
 #   define win32_window_swap_buffers win32_window_opengl3_swap_buffers
-#   define win32_window_get_class    win32_window_opengl3_get_class
-#   define win32_window_callback     win32_window_opengl3_callback
 #elif SLD_OS_GRAPHICS_CONTEXT_TYPE == SLD_OS_GRAPHICS_CONTEXT_DIRECTX12
-#   define win32_window_get_class    win32_window_directx12_get_class
+#   define win32_window_create       win32_window_directx12_create
 #   define win32_window_update       win32_window_directx12_update
 #   define win32_window_swap_buffers win32_window_directx12_swap_buffers
-#   define win32_window_get_class    win32_window_directx12_get_class
-#   define win32_window_callback     win32_window_directx12_callback
 #else
-#   define win32_window_get_class    win32_window_opengl3_get_class
+#   define win32_window_create       win32_window_opengl3_create
 #   define win32_window_update       win32_window_opengl3_update
 #   define win32_window_swap_buffers win32_window_opengl3_swap_buffers
-#   define win32_window_get_class    win32_window_opengl3_get_class
-#   define win32_window_callback     win32_window_opengl3_callback
 #endif
 
 namespace sld {
@@ -48,54 +41,11 @@ namespace sld {
     const os_window_error_t  win32_window_directx12_swap_buffers (const os_window_handle_t window_handle);
     LPWNDCLASSA              win32_window_directx12_get_class    (void);
     LRESULT CALLBACK         win32_window_directx12_callback     (HWND handle, UINT message, WPARAM w_param, LPARAM l_param);
-
-    // opengl
-    const os_window_error_t  win32_window_opengl3_update         (const os_window_handle_t window_handle, os_window_update_t&   update);
-    const os_window_error_t  win32_window_opengl3_swap_buffers   (const os_window_handle_t window_handle);
-    LPWNDCLASSA              win32_window_opengl3_get_class      (void);
-    LRESULT CALLBACK         win32_window_opengl3_callback       (HWND handle, UINT message, WPARAM w_param, LPARAM l_param);
+    ImGuiContext*            win32_window_directx12_imgui_init   (HWND handle);
 
     //-------------------------------------------------------------------
     // OS API METHODS
     //-------------------------------------------------------------------
-
-    SLD_OS_API_FUNC const os_window_error_t
-    win32_window_create(
-        os_window_handle_t&         window_handle,
-        const c8*                   title,
-        const os_window_size_t&     size,
-        const os_window_position_t& position) {
-
-        os_window_error_t error = {os_window_error_e_success};
-
-        // get the glass
-        LPWNDCLASSA window_class = win32_window_get_class();
-        if (!window_class) {
-            error = win32_window_error_get_last();
-            return(error);
-        }
-
-        // create the window
-        window_handle.val = CreateWindowA(
-            window_class->lpszClassName,
-            title,
-            WS_OVERLAPPEDWINDOW,
-            position.screen_x,
-            position.screen_y,
-            size.width,
-            size.height,
-            NULL,
-            NULL,
-            window_class->hInstance,
-            NULL
-        );
-
-        // return the error code
-        error = (window_handle.val == INVALID_HANDLE_VALUE)
-            ? win32_window_error_get_last ()
-            : win32_window_error_success  ();
-        return(error);
-    }
 
     SLD_OS_API_FUNC const os_window_error_t
     win32_window_destroy(

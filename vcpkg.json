@@ -5,6 +5,7 @@
       "features": [
         "win32-binding",
         "opengl3-binding",
+        "dx12-binding",
         "docking-experimental"
       ]
     },

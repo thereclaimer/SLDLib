@@ -6,6 +6,7 @@
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_win32.h>
+#include <imgui_impl_dx12.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
