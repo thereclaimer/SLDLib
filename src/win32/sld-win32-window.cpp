@@ -31,20 +31,13 @@ namespace sld {
     };
 
     // common
-    const os_window_error_t  win32_window_error_get_last         (void);
-    const os_window_error_t  win32_window_error_success          (void);
-    const os_window_error_t  win32_window_process_events         (const os_window_handle_t handle, os_window_update_t& update);
-    bool                     win32_window_peek_message           (win32_window_message_peek_args_t& peek_args);
-
-    // directx12
-    const os_window_error_t  win32_window_directx12_update       (const os_window_handle_t window_handle, os_window_update_t&   update);
-    const os_window_error_t  win32_window_directx12_swap_buffers (const os_window_handle_t window_handle);
-    LPWNDCLASSA              win32_window_directx12_get_class    (void);
-    LRESULT CALLBACK         win32_window_directx12_callback     (HWND handle, UINT message, WPARAM w_param, LPARAM l_param);
-    ImGuiContext*            win32_window_directx12_imgui_init   (HWND handle);
+    const os_window_error_t  win32_window_error_get_last (void);
+    const os_window_error_t  win32_window_error_success  (void);
+    const os_window_error_t  win32_window_process_events (const os_window_handle_t handle, os_window_update_t& update);
+    bool                     win32_window_peek_message   (win32_window_message_peek_args_t& peek_args);
 
     //-------------------------------------------------------------------
-    // OS API METHODS
+    // OS API
     //-------------------------------------------------------------------
 
     SLD_OS_API_FUNC const os_window_error_t

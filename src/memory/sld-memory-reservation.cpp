@@ -1,21 +1,45 @@
 #pragma once
 
-#include "sld-memory-internal.cpp"
-#include "sld-memory-manager.cpp"
+#include "sld-memory-internal-stack.cpp"
 
 namespace sld {
 
     //-------------------------------------------------------------------
     // DECLARATIONS
     //-------------------------------------------------------------------
-
-    bool memory_reservation_validate_internal(const memory_reservation_t* reservation, const memory_manager_t& memory_manager);
     
+    struct memory_reservation_t;
+    struct memory_reservation_list_t;
+
+    memory_reservation_list_t& memory_reservation_list_instance     (void);
+    bool                       memory_reservation_validate_internal (const memory_reservation_t* reservation, const memory_manager_t& memory_manager);
+    memory_reservation_t*      memory_reservation_get_new           (void);    
+
     //-------------------------------------------------------------------
-    // PUBLIC
+    // DECLARATIONS
     //-------------------------------------------------------------------
 
-    bool
+    struct memory_reservation_t {
+        addr                  start;
+        memory_reservation_t* next;
+        memory_reservation_t* prev;
+        struct {
+            u64 total;
+            u64 arena;
+            u64 committed;
+        } size;
+    };
+
+    struct memory_reservation_list_t {
+        memory_reservation_t* reserved;
+        memory_reservation_t* released;
+    };
+
+    //-------------------------------------------------------------------
+    // API
+    //-------------------------------------------------------------------
+
+    SLD_API bool
     memory_reservation_validate(
         const memory_reservation_id_t reservation_id) {
 
@@ -25,11 +49,32 @@ namespace sld {
         return(is_valid);
     }
 
-    const memory_reservation_id_t
+    SLD_API const memory_reservation_h32
     memory_reservation_acquire(
         const u64 reservation_size, const u64 arena_size) {
+       
+        memory_reservation_t* reservation = NULL;
 
-        static memory_manager_t& mem_mgr = memory_manager_instance();
+        // if there are no released reservations,
+        // get a new one
+        if (list.released == NULL) {
+
+            reservation = memory_internal_stack_push_reservation();
+        }
+        // otherwise, we will recycle the first one
+        // off the released list
+        else {
+            
+            reservation   = list.released;
+            list.released = reservation->next;
+
+            if (list.released != NULL) {
+                list.released->prev = NULL;
+            }
+        }
+
+        // we should have a reservation structure at this point
+        if (reservation == NULL) return(SLD_MEMORY_INVALID_HANDLE);
 
         // align sizes 
         const u64  reservation_size_aligned = os_memory_align_to_granularity (reservation_size);
@@ -38,48 +83,20 @@ namespace sld {
             reservation_size_aligned != 0 &&
             arena_size_aligned       != 0 &&
             arena_size_aligned       <= reservation_size_aligned); 
-
-        // find or alloc a free reservation
-        memory_reservation_t* res           = memory_manager_find_free_reservation (mem_mgr);
-        if (!res)             res           = memory_manager_alloc_reservation     (mem_mgr);
-        const bool            is_res_valid  = (res != NULL);
+        if (!are_args_valid) return(SLD_MEMORY_INVALID_HANDLE);
 
         // reserve memory
-        void* res_start = (are_args_valid && is_res_valid)
-            ? os_memory_reserve(NULL, reservation_size_aligned)
-            : NULL;
-        const bool is_mem_reserved = (res_start != NULL); 
+        void* start = os_memory_reserve(NULL, reservation_size_aligned)
+        if (!start) return(SLD_MEMORY_INVALID_HANDLE);
 
-        // check results
-        const bool result = (
-            are_args_valid &&
-            is_res_valid   &&
-            is_mem_reserved
-        );
+        // initialize the reservation and add it to the front of the 
+        // reserved list
 
-        // if everything is good, initialize the reservation
-        memory_reservation_id_t res_id = SLD_MEMORY_INVALID_ID;        
-        if (result) {
-
-            mem_mgr.last_error = memory_error_e_success;
-            res_id             = res->id;
-            res->start         = (addr)res_start; 
-            res->total_size    = reservation_size_aligned; 
-            res->arena_size    = arena_size_aligned;       
-        }
-        // otherwise, set the error
-        else {
-
-            if      (are_args_valid)  mem_mgr.last_error = memory_error_e_invalid_args;
-            else if (is_res_valid)    mem_mgr.last_error = memory_error_e_stack_out_of_memory;
-            else if (is_mem_reserved) mem_mgr.last_error = memory_error_e_os_failed_to_reserve;
-            else                      mem_mgr.last_error = memory_error_e_unknown;
-        }
 
         return(res_id);
     }
 
-    bool
+    SLD_API bool
     memory_reservation_release(
         const memory_reservation_id_t reservation_id) {
 
@@ -134,7 +151,7 @@ namespace sld {
     // INTERNAL
     //-------------------------------------------------------------------
 
-    sld_rt_inline bool
+    SLD_INLINE bool
     memory_reservation_validate_internal(
         const memory_reservation_t* reservation,
         const memory_manager_t&     memory_manager) {
@@ -150,4 +167,27 @@ namespace sld {
         }
         return(is_valid);
     }
+
+    SLD_INLINE memory_reservation_list_t&
+    memory_reservation_list_instance(
+        void) {
+
+        static memory_reservation_list_t list = {
+            NULL, // reserved
+            NULL  // released
+        };
+
+        return(list);
+    }
+
+    SLD_INLINE memory_reservation_t*
+    memory_reservation_get_new(
+        void) {
+
+        static memory_reservation_list_t& list = memory_reservation_list_instance();
+ 
+
+
+    }    
+
 };

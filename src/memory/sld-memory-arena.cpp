@@ -10,6 +10,14 @@ namespace sld {
     // DECLARATIONS
     //-------------------------------------------------------------------
 
+    struct memory_arena_t {
+        memory_reservation_t* reservation;
+        memory_arena_t*       next;
+        memory_arena_t*       prev;
+        void*                 commit;
+        stack_t               stack;
+    };
+
     bool memory_arena_validate_internal(const memory_arena_t* arena, const memory_manager_t& memory_manager);
 
     //-------------------------------------------------------------------
@@ -138,7 +146,7 @@ namespace sld {
     // INTERNAL
     //-------------------------------------------------------------------
 
-    sld_rt_inline bool
+    SLD_INLINE bool
     memory_arena_validate_internal(
         const memory_arena_t*   arena,
         const memory_manager_t& memory_manager) {

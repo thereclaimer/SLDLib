@@ -16,7 +16,7 @@ namespace sld {
     memory_arena_t*       memory_manager_get_arena               (memory_manager_t& memory_manager, const memory_arena_id_t       arena_id);
     
 
-    sld_rt_inline memory_manager_t&
+    SLD_INLINE memory_manager_t&
     memory_manager_instance(
         void) {
 
@@ -43,7 +43,7 @@ namespace sld {
         return(memory_manager);
     }
 
-    sld_rt_inline const memory_id_t
+    SLD_INLINE const memory_id_t
     memory_manager_get_id_from_address(
         memory_manager_t& memory_manager,
         const addr        address) {
@@ -61,7 +61,7 @@ namespace sld {
         return(memory_id);
     }
 
-    sld_rt_inline const addr
+    SLD_INLINE const addr
     memory_manager_get_address_from_id(
         memory_manager_t& memory_manager,
         const memory_id_t id) {
@@ -77,7 +77,7 @@ namespace sld {
         return(memory_address);
     }
 
-    sld_rt_inline memory_reservation_t*
+    SLD_INLINE memory_reservation_t*
     memory_manager_alloc_reservation(
         memory_manager_t& memory_manager) {
 
@@ -107,7 +107,7 @@ namespace sld {
         return(new_reservation);
     }
 
-    sld_rt_inline memory_reservation_t*
+    SLD_INLINE memory_reservation_t*
     memory_manager_find_free_reservation(
         memory_manager_t& memory_manager) {
 
@@ -129,7 +129,7 @@ namespace sld {
         return(res_free);
     }
 
-    sld_rt_inline memory_arena_t*
+    SLD_INLINE memory_arena_t*
     memory_manager_alloc_arena(
         memory_manager_t& memory_manager) {
 
@@ -161,7 +161,7 @@ namespace sld {
         return(new_arena); 
     }
 
-    sld_rt_inline memory_reservation_t*
+    SLD_INLINE memory_reservation_t*
     memory_manager_get_reservation(
         memory_manager_t&             memory_manager,
         const memory_reservation_id_t reservation_id) {
@@ -173,7 +173,7 @@ namespace sld {
         return(reservation);
     }
 
-    sld_rt_inline memory_arena_t*
+    SLD_INLINE memory_arena_t*
     memory_manager_get_arena(
         memory_manager_t&       memory_manager,
         const memory_arena_id_t arena_id) {
@@ -185,7 +185,7 @@ namespace sld {
         return(arena);
     }
 
-    sld_rt_inline memory_arena_t*
+    SLD_INLINE memory_arena_t*
     memory_manager_find_free_arena(
         memory_manager_t& memory_manager) {
 
