@@ -95,7 +95,6 @@ namespace sld {
     sld_ct_inline void      bit_set_high     (const u32 bit, u32&      value)      { value |=  (1 << bit);        }
     sld_ct_inline void      bit_set_low      (const u32 bit, u32&      value)      { value &= ~(1 << bit);        }
     sld_ct_inline void      bit_toggle       (const u32 bit, u32&      value)      { value ^=  (1 << bit);        }
-
 };
 
 

@@ -349,20 +349,20 @@ namespace sld {
     };
 
     enum os_window_error_e {
-        os_window_error_e_success                = 1,
+        os_window_error_e_success                =  1,
         os_window_error_e_unknown                = -1,
-        os_window_error_e_resource_not_found     = ,
-        os_window_error_e_access_denied          = ,
-        os_window_error_e_system_out_of_memory   = ,
-        os_window_error_e_general_out_of_memory  = ,
-        os_window_error_e_invalid_args           = ,
-        os_window_error_e_invalid_handle         = ,
-        os_window_error_e_invalid_class          = ,
-        os_window_error_e_class_already_exists   = ,
-        os_window_error_e_invalid_device_context = ,
-        os_window_error_e_invalid_thread         = ,
-        os_window_error_e_invalid_resource       = ,
-        os_window_error_e_quota_exceeded         = 
+        os_window_error_e_resource_not_found     = -2,
+        os_window_error_e_access_denied          = -3,
+        os_window_error_e_system_out_of_memory   = -4,
+        os_window_error_e_general_out_of_memory  = -5,
+        os_window_error_e_invalid_args           = -6,
+        os_window_error_e_invalid_handle         = -7,
+        os_window_error_e_invalid_class          = -8,
+        os_window_error_e_class_already_exists   = -9,
+        os_window_error_e_invalid_device_context = -10,
+        os_window_error_e_invalid_thread         = -11,
+        os_window_error_e_invalid_resource       = -12,
+        os_window_error_e_quota_exceeded         = -13
     };
 
 
