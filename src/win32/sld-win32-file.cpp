@@ -31,7 +31,7 @@ namespace sld {
     // OS API
     //-------------------------------------------------------------------
 
-    const os_file_error_t
+    SLD_OS_API_FUNC const os_file_error_t
     win32_file_open(
         os_file_handle_t&     file_handle,
         const c8*             path,
@@ -82,7 +82,7 @@ namespace sld {
         return(error);
     }
 
-    const os_file_error_t
+    SLD_OS_API_FUNC const os_file_error_t
     win32_file_size(
         const os_file_handle_t handle,
         u64&                   size) {
@@ -100,7 +100,7 @@ namespace sld {
         return(error);
     }
 
-    const os_file_error_t
+    SLD_OS_API_FUNC const os_file_error_t
     win32_file_read(
         const os_file_handle_t handle,
         os_file_buffer_t&      buffer) {
@@ -122,7 +122,7 @@ namespace sld {
         return(error);    
     }
 
-    const os_file_error_t
+    SLD_OS_API_FUNC const os_file_error_t
     win32_file_write(
         const os_file_handle_t handle,
         os_file_buffer_t&      buffer) {
@@ -144,7 +144,7 @@ namespace sld {
         return(error);
     }
 
-    const os_file_error_t
+    SLD_OS_API_FUNC const os_file_error_t
     win32_file_read_async(
         const os_file_handle_t   handle,
         os_file_buffer_t&        buffer,
@@ -169,7 +169,7 @@ namespace sld {
         return(error);
     }
 
-    const os_file_error_t
+    SLD_OS_API_FUNC const os_file_error_t
     win32_file_write_async(
         const os_file_handle_t   handle,
         os_file_buffer_t&        buffer,
@@ -198,7 +198,7 @@ namespace sld {
     // INTERNAL
     //-------------------------------------------------------------------
 
-    sld_rt_inline const os_file_error_t
+    SLD_OS_API_INTERNAL const os_file_error_t
     win32_file_get_error_code(
         void) {
 
@@ -233,11 +233,9 @@ namespace sld {
             case (ERROR_NOT_ENOUGH_MEMORY):    { error.val = os_file_error_e_out_of_memory;       return(error); }
             default:                           { error.val = os_file_error_e_unknown;             return(error); }
         }
-
-        
     }
 
-    sld_rt_inline const os_file_error_t&
+    SLD_OS_API_INTERNAL const os_file_error_t&
     win32_file_error_success(
         void) {
 
@@ -245,7 +243,7 @@ namespace sld {
         return(error);
     }
 
-    sld_rt_inline void
+    SLD_OS_API_INTERNAL void
     win32_file_async_callback(
         DWORD        error_code,
         DWORD        bytes_transferred,

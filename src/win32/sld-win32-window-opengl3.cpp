@@ -3,20 +3,14 @@
 #include <Windows.h>
 
 #include "sld-os.hpp"
-#include "sld-win32-window-error.cpp"
 
 namespace sld {
-
-    //-------------------------------------------------------------------
-    // DECLARATIONS
-    //-------------------------------------------------------------------
-
 
     //-------------------------------------------------------------------
     // OS API METHODS
     //-------------------------------------------------------------------
 
-    static const os_window_error_t
+    SLD_OS_API_FUNC os_window_error_t
     win32_window_opengl3_create(
         os_window_handle_t&         window_handle,
         const c8*                   title,
@@ -31,11 +25,9 @@ namespace sld {
             error.val = win32_window_error_get_last();
             return(error);
         }
-
-
     }
 
-    static const os_window_error_t
+    SLD_OS_API_FUNC const os_window_error_t
     win32_window_opengl3_update(
         const os_window_handle_t window_handle,
         os_window_update_t&      update) {
@@ -46,7 +38,7 @@ namespace sld {
 
     }
     
-    static inline const os_window_error_t
+    SLD_OS_API_FUNC inline const os_window_error_t
     win32_window_opengl3_swap_buffers(
         const os_window_handle_t window_handle) {
 
@@ -63,7 +55,7 @@ namespace sld {
     // INTERNAL METHODS
     //-------------------------------------------------------------------
 
-    static inline LPWNDCLASSA 
+    SLD_OS_API_INTERNAL LPWNDCLASSA 
     win32_window_opengl3_get_class(
         void) {
 
@@ -88,7 +80,7 @@ namespace sld {
         return(window_class_ptr);
     }
     
-    static inline LRESULT CALLBACK
+    SLD_OS_API_INTERNAL LRESULT CALLBACK
     win32_window_opengl3_callback(
         HWND   handle,
         UINT   message,

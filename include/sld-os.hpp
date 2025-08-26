@@ -8,6 +8,9 @@
 /* OS                                                                             */
 /**********************************************************************************/
 
+#define SLD_OS_API          extern        // os api declaration
+#define SLD_OS_API_FUNC     static        // os api function
+#define SLD_OS_API_INTERNAL inline static // internal os function
 
 #ifndef    SLD_OS_FILE_ASYNC_CONTEXT_SIZE
 #   define SLD_OS_FILE_ASYNC_CONTEXT_SIZE      1024
@@ -388,7 +391,7 @@ namespace sld {
     struct os_file_buffer_t;
     struct os_file_async_context_t;
 
-    using os_file_callback_async_io = void                   (*) (const os_file_async_context_t* async_context); 
+    using os_file_callback_async_io = void (*) (const os_file_async_context_t* async_context); 
 
     using os_file_open_f           = const os_file_error_t (*) (os_file_handle_t&      file_handle, const c8* path, const os_file_flags_t flags);
     using os_file_size_f           = const os_file_error_t (*) (const os_file_handle_t file_handle, u64& size);
@@ -412,7 +415,6 @@ namespace sld {
         u32                       bytes_transferred;
         byte                      os_data[SLD_OS_FILE_ASYNC_CONTEXT_SIZE];                 
     };
-
 
     enum os_file_flag_e {
         os_file_flag_e_none          = 0,
@@ -469,11 +471,10 @@ namespace sld {
     // THREADS
     //-------------------------------------------------------------------
 
-    typedef u32 os_thread_error_t;
-
     struct os_thread_handle_t           : os_handle_t { };
     struct os_thread_mutex_handle_t     : os_handle_t { };
     struct os_thread_condition_handle_t : os_handle_t { };
+    struct os_thread_error_t            : os_error_t  { };
 
     struct os_thread_callback_data_t;
     struct os_thread_context_t;
@@ -507,42 +508,64 @@ namespace sld {
         os_thread_callback_data_t     data;
     };
 
+    enum os_thread_error_e {
+        os_thread_error_e_success = 1,
+        os_thread_error_e_unknown = -1
+    };
+
     //-------------------------------------------------------------------
     // API
     //-------------------------------------------------------------------
 
-    sld_os_api os_system_get_cpu_info_f         os_system_get_cpu_info;
-    sld_os_api os_system_get_cpu_cache_info_f   os_system_get_cpu_cache_info;
-    sld_os_api os_system_get_memory_info_f      os_system_get_memory_info;
-    sld_os_api os_system_time_ms_f              os_system_time_ms;
-    sld_os_api os_system_sleep_f                os_system_sleep;
-    sld_os_api os_system_debug_print_f          os_system_debug_print;
+    SLD_OS_API os_system_get_cpu_info_f         os_system_get_cpu_info;
+    SLD_OS_API os_system_get_cpu_cache_info_f   os_system_get_cpu_cache_info;
+    SLD_OS_API os_system_get_memory_info_f      os_system_get_memory_info;
+    SLD_OS_API os_system_time_ms_f              os_system_time_ms;
+    SLD_OS_API os_system_sleep_f                os_system_sleep;
+    SLD_OS_API os_system_debug_print_f          os_system_debug_print;
 
-    sld_os_api os_monitor_count_f               os_monitor_count;
-    sld_os_api os_monitor_screen_size_f         os_monitor_screen_size;
-    sld_os_api os_monitor_info_f                os_monitor_info;
+    SLD_OS_API os_monitor_count_f               os_monitor_count;
+    SLD_OS_API os_monitor_screen_size_f         os_monitor_screen_size;
+    SLD_OS_API os_monitor_info_f                os_monitor_info;
 
-    sld_os_api os_window_create_f               os_window_create; 
-    sld_os_api os_window_update_f               os_window_update; 
-    sld_os_api os_window_swap_buffers_f         os_window_swap_buffers; 
-    sld_os_api os_window_destroy_f              os_window_destroy; 
-    sld_os_api os_window_show_f                 os_window_show; 
-    sld_os_api os_window_get_size_f             os_window_get_size; 
-    sld_os_api os_window_get_position_f         os_window_get_position; 
+    SLD_OS_API os_window_create_f               os_window_create; 
+    SLD_OS_API os_window_update_f               os_window_update; 
+    SLD_OS_API os_window_swap_buffers_f         os_window_swap_buffers; 
+    SLD_OS_API os_window_destroy_f              os_window_destroy; 
+    SLD_OS_API os_window_show_f                 os_window_show; 
+    SLD_OS_API os_window_get_size_f             os_window_get_size; 
+    SLD_OS_API os_window_get_position_f         os_window_get_position; 
 
-    sld_os_api os_memory_reserve_f              os_memory_reserve;
-    sld_os_api os_memory_release_f              os_memory_release;
-    sld_os_api os_memory_commit_f               os_memory_commit;
-    sld_os_api os_memory_decommit_f             os_memory_decommit;
-    sld_os_api os_memory_align_to_page_f        os_memory_align_to_page;
-    sld_os_api os_memory_align_to_granularity_f os_memory_align_to_granularity;
+    SLD_OS_API os_memory_reserve_f              os_memory_reserve;
+    SLD_OS_API os_memory_release_f              os_memory_release;
+    SLD_OS_API os_memory_commit_f               os_memory_commit;
+    SLD_OS_API os_memory_decommit_f             os_memory_decommit;
+    SLD_OS_API os_memory_align_to_page_f        os_memory_align_to_page;
+    SLD_OS_API os_memory_align_to_granularity_f os_memory_align_to_granularity;
 
-    sld_os_api os_file_open_f                   os_file_open;
-    sld_os_api os_file_size_f                   os_file_size;
-    sld_os_api os_file_read_f                   os_file_read;
-    sld_os_api os_file_write_f                  os_file_write;
-    sld_os_api os_file_read_async_f             os_file_read_async;
-    sld_os_api os_file_write_async_f            os_file_write_async;
+    SLD_OS_API os_file_open_f                   os_file_open;
+    SLD_OS_API os_file_size_f                   os_file_size;
+    SLD_OS_API os_file_read_f                   os_file_read;
+    SLD_OS_API os_file_write_f                  os_file_write;
+    SLD_OS_API os_file_read_async_f             os_file_read_async;
+    SLD_OS_API os_file_write_async_f            os_file_write_async;
+
+    SLD_OS_API os_thread_create_f               os_thread_create;
+    SLD_OS_API os_thread_destroy_f              os_thread_destroy;
+    SLD_OS_API os_thread_exit_f                 os_thread_exit;
+    SLD_OS_API os_thread_sleep_f                os_thread_sleep;
+    SLD_OS_API os_thread_yield_f                os_thread_yield;
+    SLD_OS_API os_thread_join_f                 os_thread_join;
+    SLD_OS_API os_thread_mutex_create_f         os_thread_mutex_create;
+    SLD_OS_API os_thread_mutex_destroy_f        os_thread_mutex_destroy;
+    SLD_OS_API os_thread_mutex_lock_f           os_thread_mutex_lock;
+    SLD_OS_API os_thread_mutex_unlock_f         os_thread_mutex_unlock;
+    SLD_OS_API os_thread_mutex_try_lock_f       os_thread_mutex_try_lock;
+    SLD_OS_API os_thread_condition_create_f     os_thread_condition_create;
+    SLD_OS_API os_thread_condition_destroy_f    os_thread_condition_destroy;
+    SLD_OS_API os_thread_condition_wait_f       os_thread_condition_wait;
+    SLD_OS_API os_thread_condition_signal_f     os_thread_condition_signal;
+    SLD_OS_API os_thread_condition_broadcast_f  os_thread_condition_broadcast;
 };
 
 #endif //SLD_OS_HPP

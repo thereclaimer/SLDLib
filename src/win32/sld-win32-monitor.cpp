@@ -23,8 +23,7 @@ namespace sld {
     static bool
     win32_monitor_info(
         os_monitor_info_t& monitor_info) {
-
         
-
+        return(false);
     }
 };
