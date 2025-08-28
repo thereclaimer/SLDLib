@@ -20,7 +20,7 @@ namespace sld {
     memory_manager_instance(
         void) {
 
-        sld_ct_const u64 stack_size = size_kilobytes(SLD_MEMORY_INTERNAL_STACK_SIZE_KB);
+        sld_ct_const u64 stack_size = size_kilobytes(SLD_memory_stack_SIZE_KB);
 
         static memory_manager_t memory_manager;
         static byte             stack_memory[stack_size];         

@@ -1,14 +1,12 @@
 #pragma once
 
-#include "sld-memory.hpp"
-
-#include "sld-memory-manager.cpp"
+#include "sld-memory-internal.cpp"
+#include "sld-memory-stack.cpp"
 #include "sld-memory-reservation.cpp"
-#include "sld-memory-arena.cpp"
 
 namespace sld {
 
-    bool
+    SLD_API bool
     memory_validate(
         const memory_t& memory) {
 
@@ -20,7 +18,7 @@ namespace sld {
         return(is_valid);
     }
 
-    bool
+    SLD_API bool
     memory_zero(
         memory_t& memory) {
 
@@ -41,7 +39,7 @@ namespace sld {
         return(result);
     }
 
-    u64
+    SLD_API u64
     memory_copy(
         const memory_t& memory_src,
         memory_t&       memory_dst) {
@@ -72,7 +70,7 @@ namespace sld {
         return(size);
     }
 
-    addr
+    SLD_API addr
     memory_advance(
         const memory_t& memory,
         const u32       stride,
@@ -94,5 +92,13 @@ namespace sld {
         }
 
         return(address);
+    }
+
+    SLD_API const memory_error_t
+    memory_get_last_error(
+        void) {
+
+        const memory_error_t error = memory_last_error_instance();
+        return(error);
     }
 };

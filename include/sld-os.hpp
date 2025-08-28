@@ -24,9 +24,9 @@
 
 namespace sld {
 
-    struct os_handle_t { void* val; };
-    struct os_error_t  { u32   val; };
-    struct os_flags_t  { u32   val; };
+    struct os_handle_t : vptr_t { };
+    struct os_error_t  : s32_t  { };
+    struct os_flags_t  : u32_t  { };
 
     //-------------------------------------------------------------------
     // SYSTEM
@@ -99,7 +99,7 @@ namespace sld {
     struct os_input_gamepad_stick_t;
     struct os_input_gamepad_triggers_t;
 
-    typedef u16 os_input_gamepad_button_flags_t;
+    struct os_input_gamepad_button_flags_t : u16_t { };
 
     void os_input_keyboard_add_key_down (os_input_keyboard_t* keyboard, const os_input_keycode_t keycode);
     void os_input_keyboard_add_key_up   (os_input_keyboard_t* keyboard, const os_input_keycode_t keycode);
@@ -149,6 +149,7 @@ namespace sld {
         os_input_gamepad_triggers_t     triggers;
         os_input_gamepad_button_flags_t button_flags;
     };
+
 
     enum os_input_keycode_e {
         

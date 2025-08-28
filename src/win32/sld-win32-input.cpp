@@ -7,8 +7,8 @@ namespace sld {
 
     struct win32_input_keycode_map_t;
 
-    sld_ct_inline win32_input_keycode_map_t& win32_input_keycode_map_instance (void);
-    sld_ct_inline os_input_keycode_t         win32_input_translate_keycode    (const WPARAM w_param, const LPARAM l_param);
+    SLD_UTILITY win32_input_keycode_map_t& win32_input_keycode_map_instance (void);
+    SLD_UTILITY os_input_keycode_t         win32_input_translate_keycode    (const WPARAM w_param, const LPARAM l_param);
 
     struct win32_input_keycode_map_t {
         
@@ -137,7 +137,7 @@ namespace sld {
         };
     };
 
-    sld_ct_inline os_input_keycode_t
+    SLD_UTILITY os_input_keycode_t
     win32_input_translate_keycode(
         const WPARAM w_param,
         const LPARAM l_param) {

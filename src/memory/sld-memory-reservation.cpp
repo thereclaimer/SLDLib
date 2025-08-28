@@ -1,39 +1,8 @@
 #pragma once
 
-#include "sld-memory-internal-stack.cpp"
+#include "sld-memory-internal.cpp"
 
 namespace sld {
-
-    //-------------------------------------------------------------------
-    // DECLARATIONS
-    //-------------------------------------------------------------------
-    
-    struct memory_reservation_t;
-    struct memory_reservation_list_t;
-
-    memory_reservation_list_t& memory_reservation_list_instance     (void);
-    bool                       memory_reservation_validate_internal (const memory_reservation_t* reservation, const memory_manager_t& memory_manager);
-    memory_reservation_t*      memory_reservation_get_new           (void);    
-
-    //-------------------------------------------------------------------
-    // DECLARATIONS
-    //-------------------------------------------------------------------
-
-    struct memory_reservation_t {
-        addr                  start;
-        memory_reservation_t* next;
-        memory_reservation_t* prev;
-        struct {
-            u64 total;
-            u64 arena;
-            u64 committed;
-        } size;
-    };
-
-    struct memory_reservation_list_t {
-        memory_reservation_t* reserved;
-        memory_reservation_t* released;
-    };
 
     //-------------------------------------------------------------------
     // API
@@ -41,110 +10,77 @@ namespace sld {
 
     SLD_API bool
     memory_reservation_validate(
-        const memory_reservation_id_t reservation_id) {
+        const memory_reservation_handle_t reservation_handle) {
 
-        static memory_manager_t& mem_man  = memory_manager_instance();
-        memory_reservation_t*    res      = memory_manager_get_reservation       (mem_man, reservation_id); 
-        const bool               is_valid = memory_reservation_validate_internal (res,     mem_man);
+        memory_reservation_t* reservation = memory_stack_get_reservation(reservation_handle);
+        const bool            is_valid    = memory_reservation_validate_internal(reservation);
         return(is_valid);
     }
 
-    SLD_API const memory_reservation_h32
+    SLD_API const memory_reservation_handle_t
     memory_reservation_acquire(
         const u64 reservation_size, const u64 arena_size) {
-       
-        memory_reservation_t* reservation = NULL;
+
+        static memory_error_t& error              = memory_last_error_instance(); 
+        memory_reservation_handle_t   reservation_handle = { SLD_MEMORY_INVALID_HANDLE };
+
+        // check args
+        bool can_reserve = true;
+        can_reserve &= (reservation_size > 0);
+        can_reserve &= (arena_size       > 0);
+        can_reserve &= (arena_size       <= reservation_size);
+        if (!can_reserve) {
+            error.val = memory_error_e_invalid_args;
+            return(reservation_handle);
+        } 
 
         // if there are no released reservations,
         // get a new one
-        if (list.released == NULL) {
-
-            reservation = memory_internal_stack_push_reservation();
-        }
-        // otherwise, we will recycle the first one
-        // off the released list
-        else {
-            
-            reservation   = list.released;
-            list.released = reservation->next;
-
-            if (list.released != NULL) {
-                list.released->prev = NULL;
-            }
-        }
+        memory_reservation_list_t& reservation_list = memory_reservation_list_instance();
+        memory_reservation_t*      reservation      = (reservation_list.released == NULL)
+            ? memory_stack_push_reservation   ()
+            : memory_reservation_list_recycle (reservation_list);
 
         // we should have a reservation structure at this point
-        if (reservation == NULL) return(SLD_MEMORY_INVALID_HANDLE);
+        if (reservation == NULL) {
+            error.val = memory_error_e_stack_not_enough_memory;
+            return(reservation_handle);
+        }
 
-        // align sizes 
-        const u64  reservation_size_aligned = os_memory_align_to_granularity (reservation_size);
-        const u64  arena_size_aligned       = os_memory_align_to_page        (arena_size); 
-        const bool are_args_valid           = (
-            reservation_size_aligned != 0 &&
-            arena_size_aligned       != 0 &&
-            arena_size_aligned       <= reservation_size_aligned); 
-        if (!are_args_valid) return(SLD_MEMORY_INVALID_HANDLE);
+        // initialize the reservation
+        const bool is_init = memory_reservation_init(
+            reservation,
+            reservation_size,
+            arena_size,
+            error
+        );
 
-        // reserve memory
-        void* start = os_memory_reserve(NULL, reservation_size_aligned)
-        if (!start) return(SLD_MEMORY_INVALID_HANDLE);
+        // update the list        
+        if (!is_init) {
+            memory_reservation_list_add_released(reservation_list, reservation);
+            return(reservation_handle);
+        }
+        memory_reservation_list_add_reserved(reservation_list, reservation);
 
-        // initialize the reservation and add it to the front of the 
-        // reserved list
-
-
-        return(res_id);
+        // return the handle
+        const memory_reservation_handle_t handle = memory_stack_get_reservation_handle(reservation);
+        return(handle);
     }
 
     SLD_API bool
     memory_reservation_release(
-        const memory_reservation_id_t reservation_id) {
+        const memory_reservation_handle_t reservation_handle) {
 
-        static memory_manager_t& mem_man  = memory_manager_instance();
-        memory_reservation_t*    res      = memory_manager_get_reservation       (mem_man, reservation_id); 
-        const bool               is_valid = memory_reservation_validate_internal (res, mem_man);
-
-        // check that the reservation is valid
-        if (res == NULL) {
-            mem_man.last_error = memory_error_e_invalid_id;
-            return(false);
-        }
+        // validate the reservation
+        static memory_error_t& error       = memory_last_error_instance           (); 
+        memory_reservation_t*      reservation = memory_stack_get_reservation         (reservation_handle);
+        const bool                 is_valid    = memory_reservation_validate_internal (reservation); 
         if (!is_valid) {
-            mem_man.last_error = memory_error_e_invalid_reservation;
-            return(false);            
+            error.val = memory_error_e_invalid_reservation;
+            return(is_valid);
         }
 
-        // release the memory
-        bool result = os_memory_release((void*)res->start, res->total_size);
-        if (result) {
-
-            // reset the reservation
-            res->start          = 0;
-            res->total_size     = 0;
-            res->arena_size     = 0;
-            res->committed_size = 0;
-
-
-            // reset the arenas
-            for (
-                memory_arena_t* arena = mem_man.arenas;
-                arena != NULL;
-                arena = arena->next) {
-
-                arena->reservation    = NULL;
-                arena->stack.start    = 0;
-                arena->stack.size     = 0;
-                arena->stack.position = 0;
-                arena->stack.save     = 0;
-            }
-        
-            mem_man.last_error = memory_error_e_success;
-        }
-        else {
-            mem_man.last_error = memory_error_e_os_failed_to_release;
-        }
-
-        return(result);
+        return(false);
     }
 
     //-------------------------------------------------------------------
@@ -153,19 +89,17 @@ namespace sld {
 
     SLD_INLINE bool
     memory_reservation_validate_internal(
-        const memory_reservation_t* reservation,
-        const memory_manager_t&     memory_manager) {
+        const memory_reservation_t* reservation) {
 
-        bool is_valid = (reservation != NULL);
-        if  (is_valid) {
-            is_valid &= (reservation->start          != 0);
-            is_valid &= (reservation->total_size     != 0);
-            is_valid &= (reservation->arena_size     != 0);
-            is_valid &= (reservation->arena_size     <= reservation->total_size);
-            is_valid &= (reservation->committed_size <= reservation->total_size);
-            is_valid &= (((addr)reservation - reservation->id) == memory_manager.stack.start);
-        }
-        return(is_valid);
+        bool result = true;
+        result &= (reservation->start          != 0);
+        result &= (reservation->next           != reservation);
+        result &= (reservation->prev           != reservation);
+        result &= (reservation->size.total     != 0);
+        result &= (reservation->size.arena     != 0);
+        result &= (reservation->size.arena     <= reservation->size.total);
+        result &= (reservation->size.committed <= reservation->size.total);
+        return(result);
     }
 
     SLD_INLINE memory_reservation_list_t&
@@ -181,13 +115,88 @@ namespace sld {
     }
 
     SLD_INLINE memory_reservation_t*
-    memory_reservation_get_new(
-        void) {
+    memory_reservation_list_recycle(
+        memory_reservation_list_t& reservation_list) {
 
-        static memory_reservation_list_t& list = memory_reservation_list_instance();
- 
+        // get the first released reservation if there is one
+        memory_reservation_t* reservation = reservation_list.released;
+        if (reservation == NULL) return(reservation);
 
+        // zero the struct
+        reservation->start          = 0;
+        reservation->next           = NULL;
+        reservation->prev           = NULL;
+        reservation->size.total     = 0;
+        reservation->size.arena     = 0;
+        reservation->size.committed = 0;
 
-    }    
+        // update the released list
+        reservation_list.released = reservation->next;
+        if (reservation_list.released != NULL) {
+            reservation_list.released->prev = NULL;
+        }
 
+        return(reservation);
+    }
+
+    SLD_INLINE bool
+    memory_reservation_init(
+        memory_reservation_t* reservation,
+        const u64             reservation_size,
+        const u64             arena_size,
+        memory_error_t&   last_error) {
+
+        static void* reservation_start = NULL; 
+
+        reservation->size.committed = 0; 
+        reservation->size.total     =       os_memory_align_to_granularity (reservation_size);
+        reservation->size.arena     =       os_memory_align_to_page        (arena_size);
+        reservation->start          = (addr)os_memory_reserve              (reservation_start, reservation->size.total); 
+    
+        const bool is_reserved = (reservation->start != 0); 
+        last_error             = (s32)((is_reserved) ? memory_error_e_success : memory_error_e_os_failed_to_reserve);
+        return(is_reserved);
+    }
+
+    SLD_INLINE bool
+    memory_reservation_deinit(
+        memory_reservation_t* reservation,
+        memory_error_t&   last_error) {
+
+        const bool is_released = os_memory_release(
+            (vptr)reservation->start,
+            reservation->size.total
+        );
+        return(is_released);
+    }
+
+    SLD_INLINE void
+    memory_reservation_list_add_released(
+        memory_reservation_list_t& reservation_list,
+        memory_reservation_t*      reservation) {
+
+        if (reservation_list.released) {
+            reservation_list.released->prev = reservation;
+        }
+        if (reservation) {
+            reservation->prev = NULL;
+            reservation->next = reservation_list.released;
+        }
+        reservation_list.released = reservation;
+    }
+
+    SLD_INLINE void
+    memory_reservation_list_add_reserved(
+        memory_reservation_list_t& reservation_list,
+        memory_reservation_t*      reservation) {
+            
+        if (reservation_list.reserved) {
+            reservation_list.reserved->prev = reservation;
+        }
+        if (reservation) {
+            reservation->prev = NULL;
+            reservation->next = reservation_list.reserved;
+        }
+        reservation_list.reserved = reservation;
+    }
 };
