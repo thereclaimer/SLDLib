@@ -79,7 +79,7 @@ namespace sld {
 
     struct memory_reservation_handle_t : s32_t { };
     struct memory_arena_handle_t       : s32_t { };
-    struct memory_error_t              : type_t<memory_error_e> { };
+    struct memory_error_t              : s32_t { };
 
     struct memory_t {
         addr start;
