@@ -21,8 +21,7 @@ namespace sld {
     memory_reservation_acquire(
         const u64 reservation_size, const u64 arena_size) {
 
-        static memory_error_t& error              = memory_last_error_instance(); 
-        memory_reservation_handle_t   reservation_handle = { SLD_MEMORY_INVALID_HANDLE };
+        memory_reservation_handle_t reservation_handle = SLD_MEMORY_INVALID_HANDLE;
 
         // check args
         bool can_reserve = true;
@@ -30,7 +29,7 @@ namespace sld {
         can_reserve &= (arena_size       > 0);
         can_reserve &= (arena_size       <= reservation_size);
         if (!can_reserve) {
-            error.val = memory_error_e_invalid_args;
+            _last_error = memory_error_e_invalid_args;
             return(reservation_handle);
         } 
 
@@ -43,7 +42,7 @@ namespace sld {
 
         // we should have a reservation structure at this point
         if (reservation == NULL) {
-            error.val = memory_error_e_stack_not_enough_memory;
+            _last_error = memory_error_e_stack_not_enough_memory;
             return(reservation_handle);
         }
 

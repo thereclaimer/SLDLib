@@ -12,15 +12,38 @@
 namespace sld {
 
     //-------------------------------------------------------------------
+    // ENUMS
+    //-------------------------------------------------------------------
+
+    enum memory_error_e {
+        memory_error_e_success                   =  0,
+        memory_error_e_unknown                   = -1,
+        memory_error_e_invalid_args              = -2, 
+        memory_error_e_invalid_id                = -3,
+        memory_error_e_invalid_reservation       = -4,
+        memory_error_e_invalid_arena             = -5,
+        memory_error_e_invalid_address           = -6,
+        memory_error_e_stack_not_enough_memory   = -7,
+        memory_error_e_reservation_out_of_memory = -8,
+        memory_error_e_arena_not_enough_memory   = -9,
+        memory_error_e_os_failed_to_reserve      = -10,
+        memory_error_e_os_failed_to_release      = -11,
+        memory_error_e_os_failed_to_commit       = -12,
+        memory_error_e_os_failed_to_decommit     = -13,
+        memory_error_e_critical                  = -14,
+    };
+
+    //-------------------------------------------------------------------
     // TYPES
     //-------------------------------------------------------------------
 
     struct memory_reservation_handle_t;
     struct memory_arena_handle_t;
-    struct memory_error_t;
     struct memory_t;
     struct memory_reservation_info_t;
     struct memory_arena_info_t;
+
+    using memory_error_t = type_t<memory_error_e>;
 
     //-------------------------------------------------------------------
     // API
@@ -51,27 +74,6 @@ namespace sld {
     SLD_API bool                           memory_arena_can_pull_bytes  (const memory_arena_handle_t       arena_handle, const u64 size);
     SLD_API bool                           memory_arena_info            (const memory_arena_handle_t       arena_handle, memory_arena_info_t& info);
 
-    //-------------------------------------------------------------------
-    // ENUMS
-    //-------------------------------------------------------------------
-
-    enum memory_error_e : s32 {
-        memory_error_e_success                   =  0,
-        memory_error_e_unknown                   = -1,
-        memory_error_e_invalid_args              = -2, 
-        memory_error_e_invalid_id                = -3,
-        memory_error_e_invalid_reservation       = -4,
-        memory_error_e_invalid_arena             = -5,
-        memory_error_e_invalid_address           = -6,
-        memory_error_e_stack_not_enough_memory   = -7,
-        memory_error_e_reservation_out_of_memory = -8,
-        memory_error_e_arena_not_enough_memory   = -9,
-        memory_error_e_os_failed_to_reserve      = -10,
-        memory_error_e_os_failed_to_release      = -11,
-        memory_error_e_os_failed_to_commit       = -12,
-        memory_error_e_os_failed_to_decommit     = -13,
-        memory_error_e_critical                  = -14,
-    };
 
     //-------------------------------------------------------------------
     // DEFINITIONS
@@ -79,7 +81,8 @@ namespace sld {
 
     struct memory_reservation_handle_t : s32_t { };
     struct memory_arena_handle_t       : s32_t { };
-    struct memory_error_t              : s32_t { };
+
+
 
     struct memory_t {
         addr start;
