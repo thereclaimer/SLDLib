@@ -47,6 +47,7 @@ $Script:CompileArgsDebug = [PSCustomObject]@{
         "/Iinclude"
         "/Isrc"
         "/Isrc\core"
+        "/Isrc\math"
         "/Isrc\memory"
         "/Isrc\os"
         "/Isrc\string"
