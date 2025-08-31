@@ -42,6 +42,8 @@ namespace sld {
     // floats
     typedef float    f32;
     typedef double   f64;
+    
+    struct  f128_t { f32 array[4]; };
 
     // booleans
     typedef int8_t   b8;
@@ -80,6 +82,7 @@ namespace sld {
     struct byte_t { byte val; };
     struct addr_t { addr val; };
     struct vptr_t { vptr val; };
+
 
     //-------------------------------------------------------------------
     // SIZE UTILITIES
