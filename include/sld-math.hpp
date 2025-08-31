@@ -26,54 +26,52 @@ namespace sld {
     // VECTOR 2D
     //-------------------------------------------------------------------
 
-    void vec2_normalize                      (vec2_t&       v2);
-    void vec2_magnitude                      (const vec2_t& v2,         f32&    m);
-    void vec2_scalar_mul                     (vec2_t&       v2,   const f32     s);
-    void vec2_scalar_div                     (vec2_t&       v2,   const f32     s);
-    void vec2_a_add_b                        (vec2_t&       v2_a, const vec2_t& v2_b);
-    void vec2_a_sub_b                        (vec2_t&       v2_a, const vec2_t& v2_b);
-    void vec2_a_mul_b                        (vec2_t&       v2_a, const vec2_t& v2_b, const f32 s = 1.0f);
-    void vec2_a_div_b                        (vec2_t&       v2_a, const vec2_t& v2_b, const f32 s = 1.0f);
-    void vec2_a_dot_b                        (vec2_t&       v2_a, const vec2_t& v2_b);
-    void vec2_a_add_b_to_c                   (const vec2_t& v2_a, const vec2_t& v2_b, vec2_t& v2_c); 
-    void vec2_a_sub_b_to_c                   (const vec2_t& v2_a, const vec2_t& v2_b, vec2_t& v2_c); 
-    void vec2_a_mul_b_to_c                   (const vec2_t& v2_a, const vec2_t& v2_b, vec2_t& v2_c, const f32 s = 1.0f);
-    void vec2_a_div_b_to_c                   (const vec2_t& v2_a, const vec2_t& v2_b, vec2_t& v2_c, const f32 s = 1.0f);
-    void vec2_a_dot_b_to_c                   (const vec2_t& v2_a, const vec2_t& v2_b, vec2_t& v2_c);
+    void vec2_normalize                     (vec2_t&       v3);
+    void vec2_magnitude                     (const vec2_t& v3,         f32&    m);
+    void vec2_scalar_mul                    (vec2_t&       v2,   const f32     s);
+    void vec2_scalar_div                    (vec2_t&       v2,   const f32     s);
+    void vec2_scalar_mul_new                (vec2_t&       v2,   const f32     s, vec2_t& v2_new);
+    void vec2_scalar_div_new                (vec2_t&       v2,   const f32     s, vec2_t& v2_new);
+    void vec2_a_add_b                       (vec2_t&       v2_a, const vec2_t& v2_b);
+    void vec2_a_sub_b                       (vec2_t&       v2_a, const vec2_t& v2_b);
+    void vec2_a_dot_b                       (vec2_t&       v2_a, const vec2_t& v2_b, f32&    dot);
+    void vec2_a_add_b_to_c                  (const vec2_t& v2_a, const vec2_t& v2_b, vec2_t& v2_c); 
+    void vec2_a_sub_b_to_c                  (const vec2_t& v2_a, const vec2_t& v2_b, vec2_t& v2_c); 
 
-    void vec2_count_normalize                (const u32 count, vec2_t*       v2);
-    void vec2_count_magnitude                (const u32 count, const vec2_t* v2,         f32*    m);
-    void vec2_count_scalar_mul               (const u32 count, vec2_t*       v2,   const f32     s);
-    void vec2_count_scalar_div               (const u32 count, vec2_t*       v2,   const f32     s);
-    void vec2_count_a_add_b                  (const u32 count, vec2_t*       v2_a, const vec2_t* v2_b);
-    void vec2_count_a_sub_b                  (const u32 count, vec2_t*       v2_a, const vec2_t* v2_b);
-    void vec2_count_a_mul_b_uniform          (const u32 count, vec2_t*       v2_a, const vec2_t* v2_b, const f32  s = 1.0f);
-    void vec2_count_a_div_b_uniform          (const u32 count, vec2_t*       v2_a, const vec2_t* v2_b, const f32  s = 1.0f);
-    void vec2_count_a_mul_b_non_uniform      (const u32 count, vec2_t*       v2_a, const vec2_t* v2_b, const f32* s = NULL);
-    void vec2_count_a_div_b_non_uniform      (const u32 count, vec2_t*       v2_a, const vec2_t* v2_b, const f32* s = NULL);
-    void vec2_count_a_add_b_to_c             (const u32 count, const vec2_t* v2_a, const vec2_t* v2_b, vec2_t* v2_c); 
-    void vec2_count_a_sub_b_to_c             (const u32 count, const vec2_t* v2_a, const vec2_t* v2_b, vec2_t* v2_c); 
-    void vec2_count_a_mul_b_to_c_uniform     (const u32 count, const vec2_t* v2_a, const vec2_t* v2_b, vec2_t* v2_c, const f32  s = 1.0f);
-    void vec2_count_a_div_b_to_c_uniform     (const u32 count, const vec2_t* v2_a, const vec2_t* v2_b, vec2_t* v2_c, const f32  s = 1.0f);
-    void vec2_count_a_mul_b_to_c_non_uniform (const u32 count, const vec2_t* v2_a, const vec2_t* v2_b, vec2_t* v2_c, const f32* s = NULL);
-    void vec2_count_a_div_b_to_c_non_uniform (const u32 count, const vec2_t* v2_a, const vec2_t* v2_b, vec2_t* v2_c, const f32* s = NULL);
+    void vec2_batch_normalize               (const u32 count, vec2_t*       v2);
+    void vec2_batch_magnitude               (const u32 count, const vec2_t* v2,         f32*    m);
+    void vec2_batch_scalar_mul              (const u32 count, vec2_t*       v2,   const f32*    s);
+    void vec2_batch_scalar_div              (const u32 count, vec2_t*       v2,   const f32*    s);
+    void vec2_batch_scalar_mul_uniform      (const u32 count, vec2_t*       v2,   const f32     s);
+    void vec2_batch_scalar_div_uniform      (const u32 count, vec2_t*       v2,   const f32     s);
+    void vec2_batch_scalar_mul_new          (const u32 count, const vec2_t* v2,   const f32*    s, vec2_t* v2_new);
+    void vec2_batch_scalar_div_new          (const u32 count, const vec2_t* v2,   const f32*    s, vec2_t* v2_new);
+    void vec2_batch_scalar_mul_new_uniform  (const u32 count, vec2_t*       v2,   const f32     s, vec2_t* v2_new);
+    void vec2_batch_scalar_div_new_uniform  (const u32 count, vec2_t*       v2,   const f32     s, vec2_t* v2_new);
+    void vec2_batch_a_add_b                 (const u32 count, vec2_t*       v2_a, const vec2_t* v2_b);
+    void vec2_batch_a_sub_b                 (const u32 count, vec2_t*       v2_a, const vec2_t* v2_b);
+    void vec2_batch_a_dot_b                 (const u32 count, vec2_t*       v2_a, const vec2_t* v2_b, f32*    dot);
+    void vec2_batch_a_add_b_to_c            (const u32 count, const vec2_t* v2_a, const vec2_t* v2_b, vec2_t* v2_c); 
+    void vec2_batch_a_sub_b_to_c            (const u32 count, const vec2_t* v2_a, const vec2_t* v2_b, vec2_t* v2_c); 
 
-    void vec2_simd_normalize                 (const u32 count, vec2x4_t*       v2);
-    void vec2_simd_magnitude                 (const u32 count, const vec2x4_t* v2,         f32x4_t* m);
-    void vec2_simd_scalar_mul                (const u32 count, vec2x4_t*       v2,   const f32x4_t* s);
-    void vec2_simd_scalar_div                (const u32 count, vec2x4_t*       v2,   const f32x4_t* s);
-    void vec2_simd_a_add_b                   (const u32 count, vec2x4_t*       v2_a, const vec2x4_t* v2_b);
-    void vec2_simd_a_sub_b                   (const u32 count, vec2x4_t*       v2_a, const vec2x4_t* v2_b);
-    void vec2_simd_a_mul_b_uniform           (const u32 count, vec2x4_t*       v2_a, const vec2x4_t* v2_b, const f32      s = 1.0f);
-    void vec2_simd_a_div_b_uniform           (const u32 count, vec2x4_t*       v2_a, const vec2x4_t* v2_b, const f32      s = 1.0f);
-    void vec2_simd_a_mul_b_non_uniform       (const u32 count, vec2x4_t*       v2_a, const vec2x4_t* v2_b, const f32x4_t* s = NULL);
-    void vec2_simd_a_div_b_non_uniform       (const u32 count, vec2x4_t*       v2_a, const vec2x4_t* v2_b, const f32x4_t* s = NULL);
-    void vec2_simd_a_add_b_to_c              (const u32 count, const vec2x4_t* v2_a, const vec2x4_t* v2_b, vec2x4_t* v2_c); 
-    void vec2_simd_a_sub_b_to_c              (const u32 count, const vec2x4_t* v2_a, const vec2x4_t* v2_b, vec2x4_t* v2_c); 
-    void vec2_simd_a_mul_b_to_c_uniform      (const u32 count, const vec2x4_t* v2_a, const vec2x4_t* v2_b, vec2x4_t* v2_c, const f32      s = 1.0f);
-    void vec2_simd_a_div_b_to_c_uniform      (const u32 count, const vec2x4_t* v2_a, const vec2x4_t* v2_b, vec2x4_t* v2_c, const f32      s = 1.0f);
-    void vec2_simd_a_mul_b_to_c_non_uniform  (const u32 count, const vec2x4_t* v2_a, const vec2x4_t* v2_b, vec2x4_t* v2_c, const f32x4_t* s = NULL);
-    void vec2_simd_a_div_b_to_c_non_uniform  (const u32 count, const vec2x4_t* v2_a, const vec2x4_t* v2_b, vec2x4_t* v2_c, const f32x4_t* s = NULL);
+    void vec2_simd_normalize                (const u32 count, vec2x4_t*       v2);
+    void vec2_simd_magnitude                (const u32 count, const vec2x4_t* v2,         f32x4_t*  m);
+    void vec2_simd_scalar_mul               (const u32 count, vec2x4_t*       v2,   const f32x4_t*  s);
+    void vec2_simd_scalar_div               (const u32 count, vec2x4_t*       v2,   const f32x4_t*  s);
+    void vec2_simd_scalar_mul_uniform       (const u32 count, vec2x4_t*       v2,   const f32       s);
+    void vec2_simd_scalar_div_uniform       (const u32 count, vec2x4_t*       v2,   const f32       s);
+    void vec2_simd_scalar_mul_new           (const u32 count, const vec2x4_t* v2,   const f32x4_t*  s, vec2x4_t* v2_new);
+    void vec2_simd_scalar_div_new           (const u32 count, const vec2x4_t* v2,   const f32x4_t*  s, vec2x4_t* v2_new);
+    void vec2_simd_scalar_mul_new_uniform   (const u32 count, vec2x4_t*       v2,   const f32       s, vec2x4_t* v2_new);
+    void vec2_simd_scalar_div_new_uniform   (const u32 count, vec2x4_t*       v2,   const f32       s, vec2x4_t* v2_new);
+    void vec2_simd_a_add_b                  (const u32 count, vec2x4_t*       v2_a, const vec2x4_t* v2_b);
+    void vec2_simd_a_sub_b                  (const u32 count, vec2x4_t*       v2_a, const vec2x4_t* v2_b);
+    void vec2_simd_a_dot_b                  (const u32 count, vec2x4_t*       v2_a, const vec2x4_t* v2_b);
+    void vec2_simd_a_cross_b                (const u32 count, vec2x4_t*       v2_a, const vec2x4_t* v2_b);
+    void vec2_simd_a_add_b_to_c             (const u32 count, const vec2x4_t* v2_a, const vec2x4_t* v2_b, vec2x4_t* v2_c); 
+    void vec2_simd_a_sub_b_to_c             (const u32 count, const vec2x4_t* v2_a, const vec2x4_t* v2_b, vec2x4_t* v2_c); 
+    void vec2_simd_a_dot_b_to_c             (const u32 count, const vec2x4_t* v2_a, const vec2x4_t* v2_b, vec2x4_t* v2_c); 
+    void vec2_simd_a_cross_b_to_c           (const u32 count, const vec2x4_t* v2_a, const vec2x4_t* v2_b, vec2x4_t* v2_c); 
 
     struct vec2_t {
         union {
@@ -85,8 +83,11 @@ namespace sld {
         };
     };
 
-    struct SLD_SIMD_ALIGN_16 vec2x4_t {
-        vec2_t array[4];
+    struct SLD_SIMD_ALIGN_4F32 vec2x4_t {
+        union {
+            vec2_t array_vec        [4];
+            f32    array_components [8];
+        };
     };
 
 
@@ -94,56 +95,58 @@ namespace sld {
     // VECTOR 3D
     //-------------------------------------------------------------------
 
-    void vec3_normalize                      (vec3_t&       v3);
-    void vec3_magnitude                      (const vec3_t& v3,         f32&    m);
-    void vec3_scalar_mul                     (vec3_t&       v3,   const f32     s);
-    void vec3_scalar_div                     (vec3_t&       v3,   const f32     s);
-    void vec3_a_add_b                        (vec3_t&       v3_a, const vec3_t& v3_b);
-    void vec3_a_sub_b                        (vec3_t&       v3_a, const vec3_t& v3_b);
-    void vec3_a_mul_b                        (vec3_t&       v3_a, const vec3_t& v3_b, const f32 s = 1.0f);
-    void vec3_a_div_b                        (vec3_t&       v3_a, const vec3_t& v3_b, const f32 s = 1.0f);
-    void vec3_a_dot_b                        (vec2_t&       v2_a, const vec2_t& v2_b);
-    void vec3_a_cross_b                      (vec2_t&       v2_a, const vec2_t& v2_b);
-    void vec3_a_add_b_to_c                   (const vec3_t& v3_a, const vec3_t& v3_b, vec3_t& v3_c); 
-    void vec3_a_sub_b_to_c                   (const vec3_t& v3_a, const vec3_t& v3_b, vec3_t& v3_c); 
-    void vec3_a_mul_b_to_c                   (const vec3_t& v3_a, const vec3_t& v3_b, vec3_t& v3_c, const f32 s = 1.0f);
-    void vec3_a_div_b_to_c                   (const vec3_t& v3_a, const vec3_t& v3_b, vec3_t& v3_c, const f32 s = 1.0f);
-    void vec2_a_dot_b_to_c                   (const vec3_t& v3_a, const vec3_t& v3_b, vec3_t& v3_c);
-    void vec3_a_cross_b_to_c                 (const vec3_t& v3_a, const vec3_t& v3_b, vec3_t& v3_c);
+    void vec3_normalize                     (vec3_t&       v3);
+    void vec3_magnitude                     (const vec3_t& v3,         f32&    m);
+    void vec3_scalar_mul                    (vec3_t&       v3,   const f32     s);
+    void vec3_scalar_div                    (vec3_t&       v3,   const f32     s);
+    void vec3_scalar_mul_new                (vec3_t&       v3,   const f32     s, vec3_t& v3_new);
+    void vec3_scalar_div_new                (vec3_t&       v3,   const f32     s, vec3_t& v3_new);
+    void vec3_a_add_b                       (vec3_t&       v3_a, const vec3_t& v3_b);
+    void vec3_a_sub_b                       (vec3_t&       v3_a, const vec3_t& v3_b);
+    void vec3_a_dot_b                       (vec2_t&       v2_a, const vec2_t& v2_b);
+    void vec3_a_cross_b                     (vec2_t&       v2_a, const vec2_t& v2_b);
+    void vec3_a_add_b_to_c                  (const vec3_t& v3_a, const vec3_t& v3_b, vec3_t& v3_c); 
+    void vec3_a_sub_b_to_c                  (const vec3_t& v3_a, const vec3_t& v3_b, vec3_t& v3_c); 
+    void vec2_a_dot_b_to_c                  (const vec3_t& v3_a, const vec3_t& v3_b, vec3_t& v3_c);
+    void vec3_a_cross_b_to_c                (const vec3_t& v3_a, const vec3_t& v3_b, vec3_t& v3_c);
 
-    void vec3_count_normalize                (const u32 count, vec3_t*       v3);
-    void vec3_count_magnitude                (const u32 count, const vec3_t* v3,         f32*    m);
-    void vec3_count_scalar_mul               (const u32 count, vec3_t*       v3,   const f32     s);
-    void vec3_count_scalar_div               (const u32 count, vec3_t*       v3,   const f32     s);
-    void vec3_count_a_add_b                  (const u32 count, vec3_t*       v3_a, const vec3_t* v3_b);
-    void vec3_count_a_sub_b                  (const u32 count, vec3_t*       v3_a, const vec3_t* v3_b);
-    void vec3_count_a_mul_b_uniform          (const u32 count, vec3_t*       v3_a, const vec3_t* v3_b, const f32  s = 1.0f);
-    void vec3_count_a_div_b_uniform          (const u32 count, vec3_t*       v3_a, const vec3_t* v3_b, const f32  s = 1.0f);
-    void vec3_count_a_mul_b_non_uniform      (const u32 count, vec3_t*       v3_a, const vec3_t* v3_b, const f32* s = NULL);
-    void vec3_count_a_div_b_non_uniform      (const u32 count, vec3_t*       v3_a, const vec3_t* v3_b, const f32* s = NULL);
-    void vec3_count_a_add_b_to_c             (const u32 count, const vec3_t* v3_a, const vec3_t* v3_b, vec3_t* v3_c); 
-    void vec3_count_a_sub_b_to_c             (const u32 count, const vec3_t* v3_a, const vec3_t* v3_b, vec3_t* v3_c); 
-    void vec3_count_a_mul_b_to_c_uniform     (const u32 count, const vec3_t* v3_a, const vec3_t* v3_b, vec3_t* v3_c, const f32  s = 1.0f);
-    void vec3_count_a_div_b_to_c_uniform     (const u32 count, const vec3_t* v3_a, const vec3_t* v3_b, vec3_t* v3_c, const f32  s = 1.0f);
-    void vec3_count_a_mul_b_to_c_non_uniform (const u32 count, const vec3_t* v3_a, const vec3_t* v3_b, vec3_t* v3_c, const f32* s = NULL);
-    void vec3_count_a_div_b_to_c_non_uniform (const u32 count, const vec3_t* v3_a, const vec3_t* v3_b, vec3_t* v3_c, const f32* s = NULL);
+    void vec3_batch_normalize               (const u32 count, vec3_t*       v3);
+    void vec3_batch_magnitude               (const u32 count, const vec3_t* v3,         f32*    m);
+    void vec3_batch_scalar_mul              (const u32 count, vec3_t*       v3,   const f32*    s);
+    void vec3_batch_scalar_div              (const u32 count, vec3_t*       v3,   const f32*    s);
+    void vec3_batch_scalar_mul_uniform      (const u32 count, vec3_t*       v3,   const f32     s);
+    void vec3_batch_scalar_div_uniform      (const u32 count, vec3_t*       v3,   const f32     s);
+    void vec3_batch_scalar_mul_new          (const u32 count, const vec3_t* v3,   const f32*    s, vec3_t* v3_new);
+    void vec3_batch_scalar_div_new          (const u32 count, const vec3_t* v3,   const f32*    s, vec3_t* v3_new);
+    void vec3_batch_scalar_mul_new_uniform  (const u32 count, vec3_t*       v3,   const f32     s, vec3_t* v3_new);
+    void vec3_batch_scalar_div_new_uniform  (const u32 count, vec3_t*       v3,   const f32     s, vec3_t* v3_new);
+    void vec3_batch_a_add_b                 (const u32 count, vec3_t*       v3_a, const vec3_t* v3_b);
+    void vec3_batch_a_sub_b                 (const u32 count, vec3_t*       v3_a, const vec3_t* v3_b);
+    void vec3_batch_a_dot_b                 (const u32 count, vec3_t*       v3_a, const vec3_t* v3_b);
+    void vec3_batch_a_cross_b               (const u32 count, vec3_t*       v3_a, const vec3_t* v3_b);
+    void vec3_batch_a_add_b_to_c            (const u32 count, const vec3_t* v3_a, const vec3_t* v3_b, vec3_t* v3_c); 
+    void vec3_batch_a_sub_b_to_c            (const u32 count, const vec3_t* v3_a, const vec3_t* v3_b, vec3_t* v3_c); 
+    void vec3_batch_a_dot_b_to_c            (const u32 count, const vec3_t* v3_a, const vec3_t* v3_b, vec3_t* v3_c); 
+    void vec3_batch_a_cross_b_to_c          (const u32 count, const vec3_t* v3_a, const vec3_t* v3_b, vec3_t* v3_c); 
 
-    void vec3_simd_normalize                 (const u32 count, vec3x4_t*       v3);
-    void vec3_simd_magnitude                 (const u32 count, const vec3x4_t* v3,         f32x4_t* m);
-    void vec3_simd_scalar_mul                (const u32 count, vec3x4_t*       v3,   const f32x4_t* s);
-    void vec3_simd_scalar_div                (const u32 count, vec3x4_t*       v3,   const f32x4_t* s);
-    void vec3_simd_a_add_b                   (const u32 count, vec3x4_t*       v3_a, const vec3x4_t* v3_b);
-    void vec3_simd_a_sub_b                   (const u32 count, vec3x4_t*       v3_a, const vec3x4_t* v3_b);
-    void vec3_simd_a_mul_b_uniform           (const u32 count, vec3x4_t*       v3_a, const vec3x4_t* v3_b, const f32      s = 1.0f);
-    void vec3_simd_a_div_b_uniform           (const u32 count, vec3x4_t*       v3_a, const vec3x4_t* v3_b, const f32      s = 1.0f);
-    void vec3_simd_a_mul_b_non_uniform       (const u32 count, vec3x4_t*       v3_a, const vec3x4_t* v3_b, const f32x4_t* s = NULL);
-    void vec3_simd_a_div_b_non_uniform       (const u32 count, vec3x4_t*       v3_a, const vec3x4_t* v3_b, const f32x4_t* s = NULL);
-    void vec3_simd_a_add_b_to_c              (const u32 count, const vec3x4_t* v3_a, const vec3x4_t* v3_b, vec3x4_t* v3_c); 
-    void vec3_simd_a_sub_b_to_c              (const u32 count, const vec3x4_t* v3_a, const vec3x4_t* v3_b, vec3x4_t* v3_c); 
-    void vec3_simd_a_mul_b_to_c_uniform      (const u32 count, const vec3x4_t* v3_a, const vec3x4_t* v3_b, vec3x4_t* v3_c, const f32      s = 1.0f);
-    void vec3_simd_a_div_b_to_c_uniform      (const u32 count, const vec3x4_t* v3_a, const vec3x4_t* v3_b, vec3x4_t* v3_c, const f32      s = 1.0f);
-    void vec3_simd_a_mul_b_to_c_non_uniform  (const u32 count, const vec3x4_t* v3_a, const vec3x4_t* v3_b, vec3x4_t* v3_c, const f32x4_t* s = NULL);
-    void vec3_simd_a_div_b_to_c_non_uniform  (const u32 count, const vec3x4_t* v3_a, const vec3x4_t* v3_b, vec3x4_t* v3_c, const f32x4_t* s = NULL);
+    void vec3_simd_normalize                (const u32 count, vec3x4_t*       v3);
+    void vec3_simd_magnitude                (const u32 count, const vec3x4_t* v3,         f32x4_t*  m);
+    void vec3_simd_scalar_mul               (const u32 count, vec3x4_t*       v3,   const f32x4_t*  s);
+    void vec3_simd_scalar_div               (const u32 count, vec3x4_t*       v3,   const f32x4_t*  s);
+    void vec3_simd_scalar_mul_uniform       (const u32 count, vec3x4_t*       v3,   const f32       s);
+    void vec3_simd_scalar_div_uniform       (const u32 count, vec3x4_t*       v3,   const f32       s);
+    void vec3_simd_scalar_mul_new           (const u32 count, const vec3x4_t* v3,   const f32x4_t*  s, vec3x4_t* v3_new);
+    void vec3_simd_scalar_div_new           (const u32 count, const vec3x4_t* v3,   const f32x4_t*  s, vec3x4_t* v3_new);
+    void vec3_simd_scalar_mul_new_uniform   (const u32 count, vec3x4_t*       v3,   const f32       s, vec3x4_t* v3_new);
+    void vec3_simd_scalar_div_new_uniform   (const u32 count, vec3x4_t*       v3,   const f32       s, vec3x4_t* v3_new);
+    void vec3_simd_a_add_b                  (const u32 count, vec3x4_t*       v3_a, const vec3x4_t* v3_b);
+    void vec3_simd_a_sub_b                  (const u32 count, vec3x4_t*       v3_a, const vec3x4_t* v3_b);
+    void vec3_simd_a_dot_b                  (const u32 count, vec3x4_t*       v3_a, const vec3x4_t* v3_b);
+    void vec3_simd_a_cross_b                (const u32 count, vec3x4_t*       v3_a, const vec3x4_t* v3_b);
+    void vec3_simd_a_add_b_to_c             (const u32 count, const vec3x4_t* v3_a, const vec3x4_t* v3_b, vec3x4_t* v3_c); 
+    void vec3_simd_a_sub_b_to_c             (const u32 count, const vec3x4_t* v3_a, const vec3x4_t* v3_b, vec3x4_t* v3_c); 
+    void vec3_simd_a_dot_b_to_c             (const u32 count, const vec3x4_t* v3_a, const vec3x4_t* v3_b, vec3x4_t* v3_c); 
+    void vec3_simd_a_cross_b_to_c           (const u32 count, const vec3x4_t* v3_a, const vec3x4_t* v3_b, vec3x4_t* v3_c); 
 
     struct vec3_t {
         union {
@@ -157,8 +160,11 @@ namespace sld {
         };
     };
 
-    struct SLD_SIMD_ALIGN_16 vec3x4_t {
-        vec3_t array[4];
+    struct SLD_SIMD_ALIGN_4F32 vec3x4_t {
+        union {
+            vec3_t array_vec        [4];
+            f32    array_components [16];
+        };
     };
 
     //-------------------------------------------------------------------
