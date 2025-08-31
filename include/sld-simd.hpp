@@ -7,72 +7,129 @@
 
 #define SLD_SIMD_ALIGN_4F32 alignas(16)
 
-#define sld_simd_f128_load  _mm_load_ps
-#define sld_simd_f128_store _mm_store_ps
-#define sld_simd_f128_add   _mm_add_ps
-#define sld_simd_f128_sub   _mm_sub_ps
-#define sld_simd_f128_mul   _mm_mul_ps
-#define sld_simd_f128_div   _mm_div_ps
-
 namespace sld {
 
-    typedef __m128 simd_f128_t;
+    typedef __m128 simd_4f32_reg_t;
 
-    struct SLD_SIMD_ALIGN_4F32 f32x4_t {
+    struct SLD_SIMD_ALIGN_4F32 simd_4f32_data_t {
         f32 array[4];
     };
 
-    SLD_INLINE void
-    simd_a_add_b_to_c(
-        const f32x4_t& a,
-        const f32x4_t& b,
-        f32x4_t&       c) {
+    void simd_4f32_load         (const simd_4f32_data_t& data,   simd_4f32_reg_t&       reg);                                  
+    void simd_4f32_store        (const simd_4f32_reg_t&  reg,    simd_4f32_data_t&      data);                                 
+    void simd_4f32_a_add_b      (simd_4f32_reg_t&        reg_a,  const simd_4f32_reg_t& reg_b); 
+    void simd_4f32_a_sub_b      (simd_4f32_reg_t&        reg_a,  const simd_4f32_reg_t& reg_b); 
+    void simd_4f32_a_mul_b      (simd_4f32_reg_t&        reg_a,  const simd_4f32_reg_t& reg_b); 
+    void simd_4f32_a_div_b      (simd_4f32_reg_t&        reg_a,  const simd_4f32_reg_t& reg_b); 
+    void simd_4f32_a_add_b_to_c (const simd_4f32_reg_t&  reg_a,  const simd_4f32_reg_t& reg_b, simd_4f32_reg_t& reg_c); 
+    void simd_4f32_a_sub_b_to_c (const simd_4f32_reg_t&  reg_a,  const simd_4f32_reg_t& reg_b, simd_4f32_reg_t& reg_c); 
+    void simd_4f32_a_mul_b_to_c (const simd_4f32_reg_t&  reg_a,  const simd_4f32_reg_t& reg_b, simd_4f32_reg_t& reg_c); 
+    void simd_4f32_a_div_b_to_c (const simd_4f32_reg_t&  reg_a,  const simd_4f32_reg_t& reg_b, simd_4f32_reg_t& reg_c); 
+    void simd_4f32_sqrt         (const simd_4f32_reg_t&  reg_in, simd_4f32_reg_t&       reg_out); 
+    void simd_4f32_inv_sqrt     (const simd_4f32_reg_t&  reg_in, simd_4f32_reg_t&       reg_out); 
 
-        const simd_f128_t simd_a = sld_simd_f128_load (a.array);
-        const simd_f128_t simd_b = sld_simd_f128_load (b.array);
-        const simd_f128_t simd_c = sld_simd_f128_add  (simd_a, simd_b);
-        
-        sld_simd_f128_store(c.array,simd_c);
+    SLD_INLINE void
+    simd_4f32_load(
+        const simd_4f32_data_t& data,
+        simd_4f32_reg_t&        reg) {
+
+        reg = _mm_load_ps(data.array);
     }
 
     SLD_INLINE void
-    simd_a_sub_b_to_c(
-        const f32x4_t& a,
-        const f32x4_t& b,
-        f32x4_t&       c) {
+    simd_4f32_store(
+        const simd_4f32_reg_t& reg,
+        simd_4f32_data_t&      data) {
 
-        const simd_f128_t simd_a = sld_simd_f128_load (a.array);
-        const simd_f128_t simd_b = sld_simd_f128_load (b.array);
-        const simd_f128_t simd_c = sld_simd_f128_sub  (simd_a, simd_b);
-        
-        sld_simd_f128_store(c.array,simd_c);
+        _mm_store_ps(data.array, reg);
     }
 
     SLD_INLINE void
-    simd_a_mul_b_to_c(
-        const f32x4_t& a,
-        const f32x4_t& b,
-        f32x4_t&       c) {
+    simd_4f32_a_add_b(
+        simd_4f32_reg_t&       reg_a,
+        const simd_4f32_reg_t& reg_b) {
 
-        const simd_f128_t simd_a = sld_simd_f128_load (a.array);
-        const simd_f128_t simd_b = sld_simd_f128_load (b.array);
-        const simd_f128_t simd_c = sld_simd_f128_mul  (simd_a, simd_b);
-        
-        sld_simd_f128_store(c.array,simd_c);
+        reg_a = _mm_add_ps(reg_a, reg_b);
     }
 
     SLD_INLINE void
-    simd_a_div_b_to_c(
-        const f32x4_t& a,
-        const f32x4_t& b,
-        f32x4_t&       c) {
+    simd_4f32_a_sub_b(
+        simd_4f32_reg_t&       reg_a,
+        const simd_4f32_reg_t& reg_b) {
 
+        reg_a = _mm_sub_ps(reg_a, reg_b);
+    }
 
-        const simd_f128_t simd_a = sld_simd_f128_load (a.array);
-        const simd_f128_t simd_b = sld_simd_f128_load (b.array);
-        const simd_f128_t simd_c = sld_simd_f128_div  (simd_a, simd_b);
-        
-        sld_simd_f128_store(c.array,simd_c);
+    SLD_INLINE void
+    simd_4f32_a_mul_b(
+        simd_4f32_reg_t&       reg_a,
+        const simd_4f32_reg_t& reg_b) {
+
+        reg_a = _mm_mul_ps(reg_a, reg_b);
+    }
+
+    SLD_INLINE void
+    simd_4f32_a_div_b(
+        simd_4f32_reg_t&       reg_a,
+        const simd_4f32_reg_t& reg_b) {
+
+        reg_a = _mm_div_ps(reg_a, reg_b);
+    }
+
+    SLD_INLINE void
+    simd_4f32_a_add_b_to_c(
+        const simd_4f32_reg_t& reg_a,
+        const simd_4f32_reg_t& reg_b,
+        simd_4f32_reg_t&       reg_c) {
+
+        reg_c = _mm_add_ps(reg_a, reg_b);
+    }
+
+    SLD_INLINE void
+    simd_4f32_a_sub_b_to_c(
+        const simd_4f32_reg_t& reg_a,
+        const simd_4f32_reg_t& reg_b,
+        simd_4f32_reg_t&       reg_c) {
+
+        reg_c = _mm_sub_ps(reg_a, reg_b);
+    }
+
+    SLD_INLINE void
+    simd_4f32_a_mul_b_to_c(
+        const simd_4f32_reg_t& reg_a,
+        const simd_4f32_reg_t& reg_b,
+        simd_4f32_reg_t&       reg_c) {
+
+        reg_c = _mm_mul_ps(reg_a, reg_b);
+    }
+
+    SLD_INLINE void
+    simd_4f32_a_div_b_to_c(
+        const simd_4f32_reg_t& reg_a,
+        const simd_4f32_reg_t& reg_b,
+        simd_4f32_reg_t&       reg_c) {
+
+        reg_c = _mm_div_ps(reg_a, reg_b);
+    }
+
+    SLD_INLINE void
+    simd_4f32_sqrt(
+        const simd_4f32_reg_t& reg_in,
+        simd_4f32_reg_t&       reg_out) {
+
+        reg_out = _mm_sqrt_ps(reg_in);
+    }
+
+    SLD_INLINE void
+    simd_4f32_inv_sqrt_out(
+        const simd_4f32_reg_t& reg_in,
+        simd_4f32_reg_t&       reg_out) {
+
+        simd_4f32_reg_t reg_two = _mm_set1_ps (2.0f);
+        reg_out                 = _mm_rcp_ps  (reg_in); // initial approx 1/x
+
+        // Newton-Raphson refinement: y = y * (2 - x*y)
+        reg_out = _mm_mul_ps(reg_out, _mm_sub_ps(reg_two, _mm_mul_ps(reg_in, reg_out)));
     }
 };
 

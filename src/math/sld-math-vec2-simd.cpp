@@ -9,9 +9,15 @@ namespace sld {
         const u32 count,
         vec2x4_t* v2) {
 
-        f32x4_t simd_a; 
-        f32x4_t simd_b; 
-        f32x4_t simd_c; 
+        simd_4f32_data_t simd_data_vec_x; 
+        simd_4f32_data_t simd_data_vec_y; 
+
+        simd_4f32_reg_t simd_reg_x;
+        simd_4f32_reg_t simd_reg_y;
+        simd_4f32_reg_t simd_reg_xx;
+        simd_4f32_reg_t simd_reg_yy;
+        simd_4f32_reg_t simd_reg_xx_add_yy;
+        simd_4f32_reg_t simd_reg_inv_sqrt;
 
         for (
             u32 index = 0;
@@ -19,75 +25,111 @@ namespace sld {
             ++index) {
  
             // get the next vector
-            vec2x4_t& v2_i  = v2[index];
+            vec2x4_t& v2_i = v2[index];
 
-            // load x components
-            simd_a.array[0] = v2_i.array_vec[0].x;
-            simd_a.array[1] = v2_i.array_vec[1].x;
-            simd_a.array[2] = v2_i.array_vec[2].x;
-            simd_a.array[3] = v2_i.array_vec[3].x;
-
-            // load y components
-            simd_b.array[0] = v2_i.array_vec[0].y;
-            simd_b.array[1] = v2_i.array_vec[1].y;
-            simd_b.array[2] = v2_i.array_vec[2].y;
-            simd_b.array[3] = v2_i.array_vec[3].y;
+            // set data
+            simd_data_vec_x.array[0] = v2_i.array_vec[0].x;
+            simd_data_vec_x.array[1] = v2_i.array_vec[1].x;
+            simd_data_vec_x.array[2] = v2_i.array_vec[2].x;
+            simd_data_vec_x.array[3] = v2_i.array_vec[3].x;
+            simd_data_vec_y.array[0] = v2_i.array_vec[0].y;
+            simd_data_vec_y.array[1] = v2_i.array_vec[1].y;
+            simd_data_vec_y.array[2] = v2_i.array_vec[2].y;
+            simd_data_vec_y.array[3] = v2_i.array_vec[3].y;
+            
+            // load components
+            simd_4f32_load(simd_data_vec_x, simd_reg_x);
+            simd_4f32_load(simd_data_vec_y, simd_reg_y);
 
             // square components
-            simd_a_mul_b_to_c(simd_a, simd_a, simd_a);
-            simd_a_mul_b_to_c(simd_b, simd_b, simd_b);
+            simd_4f32_a_mul_b(simd_reg_xx, simd_reg_x);
+            simd_4f32_a_mul_b(simd_reg_yy, simd_reg_y);
 
+            // add the squared components
+            simd_4f32_a_add_b_to_c(simd_reg_xx, simd_reg_yy, simd_reg_xx_add_yy);
 
+            // calculate the inverse square root
+            simd_4f32_inv_sqrt(simd_reg_inv_sqrt, simd_reg_xx_add_yy);
 
-            const f32 xx_0        = (x * v2_i.array_vec[0].x);
-            const f32 xx_1        = (x * v2_i.array_vec[1].x);
-            const f32 xx_2        = (x * v2_i.array_vec[2].x);
-            const f32 xx_3        = (x * v2_i.array_vec[3].x);
+            // multiply the components 
+            simd_4f32_a_mul_b(simd_reg_x, simd_reg_inv_sqrt);
+            simd_4f32_a_mul_b(simd_reg_y, simd_reg_inv_sqrt);
 
-            const f32 yy_0        = (v2_i.array_vec[0].y * v2_i.array_vec[0].y);
-            const f32 yy_1        = (v2_i.array_vec[1].y * v2_i.array_vec[1].y);
-            const f32 yy_2        = (v2_i.array_vec[2].y * v2_i.array_vec[2].y);
-            const f32 yy_3        = (v2_i.array_vec[3].y * v2_i.array_vec[3].y);
+            // store the data
+            simd_4f32_store(simd_reg_x, simd_data_vec_x);
+            simd_4f32_store(simd_reg_y, simd_data_vec_y);
 
-            const f32 xx_add_yy_0 = (xx_0 + yy_0); 
-            const f32 xx_add_yy_1 = (xx_1 + yy_1); 
-            const f32 xx_add_yy_2 = (xx_2 + yy_2); 
-            const f32 xx_add_yy_3 = (xx_3 + yy_3); 
-
-            const f32 m_0         = sqrtf(xx_add_yy_0);        
-            const f32 m_1         = sqrtf(xx_add_yy_1);        
-            const f32 m_2         = sqrtf(xx_add_yy_2);        
-            const f32 m_3         = sqrtf(xx_add_yy_3);        
-
-            const f32 s_0         = (1.0f / m_0);
-            const f32 s_1         = (1.0f / m_1);
-            const f32 s_2         = (1.0f / m_2);
-            const f32 s_3         = (1.0f / m_3);
-
-            v2_i.array_vec[0].x  *= s_0; 
-            v2_i.array_vec[0].y  *= s_0;
-            v2_i.array_vec[1].x  *= s_1; 
-            v2_i.array_vec[1].y  *= s_1;
-            v2_i.array_vec[2].x  *= s_2; 
-            v2_i.array_vec[2].y  *= s_2;
-            v2_i.array_vec[3].x  *= s_3; 
-            v2_i.array_vec[3].y  *= s_3;
+            // update the vectors
+            v2_i.array_vec[0].x = simd_data_vec_x.array[0]; 
+            v2_i.array_vec[0].y = simd_data_vec_y.array[0];
+            v2_i.array_vec[1].x = simd_data_vec_x.array[1];
+            v2_i.array_vec[1].y = simd_data_vec_y.array[1];
+            v2_i.array_vec[2].x = simd_data_vec_x.array[2];
+            v2_i.array_vec[2].y = simd_data_vec_y.array[2];
+            v2_i.array_vec[3].x = simd_data_vec_x.array[3];
+            v2_i.array_vec[3].y = simd_data_vec_y.array[3];
         }
     }
 
     void
     vec2_simd_magnitude(
-        const u32     count,
-        const vec2x4_t* v2,
-        f32x4_t*          m) {
+        const u32         count,
+        const vec2x4_t*   v2,
+        simd_4f32_data_t* m) {
 
+        simd_4f32_data_t simd_data_vec_x; 
+        simd_4f32_data_t simd_data_vec_y; 
+
+        simd_4f32_reg_t simd_reg_x;
+        simd_4f32_reg_t simd_reg_y;
+        simd_4f32_reg_t simd_reg_xx;
+        simd_4f32_reg_t simd_reg_yy;
+        simd_4f32_reg_t simd_reg_xx_add_yy;
+        simd_4f32_reg_t simd_reg_mag;
+
+        for (
+            u32 index = 0;
+            index < count;
+            ++index) {
+
+            // get the next vector
+            vec2x4_t& v2_i = v2[index];
+
+            // set data
+            simd_data_vec_x.array[0] = v2_i.array_vec[0].x;
+            simd_data_vec_x.array[1] = v2_i.array_vec[1].x;
+            simd_data_vec_x.array[2] = v2_i.array_vec[2].x;
+            simd_data_vec_x.array[3] = v2_i.array_vec[3].x;
+            simd_data_vec_y.array[0] = v2_i.array_vec[0].y;
+            simd_data_vec_y.array[1] = v2_i.array_vec[1].y;
+            simd_data_vec_y.array[2] = v2_i.array_vec[2].y;
+            simd_data_vec_y.array[3] = v2_i.array_vec[3].y;
+            
+            // load components
+            simd_4f32_load(simd_data_vec_x, simd_reg_x);
+            simd_4f32_load(simd_data_vec_y, simd_reg_y);
+
+            // square components
+            simd_4f32_a_mul_b(simd_reg_xx, simd_reg_x);
+            simd_4f32_a_mul_b(simd_reg_yy, simd_reg_y);
+
+            // add the squared components
+            simd_4f32_a_add_b_to_c(simd_reg_xx, simd_reg_yy, simd_reg_xx_add_yy);
+
+            // calculate the magnitude
+            simd_4f32_sqrt(simd_reg_xx_add_yy, simd_reg_mag);
+
+            // store the magnitude
+            simd_4f32_data_t& m_i = m[index]; 
+            simd_4f32_store(simd_reg_mag, m_i);
+        }
     }
 
     void
     vec2_simd_scalar_mul(
         const u32      count,
         vec2x4_t*      v2,
-        const f32x4_t* s) {
+        const simd_4f32_t* s) {
 
     }
 
@@ -95,7 +137,7 @@ namespace sld {
     vec2_simd_scalar_div(
         const u32      count,
         vec2x4_t*      v2,
-        const f32x4_t* s) {
+        const simd_4f32_t* s) {
 
     }
 
