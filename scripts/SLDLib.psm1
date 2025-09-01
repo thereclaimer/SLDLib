@@ -44,6 +44,7 @@ $Script:CompileArgsDebug = [PSCustomObject]@{
     In      = "src\sld.cpp"
     Out     = "/Fo:$($Script:OutFilesDebug.Obj)"
     Include = @(
+        "/Iexternal"
         "/Iinclude"
         "/Isrc"
         "/Isrc\core"

@@ -1,35 +1,54 @@
 #ifndef SLD_SIMD_HPP
 #define SLD_SIMD_HPP
 
-#include <xmmintrin.h>
+# if _MSC_VER
+# if !defined(__clang__)
+#    define INSTRUCTION_REORDER_BARRIER _ReadWriteBarrier()
+# else
+# endif
+#    include <intrin.h>
+# else
+#    include <x86intrin.h>
+# endif
 
 #include "sld.hpp"
 
-#define SLD_SIMD_ALIGN_4F32 alignas(16)
+#define SLD_SIMD_ALIGN_128 alignas(16)
 
 namespace sld {
 
-    typedef __m128 simd_f128_t;
+    struct f128_t SLD_SIMD_ALIGN_128 { f32 val[4]; };
+    struct u128_t SLD_SIMD_ALIGN_128 { u32 val[4]; };
 
-    struct SLD_SIMD_ALIGN_4F32 f128_t {
-        f32 array[4];
-    };
+    typedef __m128  simd_f128_t;
+    typedef __m128i simd_u128_t;
 
-    void simd_4f32_load         (const f128_t& data,   simd_f128_t&       reg);                                  
-    void simd_4f32_store        (const simd_f128_t&  reg,    f128_t&      data);                                 
-    void simd_4f32_a_add_b      (simd_f128_t&        reg_a,  const simd_f128_t& reg_b); 
-    void simd_4f32_a_sub_b      (simd_f128_t&        reg_a,  const simd_f128_t& reg_b); 
-    void simd_4f32_a_mul_b      (simd_f128_t&        reg_a,  const simd_f128_t& reg_b); 
-    void simd_4f32_a_div_b      (simd_f128_t&        reg_a,  const simd_f128_t& reg_b); 
-    void simd_4f32_a_add_b_to_c (const simd_f128_t&  reg_a,  const simd_f128_t& reg_b, simd_f128_t& reg_c); 
-    void simd_4f32_a_sub_b_to_c (const simd_f128_t&  reg_a,  const simd_f128_t& reg_b, simd_f128_t& reg_c); 
-    void simd_4f32_a_mul_b_to_c (const simd_f128_t&  reg_a,  const simd_f128_t& reg_b, simd_f128_t& reg_c); 
-    void simd_4f32_a_div_b_to_c (const simd_f128_t&  reg_a,  const simd_f128_t& reg_b, simd_f128_t& reg_c); 
-    void simd_4f32_sqrt         (const simd_f128_t&  reg_in, simd_f128_t&       reg_out); 
-    void simd_4f32_inv_sqrt     (const simd_f128_t&  reg_in, simd_f128_t&       reg_out); 
+    SLD_INLINE void simd_f128_load         (const f128_t& data,   simd_f128_t&       reg);                                  
+    SLD_INLINE void simd_f128_store        (const simd_f128_t&  reg,    f128_t&      data);                                 
+    SLD_INLINE void simd_f128_a_add_b      (simd_f128_t&        reg_a,  const simd_f128_t& reg_b); 
+    SLD_INLINE void simd_f128_a_sub_b      (simd_f128_t&        reg_a,  const simd_f128_t& reg_b); 
+    SLD_INLINE void simd_f128_a_mul_b      (simd_f128_t&        reg_a,  const simd_f128_t& reg_b); 
+    SLD_INLINE void simd_f128_a_div_b      (simd_f128_t&        reg_a,  const simd_f128_t& reg_b); 
+    SLD_INLINE void simd_f128_a_add_b_to_c (const simd_f128_t&  reg_a,  const simd_f128_t& reg_b, simd_f128_t& reg_c); 
+    SLD_INLINE void simd_f128_a_sub_b_to_c (const simd_f128_t&  reg_a,  const simd_f128_t& reg_b, simd_f128_t& reg_c); 
+    SLD_INLINE void simd_f128_a_mul_b_to_c (const simd_f128_t&  reg_a,  const simd_f128_t& reg_b, simd_f128_t& reg_c); 
+    SLD_INLINE void simd_f128_a_div_b_to_c (const simd_f128_t&  reg_a,  const simd_f128_t& reg_b, simd_f128_t& reg_c); 
+    SLD_INLINE void simd_f128_sqrt         (const simd_f128_t&  reg_in, simd_f128_t&       reg_out); 
+    SLD_INLINE void simd_f128_inv_sqrt     (const simd_f128_t&  reg_in, simd_f128_t&       reg_out); 
+
+    SLD_INLINE void simd_u128_load         (const u128_t&       data,   simd_u128_t& reg);                                  
+    SLD_INLINE void simd_u128_store        (const simd_u128_t&  reg,    u128_t&      data);                                 
+    SLD_INLINE void simd_u128_a_add_b      (simd_u128_t&        reg_a,  const simd_u128_t& reg_b); 
+    SLD_INLINE void simd_u128_a_sub_b      (simd_u128_t&        reg_a,  const simd_u128_t& reg_b); 
+    SLD_INLINE void simd_u128_a_mul_b      (simd_u128_t&        reg_a,  const simd_u128_t& reg_b); 
+    SLD_INLINE void simd_u128_a_div_b      (simd_u128_t&        reg_a,  const simd_u128_t& reg_b); 
+    SLD_INLINE void simd_u128_a_add_b_to_c (const simd_u128_t&  reg_a,  const simd_u128_t& reg_b, simd_u128_t& reg_c); 
+    SLD_INLINE void simd_u128_a_sub_b_to_c (const simd_u128_t&  reg_a,  const simd_u128_t& reg_b, simd_u128_t& reg_c); 
+    SLD_INLINE void simd_u128_a_mul_b_to_c (const simd_u128_t&  reg_a,  const simd_u128_t& reg_b, simd_u128_t& reg_c); 
+    SLD_INLINE void simd_u128_a_div_b_to_c (const simd_u128_t&  reg_a,  const simd_u128_t& reg_b, simd_u128_t& reg_c); 
 
     SLD_INLINE void
-    simd_4f32_load(
+    simd_f128_load(
         const f128_t& data,
         simd_f128_t&        reg) {
 
@@ -37,7 +56,7 @@ namespace sld {
     }
 
     SLD_INLINE void
-    simd_4f32_store(
+    simd_f128_store(
         const simd_f128_t& reg,
         f128_t&      data) {
 
@@ -45,7 +64,7 @@ namespace sld {
     }
 
     SLD_INLINE void
-    simd_4f32_a_add_b(
+    simd_f128_a_add_b(
         simd_f128_t&       reg_a,
         const simd_f128_t& reg_b) {
 
@@ -53,7 +72,7 @@ namespace sld {
     }
 
     SLD_INLINE void
-    simd_4f32_a_sub_b(
+    simd_f128_a_sub_b(
         simd_f128_t&       reg_a,
         const simd_f128_t& reg_b) {
 
@@ -61,7 +80,7 @@ namespace sld {
     }
 
     SLD_INLINE void
-    simd_4f32_a_mul_b(
+    simd_f128_a_mul_b(
         simd_f128_t&       reg_a,
         const simd_f128_t& reg_b) {
 
@@ -69,7 +88,7 @@ namespace sld {
     }
 
     SLD_INLINE void
-    simd_4f32_a_div_b(
+    simd_f128_a_div_b(
         simd_f128_t&       reg_a,
         const simd_f128_t& reg_b) {
 
@@ -77,7 +96,7 @@ namespace sld {
     }
 
     SLD_INLINE void
-    simd_4f32_a_add_b_to_c(
+    simd_f128_a_add_b_to_c(
         const simd_f128_t& reg_a,
         const simd_f128_t& reg_b,
         simd_f128_t&       reg_c) {
@@ -86,7 +105,7 @@ namespace sld {
     }
 
     SLD_INLINE void
-    simd_4f32_a_sub_b_to_c(
+    simd_f128_a_sub_b_to_c(
         const simd_f128_t& reg_a,
         const simd_f128_t& reg_b,
         simd_f128_t&       reg_c) {
@@ -95,7 +114,7 @@ namespace sld {
     }
 
     SLD_INLINE void
-    simd_4f32_a_mul_b_to_c(
+    simd_f128_a_mul_b_to_c(
         const simd_f128_t& reg_a,
         const simd_f128_t& reg_b,
         simd_f128_t&       reg_c) {
@@ -104,7 +123,7 @@ namespace sld {
     }
 
     SLD_INLINE void
-    simd_4f32_a_div_b_to_c(
+    simd_f128_a_div_b_to_c(
         const simd_f128_t& reg_a,
         const simd_f128_t& reg_b,
         simd_f128_t&       reg_c) {
@@ -113,7 +132,7 @@ namespace sld {
     }
 
     SLD_INLINE void
-    simd_4f32_sqrt(
+    simd_f128_sqrt(
         const simd_f128_t& reg_in,
         simd_f128_t&       reg_out) {
 
@@ -121,7 +140,7 @@ namespace sld {
     }
 
     SLD_INLINE void
-    simd_4f32_inv_sqrt_out(
+    simd_f128_inv_sqrt_out(
         const simd_f128_t& reg_in,
         simd_f128_t&       reg_out) {
 

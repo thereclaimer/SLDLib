@@ -33,15 +33,15 @@ namespace sld {
             vec2_simd_load(v2.x[index], v2.y[index], v2_simd);
 
             // square and add the components
-            simd_4f32_a_mul_b      (simd_reg_xx, v2_simd.x);
-            simd_4f32_a_mul_b      (simd_reg_yy, v2_simd.y);
-            simd_4f32_a_add_b_to_c (simd_reg_xx, simd_reg_yy, simd_reg_xx_add_yy);
+            simd_f128_a_mul_b      (simd_reg_xx, v2_simd.x);
+            simd_f128_a_mul_b      (simd_reg_yy, v2_simd.y);
+            simd_f128_a_add_b_to_c (simd_reg_xx, simd_reg_yy, simd_reg_xx_add_yy);
 
             // calculate the inverse square root
             // and multiply it by the components
-            simd_4f32_inv_sqrt (simd_reg_inv_sqrt, simd_reg_xx_add_yy);
-            simd_4f32_a_mul_b  (v2_simd.x,         simd_reg_inv_sqrt);
-            simd_4f32_a_mul_b  (v2_simd.y,         simd_reg_inv_sqrt);
+            simd_f128_inv_sqrt (simd_reg_inv_sqrt, simd_reg_xx_add_yy);
+            simd_f128_a_mul_b  (v2_simd.x,         simd_reg_inv_sqrt);
+            simd_f128_a_mul_b  (v2_simd.y,         simd_reg_inv_sqrt);
 
             // store the normalized vector
             vec2_simd_store(v2.x[index], v2.y[index], v2_simd);
@@ -69,13 +69,13 @@ namespace sld {
             vec2_simd_load(v2.x[index], v2.y[index], v2_simd);
 
             // square and add the components
-            simd_4f32_a_mul_b      (simd_reg_xx, simd_reg_x);
-            simd_4f32_a_mul_b      (simd_reg_yy, simd_reg_y);
-            simd_4f32_a_add_b_to_c (simd_reg_xx, simd_reg_yy, simd_reg_xx_add_yy);
+            simd_f128_a_mul_b      (simd_reg_xx, simd_reg_x);
+            simd_f128_a_mul_b      (simd_reg_yy, simd_reg_y);
+            simd_f128_a_add_b_to_c (simd_reg_xx, simd_reg_yy, simd_reg_xx_add_yy);
 
             // calculate and store the magnitude
-            simd_4f32_sqrt  (simd_reg_xx_add_yy, simd_reg_mag);
-            simd_4f32_store (simd_reg_mag,       m[index]);
+            simd_f128_sqrt  (simd_reg_xx_add_yy, simd_reg_mag);
+            simd_f128_store (simd_reg_mag,       m[index]);
         }
     }
 
@@ -95,11 +95,11 @@ namespace sld {
 
             // simdify the next vector and the scalar
             vec2_simd_load (v2[index], v2_simd);
-            simd_4f32_load (s[index], simd_reg_s);
+            simd_f128_load (s[index], simd_reg_s);
 
             // do the scalar multiply
-            simd_4f32_a_mul_b(v2_simd.x, simd_reg_s);
-            simd_4f32_a_mul_b(v2_simd.y, simd_reg_s);
+            simd_f128_a_mul_b(v2_simd.x, simd_reg_s);
+            simd_f128_a_mul_b(v2_simd.y, simd_reg_s);
         
             // store the vector
             vec2_simd_store(v2[index], v2_simd);
@@ -186,8 +186,8 @@ namespace sld {
             vec2_simd_load(v2_b[index], v2_simd_b);
         
             // a add b
-            simd_4f32_a_add_b(v2_simd_a.x, v2_simd_b.x);
-            simd_4f32_a_add_b(v2_simd_a.y, v2_simd_b.y);
+            simd_f128_a_add_b(v2_simd_a.x, v2_simd_b.x);
+            simd_f128_a_add_b(v2_simd_a.y, v2_simd_b.y);
 
             // store vector a
             vec2_simd_store(v2_a[index], v2_simd_a);
@@ -213,8 +213,8 @@ namespace sld {
             vec2_simd_load(v2_b[index], v2_simd_b);
         
             // a add b
-            simd_4f32_a_sub_b(v2_simd_a.x, v2_simd_b.x);
-            simd_4f32_a_sub_b(v2_simd_a.y, v2_simd_b.y);
+            simd_f128_a_sub_b(v2_simd_a.x, v2_simd_b.x);
+            simd_f128_a_sub_b(v2_simd_a.y, v2_simd_b.y);
 
             // store vector a
             vec2_simd_store(v2_a[index], v2_simd_a);
@@ -243,12 +243,12 @@ namespace sld {
             vec2_simd_load(v2_b[index], v2_simd_b);
         
             // dot = axbx + ayby
-            simd_4f32_a_mul_b_to_c (v2_simd_a.x,  v2_simd_b.x,  v2_simd_ab.x);
-            simd_4f32_a_mul_b_to_c (v2_simd_a.y,  v2_simd_b.y,  v2_simd_ab.y);
-            simd_4f32_a_add_b_to_c (v2_simd_ab.x, v2_simd_ab.y, simd_reg_dot);
+            simd_f128_a_mul_b_to_c (v2_simd_a.x,  v2_simd_b.x,  v2_simd_ab.x);
+            simd_f128_a_mul_b_to_c (v2_simd_a.y,  v2_simd_b.y,  v2_simd_ab.y);
+            simd_f128_a_add_b_to_c (v2_simd_ab.x, v2_simd_ab.y, simd_reg_dot);
         
             // store the dot product
-            simd_4f32_store(simd_reg_dot, dot[index]);
+            simd_f128_store(simd_reg_dot, dot[index]);
         }
     }
 
@@ -296,8 +296,8 @@ namespace sld {
         const f128_t& v2_y,
         vec2_simd_t&  v2_simd) {
 
-        simd_4f32_load (v2.x, v2_simd.x);
-        simd_4f32_load (v2.y, v2_simd.y);
+        simd_f128_load (v2.x, v2_simd.x);
+        simd_f128_load (v2.y, v2_simd.y);
     }
     
     SLD_INLINE void
@@ -307,7 +307,7 @@ namespace sld {
         const vec2_simd_t& v2_simd) {
 
         // store the data
-        simd_4f32_store (v2_simd.x, v2.x);
-        simd_4f32_store (v2_simd.y, v2.y);
+        simd_f128_store (v2_simd.x, v2.x);
+        simd_f128_store (v2_simd.y, v2.y);
     }
 };

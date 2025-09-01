@@ -6,7 +6,7 @@ namespace sld {
 
     bool
     string16_validate(
-        const string16_t& string) {
+        const str16_t& string) {
 
         bool result = true;
         result &= (string.size  != 0);
@@ -15,7 +15,7 @@ namespace sld {
     }
     bool
     string16_is_empty(
-        const string16_t& string) {
+        const str16_t& string) {
 
         const bool is_empty = string16_validate(string)
             ? string.chars[0] == 0
@@ -26,7 +26,7 @@ namespace sld {
 
     bool
     string16_reset(
-        string16_t& string) {
+        str16_t& string) {
 
         const bool result = string16_validate(string);
 
@@ -41,7 +41,7 @@ namespace sld {
 
     bool
     string16_zero(
-        string16_t& string) {
+        str16_t& string) {
 
         const bool result = string16_validate(string);
 
@@ -61,7 +61,7 @@ namespace sld {
 
     u32
     string16_length(
-        string16_t& string) {
+        str16_t& string) {
 
         const bool result = string16_validate(string);
         u32 length = 0;
@@ -82,7 +82,7 @@ namespace sld {
 
     u32
     string16_copy(
-        string16_t& string,
+        str16_t& string,
         const c16*  src_chars,
         const u32  src_length) {
 
@@ -114,7 +114,7 @@ namespace sld {
 
     u32
     string16_append(
-        string16_t& string,
+        str16_t& string,
         const c16*  src_chars,
         const u32   src_length) {
 

@@ -8,7 +8,7 @@ pushd ..
 
 @set cl_in=      src\sld.cpp
 @set cl_out=     /Fo:build\debug\obj\SLD.Win32.obj
-@set cl_include= /Iinclude /Isrc /Isrc\core /Isrc\math /Isrc\memory /Isrc\os /Isrc\string /Isrc\win32 /Ivcpkg_installed\x64-windows\include
+@set cl_include= /Iexternal /Iinclude /Isrc /Isrc\core /Isrc\math /Isrc\memory /Isrc\os /Isrc\string /Isrc\win32 /Ivcpkg_installed\x64-windows\include
 @set cl_flags=   /nologo /c /MD /Z7 /EHs- /std:c++17 /Od /D_HAS_EXCEPTIONS=0
 
 @set lib_in=     build\debug\obj\SLD.Win32.obj
