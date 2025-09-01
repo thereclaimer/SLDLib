@@ -39,35 +39,29 @@ namespace sld {
         return(result);
     }
 
-    SLD_API u64
+    SLD_API bool
     memory_copy(
-        const memory_t& memory_src,
-        memory_t&       memory_dst) {
+        byte*       memory_dst,
+        const byte* memory_src,
+        const u64   size) {
 
         bool result = true;
-        result &= memory_validate(memory_src);
-        result &= memory_validate(memory_dst);
+        result &= (memory_dst != NULL);
+        result &= (memory_src != NULL);
+        result &= (size       != 0);
 
-        u64 size = 0;        
         if (result) {
-
-            size = (memory_src.size < memory_dst.size)
-                ? memory_src.size
-                : memory_dst.size;
-
-            const byte* data_src = (byte*)memory_src.start;
-            byte*       data_dst = (byte*)memory_dst.start;
 
             for (
                 u64 index = 0;
                 index < size;
                 ++index) {
 
-                data_dst[index] = data_src[index]; 
+                memory_dst[index] = memory_src[index]; 
             }
         }
 
-        return(size);
+        return(result);
     }
 
     SLD_API addr
