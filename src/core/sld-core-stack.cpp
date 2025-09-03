@@ -60,9 +60,9 @@ namespace sld {
     void*
     stack_push(
         stack_t&  stack,
-        const u32 size) {
+        const u64 size) {
 
-        const u32 new_position = stack.position + size;
+        const u64 new_position = stack.position + size;
         
         bool result = true;
         result &= stack_validate(stack);
@@ -78,7 +78,7 @@ namespace sld {
     bool
     stack_pull(
         stack_t&  stack,
-        const u32 size) {
+        const u64 size) {
 
         bool result = true;
         result &= stack_validate(stack);

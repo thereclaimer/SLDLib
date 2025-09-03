@@ -2,23 +2,52 @@
 #define SLD_MEMORY_HPP
 
 #include "sld.hpp"
-
-#ifndef    SLD_MEMORY_STACK_SIZE_KB
-#   define SLD_MEMORY_STACK_SIZE_KB 256
-#endif
-
-#define SLD_MEMORY_INVALID_HANDLE -1
+#include "sld-stack.hpp"
 
 namespace sld {
+
+    //-------------------------------------------------------------------
+    // TYPES
+    //-------------------------------------------------------------------
+
+    typedef u64     memory_size_t;
+    typedef addr    memory_start_t;
+    typedef stack_t memory_stack_t;
+
+    struct memory_block_t;
+    struct memory_error_t;
+    struct memory_reservation_t;
+    struct memory_arena_t;
+
+    //-------------------------------------------------------------------
+    // API
+    //-------------------------------------------------------------------
+
+    SLD_API void           memory_zero                         (memory_start_t       start,     const memory_size_t size);
+    SLD_API memory_start_t memory_advance                      (const memory_start_t start,     const memory_size_t size,      const memory_size_t stride, memory_size_t& offset);
+    SLD_API void           memory_copy                         (memory_start_t       start_dst, memory_start_t      start_src, const memory_size_t size);
+
+    SLD_API bool           memory_reservation_acquire          (memory_reservation_t* reservation, const memory_size_t reservation_size_min, const memory_size_t arena_size_min);
+    SLD_API bool           memory_reservation_release          (memory_reservation_t* reservation);
+    SLD_API bool           memory_reservation_size_committed   (memory_reservation_t* reservation);
+    SLD_API bool           memory_reservation_size_decommitted (memory_reservation_t* reservation);
+
+    SLD_API bool           memory_arena_commit                 (memory_arena_t*       arena);
+    SLD_API bool           memory_arena_decommit               (memory_arena_t*       arena);
+    SLD_API byte*          memory_arena_push_bytes             (memory_arena_t*       arena, const memory_size_t size, const memory_size_t alignment = 0);
+    SLD_API byte*          memory_arena_pull_bytes             (memory_arena_t*       arena, const memory_size_t size, const memory_size_t alignment = 0);
+    SLD_API bool           memory_arena_can_push_bytes         (memory_arena_t*       arena, const memory_size_t size, const memory_size_t alignment = 0);
+    SLD_API bool           memory_arena_can_pull_bytes         (memory_arena_t*       arena, const memory_size_t size, const memory_size_t alignment = 0);
+    SLD_API memory_size_t  memory_arena_space_remaining        (const memory_arena_t* arena);
 
     //-------------------------------------------------------------------
     // ENUMS
     //-------------------------------------------------------------------
 
     enum memory_error_e {
-        memory_error_e_success                   =  0,
+        memory_error_e_success                   =  1,
         memory_error_e_unknown                   = -1,
-        memory_error_e_invalid_args              = -2, 
+        memory_error_e_invalid_args              = -2,
         memory_error_e_invalid_id                = -3,
         memory_error_e_invalid_reservation       = -4,
         memory_error_e_invalid_arena             = -5,
@@ -30,95 +59,40 @@ namespace sld {
         memory_error_e_os_failed_to_release      = -11,
         memory_error_e_os_failed_to_commit       = -12,
         memory_error_e_os_failed_to_decommit     = -13,
-        memory_error_e_critical                  = -14,
+        memory_error_e_critical                  = -14
     };
-
-    //-------------------------------------------------------------------
-    // TYPES
-    //-------------------------------------------------------------------
-
-    struct memory_reservation_handle_t;
-    struct memory_arena_handle_t;
-    struct memory_t;
-    struct memory_reservation_info_t;
-    struct memory_arena_info_t;
-
-    using memory_error_t = type_t<memory_error_e>;
-
-    //-------------------------------------------------------------------
-    // API
-    //-------------------------------------------------------------------
-
-    // memory
-    SLD_API bool                           memory_validate              (const memory_t& memory);
-    SLD_API bool                           memory_zero                  (memory_t&       memory);
-    SLD_API u64                            memory_copy                  (const memory_t& memory_src, memory_t& memory_dst);
-    SLD_API addr                           memory_advance               (const memory_t& memory, const u32 stride, u32& offset);
-    SLD_API const memory_error_t       memory_get_last_error        (void); 
-
-    // reservation
-    SLD_API const memory_reservation_handle_t memory_reservation_acquire   (const u64 reservation_size, const u64 arena_size);
-    SLD_API bool                           memory_reservation_validate  (const memory_reservation_handle_t reservation_handle);
-    SLD_API bool                           memory_reservation_release   (const memory_reservation_handle_t reservation_handle);
-    SLD_API bool                           memory_reservation_info      (const memory_reservation_handle_t reservation_handle, memory_reservation_info_t& info);
-    
-    // arena
-    SLD_API const memory_arena_handle_t       memory_arena_commit          (const memory_reservation_handle_t reservation_handle);
-    SLD_API bool                           memory_arena_decommit        (const memory_arena_handle_t       arena_handle);
-    SLD_API bool                           memory_arena_validate        (const memory_arena_handle_t       arena_handle);
-    SLD_API bool                           memory_arena_reset           (const memory_arena_handle_t       arena_handle);
-    SLD_API const u64                      memory_arena_space_remaining (const memory_arena_handle_t       arena_handle);
-    SLD_API byte*                          memory_arena_push_bytes      (const memory_arena_handle_t       arena_handle, const u64 size);
-    SLD_API bool                           memory_arena_pull_bytes      (const memory_arena_handle_t       arena_handle, const u64 size);
-    SLD_API bool                           memory_arena_can_push_bytes  (const memory_arena_handle_t       arena_handle, const u64 size);
-    SLD_API bool                           memory_arena_can_pull_bytes  (const memory_arena_handle_t       arena_handle, const u64 size);
-    SLD_API bool                           memory_arena_info            (const memory_arena_handle_t       arena_handle, memory_arena_info_t& info);
-
 
     //-------------------------------------------------------------------
     // DEFINITIONS
     //-------------------------------------------------------------------
 
-    struct memory_reservation_handle_t : s32_t { };
-    struct memory_arena_handle_t       : s32_t { };
+    struct memory_error_t : s32_t { };
 
-
-
-    struct memory_t {
-        addr start;
-        u64  size;
+    struct memory_block_t {
+        memory_start_t start;
+        memory_size_t  size;
     };
 
-    struct memory_reservation_info_t {
-        memory_reservation_handle_t handle;
+    struct memory_reservation_t {
+        memory_start_t start;
         struct {
-            u64 total;
-            u64 arena;
-            u64 committed;
+            memory_size_t reserved;
+            memory_size_t arena;
         } size;
-    };
-    
-    struct memory_arena_info_t {
         struct {
-            memory_reservation_handle_t reservation;
-            memory_arena_handle_t       arena;
-        } handle;
-        struct {
-            u64 total;
-            u64 used;
-        } size;
+            memory_arena_t* committed;
+            memory_arena_t* decommitted;
+        } arena_list;
+        memory_error_t last_error;
+    }; 
+
+    struct memory_arena_t {
+        memory_stack_t        stack;
+        memory_arena_t*       next;
+        memory_arena_t*       prev;
+        memory_reservation_t* reservation;
+        memory_error_t        last_error;
     };
-
-
 };
-
-#define sld_memory_arena_push_type(arena_h, type)             (type*)sld::memory_arena_push_bytes     (arena_h, sizeof(type))
-#define sld_memory_arena_pull_type(arena_h, type)             (type*)sld::memory_arena_pull_bytes     (arena_h, sizeof(type))
-#define sld_memory_arena_push_array(arena_h, count, type)     (type*)sld::memory_arena_push_bytes     (arena_h, sizeof(type) * count)
-#define sld_memory_arena_pull_array(arena_h, count, type)     (type*)sld::memory_arena_pull_bytes     (arena_h, sizeof(type) * count)
-#define sld_memory_arena_can_push_type(arena_h, type)                sld::memory_arena_can_push_bytes (arena_h, sizeof(type))
-#define sld_memory_arena_can_pull_type(arena_h, type)                sld::memory_arena_can_pull_bytes (arena_h, sizeof(type))
-#define sld_memory_arena_can_push_array(arena_h, count, type)        sld::memory_arena_can_push_bytes (arena_h, sizeof(type) * count)
-#define sld_memory_arena_can_pull_array(arena_h, count, type)        sld::memory_arena_can_pull_bytes (arena_h, sizeof(type) * count)
 
 #endif //SLD_MEMORY_HPP
