@@ -58,6 +58,10 @@ namespace sld {
     typedef uint8_t  byte;
     typedef intptr_t addr;
     typedef void*    vptr;
+    typedef u8       pad8;
+    typedef u16      pad16;
+    typedef u32      pad32;
+    typedef u64      pad64;
 
     // structured
     struct  s8_t   { s8   val;    };
