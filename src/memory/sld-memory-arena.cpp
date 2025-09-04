@@ -5,6 +5,34 @@
 
 namespace sld {
 
+    //-------------------------------------------------------------------
+    // DECLARATIONS
+    //-------------------------------------------------------------------
+
+    arena_t* arena_list_remove_next_released    (arena_list_t& arena_list);
+    arena_t* arena_list_remove_next_decommitted (arena_list_t& arena_list, const reservation_t* reservation);
+    bool     arena_list_remove_committed        (arena_list_t& arena_list, arena_t** arena);
+    bool     arena_list_remove_decommitted      (arena_list_t& arena_list, arena_t** arena);
+    void     arena_list_insert_released         (arena_list_t& arena_list, arena_t** arena);
+    void     arena_list_insert_decommitted      (arena_list_t& arena_list, arena_t** arena);
+    void     arena_list_insert_committed        (arena_list_t& arena_list, arena_t** arena);
+
+    //-------------------------------------------------------------------
+    // API
+    //-------------------------------------------------------------------
+
+    SLD_FUNC arena_list_t&
+    arena_list_instance(
+        void) {
+
+        static arena_list_t list = {
+            NULL, // committed
+            NULL, // decommitted
+            NULL  // released
+        }
+        return(list);
+    }
+
     SLD_FUNC bool
     arena_validate(
         arena_t* arena) {

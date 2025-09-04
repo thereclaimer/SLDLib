@@ -12,7 +12,7 @@ namespace sld {
         memory_error_t last_error;
     };
 
-    global_stack_t& global_stack_instance (void);
+    global_stack_t& global_stack_instance         (void);
 
     //-------------------------------------------------------------------
     // API
@@ -34,38 +34,6 @@ namespace sld {
         
         return(reservation);
     }
-    
-    SLD_FUNC memory_reservation_t*
-    global_stack_alloc_reservation(
-        void) {
-
-        static global_stack_t& stack = global_stack_instance();
-        static const u64       size  = sizeof(memory_reservation_t);
-    
-        memory_reservation_t* reservation = (memory_reservation_t*)stack_push(stack, size);
-        
-        stack.last_error = (reservation != NULL)
-            ? memory_error_e_success
-            : memory_error_e_stack_not_enough_memory;
-        
-        return(reservation);
-    }
-
-    SLD_FUNC memory_arena_t*
-    global_stack_alloc_arena(
-        void) {
-        
-        static global_stack_t& stack = global_stack_instance();
-        static const u64       size  = sizeof(memory_arena_t);
-    
-        memory_arena_t* arena = (memory_arena_t*)stack_push(stack, size);
-
-        stack.last_error = (arena != NULL)
-            ? memory_error_e_success
-            : memory_error_e_stack_not_enough_memory;
-
-        return(arena);
-    }
 
     SLD_FUNC memory_error_t
     global_stack_last_error(
@@ -74,6 +42,31 @@ namespace sld {
         static global_stack_t& stack = global_stack_instance();
         return(stack.last_error);
     }
+
+    SLD_FUNC u64 
+    global_stack_size_total(
+        void) {
+
+        static global_stack_t& stack = global_stack_instance();
+        return(stack.size);
+    }
+
+    SLD_FUNC u64 
+    global_stack_size_used(
+        void) {
+
+        static global_stack_t& stack = global_stack_instance();
+        return(stack.position);
+    }
+
+    SLD_FUNC u64 
+    global_stack_size_free(
+        void) {
+        
+        static global_stack_t& stack = global_stack_instance();
+        return(stack.size - stack.position);
+    }
+
 
     //-------------------------------------------------------------------
     // INLINE
