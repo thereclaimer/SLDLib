@@ -12,8 +12,8 @@ namespace sld {
 
     struct win32_input_keycode_map_t {
         
-        sld_ct_const u32 capacity           = 256;
-        sld_ct_const u16 keycodes[capacity] = {
+            static constexpr const u32 capacity           = 256;
+            static constexpr const u16 keycodes[capacity] = {
 
             /* 0x00-0x07 */ 
             os_input_keycode_e_null, os_input_keycode_e_null, os_input_keycode_e_null, os_input_keycode_e_null,

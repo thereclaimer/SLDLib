@@ -1,98 +1,69 @@
 #pragma once
 
+#include "sld-memory.hpp"
 #include "sld-memory-internal.cpp"
-#include "sld-memory-stack.cpp"
 #include "sld-memory-reservation.cpp"
+#include "sld-memory-arena.cpp"
 
 namespace sld {
 
-    SLD_API bool
-    memory_validate(
-        const memory_t& memory) {
-
-        const bool is_valid = (
-            memory.start != 0 &&
-            memory.size  != 0
-        );
-
-        return(is_valid);
-    }
-
-    SLD_API bool
+    SLD_API void
     memory_zero(
-        memory_t& memory) {
+        byte*     start,
+        const u64 size) {
 
-        bool result = memory_validate(memory);
-        if (result) {
-
-            byte* data = (byte*)memory.start;
-
-            for (
-                u64 index = 0;
-                index < memory.size;
-                ++index) {
-
-                data[index] = 0;
-            }
+        if (start == NULL || size == 0) {
+            return;
         }
 
-        return(result);
+        for (
+            u64 index = 0;
+            index < size;
+            ++index) {
+
+            start[index] = 0;
+        }
     }
 
-    SLD_API bool
+    SLD_API void
     memory_copy(
-        byte*       memory_dst,
-        const byte* memory_src,
+        byte*       start_dst,
+        const byte* start_src,
         const u64   size) {
 
-        bool result = true;
-        result &= (memory_dst != NULL);
-        result &= (memory_src != NULL);
-        result &= (size       != 0);
-
-        if (result) {
-
-            for (
-                u64 index = 0;
-                index < size;
-                ++index) {
-
-                memory_dst[index] = memory_src[index]; 
-            }
+        if (start_dst == NULL || start_src == NULL || size == 0) {
+            return;
         }
 
-        return(result);
+        for (
+            u64 index = 0;
+            index < size;
+            ++index) {
+
+            start_dst[index] = start_src[index]; 
+        }
     }
 
-    SLD_API addr
+    SLD_API byte*
     memory_advance(
-        const memory_t& memory,
-        const u32       stride,
-        u32&            offset) {
+        const byte* start,
+        const u64   size,
+        const u64   stride,
+        u64&        offset) {
 
         const u32 new_offset = (offset + stride);
 
-        bool result = true;
-        result &= memory_validate(memory);
-        result &= (stride != 0);
-        result &= (new_offset < memory.size);
+        if (
+            start  == NULL ||
+            size   == 0    ||
+            stride == 0    ||
+            offset > size) {
 
-        addr address = 0;
-
-        if (result) {
-
-            offset  = new_offset;
-            address = memory.start + offset; 
+            return(NULL);
         }
 
-        return(address);
-    }
-
-    SLD_API const memory_error_t
-    memory_get_last_error(
-        void) {
-
-        const memory_error_t error = memory_last_error_instance();
-        return(error);
+        byte* result = (byte*)(&start[offset]);
+        offset = new_offset;
+        return(result);
     }
 };

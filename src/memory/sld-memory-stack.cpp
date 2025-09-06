@@ -1,18 +1,8 @@
 #pragma once
 
-#include "sld-memory.hpp"
+#include "sld-memory-internal.cpp"
 
 namespace sld {
-
-    //-------------------------------------------------------------------
-    // DECLARATIONS
-    //-------------------------------------------------------------------
-
-    struct global_stack_t : stack_t {
-        memory_error_t last_error;
-    };
-
-    global_stack_t& global_stack_instance         (void);
 
     //-------------------------------------------------------------------
     // API
@@ -67,7 +57,6 @@ namespace sld {
         return(stack.size - stack.position);
     }
 
-
     //-------------------------------------------------------------------
     // INLINE
     //-------------------------------------------------------------------
@@ -75,16 +64,39 @@ namespace sld {
     SLD_INLINE global_stack_t&
     global_stack_instance(
         void) {
-
+        
+        static bool           initialized = false;
         static const u64      stack_size = size_kilobytes(SLD_MEMORY_INTERNAL_STACK_SIZE_KB);
         static byte           stack_mem[stack_size];
-        static global_stack_t stack = {
-            (addr)stack_mem,       // start
-            stack_size,            // size
-            0,                     // position
-            0                      // save
-            memory_error_e_success // last_error
-        };
+        static global_stack_t stack;
+
+        if (!initialized) {
+            stack.start                     = (addr)stack_mem;
+            stack.size                      = stack_size;
+            stack.position                  = 0;
+            stack.save                      = 0;
+            stack.reservation_list.released = NULL;
+            stack.reservation_list.reserved = NULL;
+            stack.arena_list.released       = NULL;
+            stack.last_error                = memory_error_e_success;
+        }
+
         return(stack);
+    }
+
+    SLD_INLINE reservation_list_t&
+    global_stack_get_reservation_list(
+        void) {
+
+        static global_stack_t& stack = global_stack_instance();
+        return(stack.reservation_list);
+    }
+
+    SLD_INLINE arena_list_t&      
+    global_stack_get_arena_list(
+        void) {
+
+        static global_stack_t& stack = global_stack_instance();
+        return(stack.arena_list);
     }
 };

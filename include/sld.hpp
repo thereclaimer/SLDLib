@@ -15,10 +15,9 @@
 #include <GL/glext.h>
 
 #define SLD_UTILITY  static constexpr inline // compile time inline
-#define sld_ct_const static constexpr const  // compile time const
 #define SLD_INLINE   static inline           // run time inline
-#define sld_rt_const static const            // run time const
 #define SLD_API
+#define SLD_INTERNAL
 #define SLD_FUNC     static
 
 namespace sld {

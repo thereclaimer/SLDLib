@@ -14,7 +14,7 @@ namespace sld {
     // TYPES
     //-------------------------------------------------------------------
 
-    struct memory_error_t;
+    struct memory_error_t : s32_t { };
     struct reservation_t;
     struct reservation_list_t;
     struct arena_t;
@@ -24,9 +24,9 @@ namespace sld {
     // API
     //-------------------------------------------------------------------
 
-    SLD_API void                memory_zero                   (addr       start,     const u64 size);
-    SLD_API addr                memory_advance                (const addr start,     const u64 size,      const u64 stride, u64& offset);
-    SLD_API void                memory_copy                   (addr       start_dst, addr      start_src, const u64 size);
+    SLD_API void                memory_zero                   (byte*       start,     const u64 size);
+    SLD_API byte*               memory_advance                (const byte* start,     const u64 size,      const u64 stride, u64& offset);
+    SLD_API void                memory_copy                   (byte*       start_dst, byte*     start_src, const u64 size);
 
     SLD_API byte*               global_stack_push_bytes       (const u64 size, const u64 alignment = 0);
     SLD_API memory_error_t      global_stack_last_error       (void);
@@ -34,7 +34,6 @@ namespace sld {
     SLD_API u64                 global_stack_size_used        (void);
     SLD_API u64                 global_stack_size_free        (void);
 
-    SLD_API reservation_list_t& reservation_list_instance     (void);
     SLD_API bool                reservation_validate          (reservation_t* reservation);
     SLD_API reservation_t*      reservation_acquire           (const u64 size_min_reservation = 0, const u64 size_min_arena = 0);
     SLD_API bool                reservation_release           (reservation_t* reservation);
@@ -42,15 +41,14 @@ namespace sld {
     SLD_API u64                 reservation_size_committed    (reservation_t* reservation);
     SLD_API u64                 reservation_size_decommitted  (reservation_t* reservation);
 
-    SLD_API arena_list_t&       arena_list_instance           (void);
     SLD_API bool                arena_validate                (arena_t*       arena);
     SLD_API arena_t*            arena_commit                  (reservation_t* reservation);
     SLD_API bool                arena_decommit                (arena_t*       arena);
     SLD_API byte*               arena_push_bytes              (arena_t*       arena, const u64 size, const u64 alignment = 0);
     SLD_API bool                arena_pull_bytes              (arena_t*       arena, const u64 size, const u64 alignment = 0);
-    SLD_API bool                arena_can_push_bytes          (arena_t*       arena, const u64 size, const u64 alignment = 0);
-    SLD_API bool                arena_can_pull_bytes          (arena_t*       arena, const u64 size, const u64 alignment = 0);
-    SLD_API u64                 arena_space_remaining         (arena_t*       arena);
+    SLD_API u64                 arena_size_total              (arena_t*       arena);
+    SLD_API u64                 arena_size_free               (arena_t*       arena);
+    SLD_API u64                 arena_size_used               (arena_t*       arena);
 
     //-------------------------------------------------------------------
     // ENUMS
@@ -76,37 +74,7 @@ namespace sld {
     // DEFINITIONS
     //-------------------------------------------------------------------
 
-    struct memory_error_t : s32_t { };
 
-    struct reservation_t {
-        addr start;
-        struct {
-            u64 reserved;
-            u64 arena;
-        } size;
-        reservation_t* next;
-        reservation_t* prev;
-        memory_error_t last_error;
-    }; 
-
-    struct arena_t {
-        stack_t        stack;
-        arena_t*       next;
-        arena_t*       prev;
-        reservation_t* reservation;
-        memory_error_t last_error;
-    };
-
-    struct reservation_list_t {
-        reservation_t* reserved;
-        reservation_t* released;
-    };
-
-    struct arena_list_t {
-        arena_t* committed;
-        arena_t* decommitted;        
-        arena_t* released;
-    };
 };
 
 #endif //SLD_MEMORY_HPP

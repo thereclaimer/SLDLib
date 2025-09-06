@@ -1,0 +1,64 @@
+#pragma once
+
+#include "sld-memory.hpp"
+#include "sld-os.hpp"
+#include "sld-stack.hpp"
+
+namespace sld {
+
+    struct reservation_t {
+        addr start;
+        struct {
+            u64 reserved;
+            u64 arena;
+        } size;
+        struct {
+            arena_t* committed;
+            arena_t* decommitted;
+        } arena_list;
+        reservation_t* next;
+        reservation_t* prev;
+        memory_error_t last_error;
+    }; 
+
+    struct arena_t {
+        stack_t        stack;
+        arena_t*       next;
+        arena_t*       prev;
+        reservation_t* reservation;
+        memory_error_t last_error;
+    };
+
+    struct reservation_list_t {
+        reservation_t* reserved;
+        reservation_t* released;
+    };
+
+    struct arena_list_t {
+        arena_t* released;
+    };
+
+    struct global_stack_t : stack_t {
+        reservation_list_t reservation_list;
+        arena_list_t       arena_list;
+        memory_error_t     last_error;
+    };
+
+    SLD_INTERNAL global_stack_t&     global_stack_instance                     (void);
+    SLD_INTERNAL reservation_list_t& global_stack_get_reservation_list         (void);
+    SLD_INTERNAL arena_list_t&       global_stack_get_arena_list               (void);
+
+    SLD_INTERNAL arena_t*            reservation_remove_next_decommitted_arena (reservation_t*      reservation);
+    SLD_INTERNAL void                reservation_remove_committed_arena        (reservation_t*      reservation, arena_t*      arena);
+    SLD_INTERNAL void                reservation_insert_committed_arena        (reservation_t*      reservation, arena_t*      arena);
+    SLD_INTERNAL void                reservation_insert_decommitted_arena      (reservation_t*      reservation, arena_t*      arena);
+    SLD_INTERNAL arena_t*            reservation_remove_all_arenas             (reservation_t*      reservation, arena_list_t& arena_list);
+    SLD_INTERNAL reservation_t*      reservation_list_remove_next_released     (reservation_list_t& reservation_list);
+    SLD_INTERNAL bool                reservation_list_remove_reserved          (reservation_list_t& reservation_list, reservation_t* reservation);
+    SLD_INTERNAL void                reservation_list_insert_released          (reservation_list_t& reservation_list, reservation_t* reservation);
+    SLD_INTERNAL void                reservation_list_insert_reserved          (reservation_list_t& reservation_list, reservation_t* reservation);
+    
+    SLD_INTERNAL arena_t*            arena_list_remove_next_released           (arena_list_t& arena_list);
+    SLD_INTERNAL void                arena_list_insert_all_released            (arena_list_t& arena_list, reservation_t* reservation);
+    SLD_INTERNAL void                arena_list_insert_released                (arena_list_t& arena_list, arena_t* arena);
+};    
