@@ -3,7 +3,6 @@
 
 #include <Windows.h>
 
-
 #include <cstdint>
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>

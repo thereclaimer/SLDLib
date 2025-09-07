@@ -57,6 +57,15 @@ namespace sld {
         return(stack.size - stack.position);
     }
 
+    SLD_FUNC addr
+    global_stack_start(
+        void) {
+
+        static global_stack_t& stack = global_stack_instance();
+        return(stack.start);
+    }
+
+
     //-------------------------------------------------------------------
     // INLINE
     //-------------------------------------------------------------------

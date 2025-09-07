@@ -33,6 +33,7 @@ namespace sld {
     SLD_API u64                 global_stack_size_total       (void);
     SLD_API u64                 global_stack_size_used        (void);
     SLD_API u64                 global_stack_size_free        (void);
+    SLD_API addr                global_stack_start            (void);
 
     SLD_API bool                reservation_validate          (reservation_t* reservation);
     SLD_API reservation_t*      reservation_acquire           (const u64 size_min_reservation = 0, const u64 size_min_arena = 0);
@@ -74,7 +75,28 @@ namespace sld {
     // DEFINITIONS
     //-------------------------------------------------------------------
 
+    struct reservation_t {
+        addr start;
+        struct {
+            u64 reserved;
+            u64 arena;
+        } size;
+        struct {
+            arena_t* committed;
+            arena_t* decommitted;
+        } arena_list;
+        reservation_t* next;
+        reservation_t* prev;
+        memory_error_t last_error;
+    }; 
 
+    struct arena_t {
+        stack_t        stack;
+        arena_t*       next;
+        arena_t*       prev;
+        reservation_t* reservation;
+        memory_error_t last_error;
+    };
 };
 
 #endif //SLD_MEMORY_HPP
