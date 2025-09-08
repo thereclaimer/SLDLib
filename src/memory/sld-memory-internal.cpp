@@ -6,29 +6,6 @@
 
 namespace sld {
 
-    struct reservation_t {
-        addr start;
-        struct {
-            u64 reserved;
-            u64 arena;
-        } size;
-        struct {
-            arena_t* committed;
-            arena_t* decommitted;
-        } arena_list;
-        reservation_t* next;
-        reservation_t* prev;
-        memory_error_t last_error;
-    }; 
-
-    struct arena_t {
-        stack_t        stack;
-        arena_t*       next;
-        arena_t*       prev;
-        reservation_t* reservation;
-        memory_error_t last_error;
-    };
-
     struct reservation_list_t {
         reservation_t* reserved;
         reservation_t* released;
