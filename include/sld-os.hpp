@@ -8,9 +8,9 @@
 /* OS                                                                             */
 /**********************************************************************************/
 
-#define SLD_OS_API          extern        // os api declaration
-#define SLD_OS_API_FUNC     static        // os api function
-#define SLD_OS_API_INTERNAL inline static // internal os function
+#define    SLD_OS_API          extern        // os api declaration
+#define    SLD_OS_API_FUNC     static        // os api function
+#define    SLD_OS_API_INTERNAL inline static // internal os function
 
 #ifndef    SLD_OS_FILE_ASYNC_CONTEXT_SIZE
 #   define SLD_OS_FILE_ASYNC_CONTEXT_SIZE      1024
@@ -354,7 +354,7 @@ namespace sld {
 
     enum os_window_error_e {
         os_window_error_e_success                =  1,
-        os_window_error_e_unknown                = -1,
+        os_window_error_e_unknown                = 1,
         os_window_error_e_resource_not_found     = -2,
         os_window_error_e_access_denied          = -3,
         os_window_error_e_system_out_of_memory   = -4,
@@ -390,16 +390,16 @@ namespace sld {
     struct os_file_error_t  : os_error_t  { };
 
     struct os_file_buffer_t;
-    struct os_file_async_context_t;
+    struct os_file_context_t;
 
-    using os_file_callback_async_io = void (*) (const os_file_async_context_t* async_context); 
+    using os_file_callback_async_io_f = void (*) (const os_file_context_t* os_context); 
 
-    using os_file_open_f           = const os_file_error_t (*) (os_file_handle_t&      file_handle, const c8* path, const os_file_flags_t flags);
-    using os_file_size_f           = const os_file_error_t (*) (const os_file_handle_t file_handle, u64& size);
-    using os_file_read_f           = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
-    using os_file_write_f          = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
-    using os_file_read_async_f     = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_async_context_t& async_context);    
-    using os_file_write_async_f    = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_async_context_t& async_context);    
+    using os_file_open_f              = const os_file_error_t (*) (os_file_handle_t&      file_handle, const c8* path, const os_file_flags_t flags);
+    using os_file_size_f              = const os_file_error_t (*) (const os_file_handle_t file_handle, u64& size);
+    using os_file_read_f              = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
+    using os_file_write_f             = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
+    using os_file_read_async_f        = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_context_t& async_context);    
+    using os_file_write_async_f       = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_context_t& async_context);    
 
     struct os_file_buffer_t {
         byte* data;
@@ -409,12 +409,12 @@ namespace sld {
         u64   transferred;
     };
 
-    struct os_file_async_context_t {
-        os_file_handle_t          handle;
-        os_file_callback_async_io callback;
-        os_file_error_t           error;
-        u32                       bytes_transferred;
-        byte                      os_data[SLD_OS_FILE_ASYNC_CONTEXT_SIZE];                 
+    struct os_file_context_t {
+        os_file_handle_t            handle;
+        os_file_callback_async_io_f callback;
+        os_file_error_t             error;
+        u32                         bytes_transferred;
+        byte                        os_data[SLD_OS_FILE_ASYNC_CONTEXT_SIZE];                 
     };
 
     enum os_file_flag_e {
@@ -430,31 +430,31 @@ namespace sld {
     };
 
     enum os_file_error_e {
-        os_file_error_e_success             =  1,
-        os_file_error_e_unknown             = -1,
-        os_file_error_e_invalid_args        = -2,
-        os_file_error_e_invalid_handle      = -3,
-        os_file_error_e_invalid_disk        = -4,
-        os_file_error_e_invalid_device      = -5,
-        os_file_error_e_invalid_buffer      = -6,
-        os_file_error_e_invalid_file        = -7,
-        os_file_error_e_sharing_violation   = -8,
-        os_file_error_e_already_exists      = -9,
-        os_file_error_e_not_found           = -10,
-        os_file_error_e_access_denied       = -11,
-        os_file_error_e_pipe_busy           = -12,
-        os_file_error_e_reached_end_of_file = -13,
-        os_file_error_e_broken_pipe         = -14,
-        os_file_error_e_no_data             = -15,
-        os_file_error_e_more_data           = -16,
-        os_file_error_e_io_incomplete       = -17,
-        os_file_error_e_io_pending          = -18,
-        os_file_error_e_operation_aborted   = -19,
-        os_file_error_e_disk_io_failure     = -20,
-        os_file_error_e_disk_corrupt        = -21,
-        os_file_error_e_device_not_ready    = -22,
-        os_file_error_e_out_of_memory       = -23,
-        os_file_error_e_device_failure      = -24
+        os_file_error_e_success             = 0,
+        os_file_error_e_unknown             = 1,
+        os_file_error_e_invalid_args        = 2,
+        os_file_error_e_invalid_handle      = 3,
+        os_file_error_e_invalid_disk        = 4,
+        os_file_error_e_invalid_device      = 5,
+        os_file_error_e_invalid_buffer      = 6,
+        os_file_error_e_invalid_file        = 7,
+        os_file_error_e_sharing_violation   = 8,
+        os_file_error_e_already_exists      = 9,
+        os_file_error_e_not_found           = 10,
+        os_file_error_e_access_denied       = 11,
+        os_file_error_e_pipe_busy           = 12,
+        os_file_error_e_reached_end_of_file = 13,
+        os_file_error_e_broken_pipe         = 14,
+        os_file_error_e_no_data             = 15,
+        os_file_error_e_more_data           = 16,
+        os_file_error_e_io_incomplete       = 17,
+        os_file_error_e_io_pending          = 18,
+        os_file_error_e_operation_aborted   = 19,
+        os_file_error_e_disk_io_failure     = 20,
+        os_file_error_e_disk_corrupt        = 21,
+        os_file_error_e_device_not_ready    = 22,
+        os_file_error_e_out_of_memory       = 23,
+        os_file_error_e_device_failure      = 24
     };
 
     static inline bool

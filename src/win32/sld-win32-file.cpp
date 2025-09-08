@@ -148,7 +148,7 @@ namespace sld {
     win32_file_read_async(
         const os_file_handle_t   handle,
         os_file_buffer_t&        buffer,
-        os_file_async_context_t& async_context) {
+        os_file_context_t& async_context) {
 
         LPOVERLAPPED overlapped = (LPOVERLAPPED)async_context.os_data;
         overlapped->Pointer     = (PVOID)&async_context;
@@ -173,7 +173,7 @@ namespace sld {
     win32_file_write_async(
         const os_file_handle_t   handle,
         os_file_buffer_t&        buffer,
-        os_file_async_context_t& async_context) {
+        os_file_context_t& async_context) {
 
         LPOVERLAPPED overlapped = (LPOVERLAPPED)async_context.os_data;
         overlapped->Pointer     = (PVOID)&async_context;
@@ -251,7 +251,7 @@ namespace sld {
 
         if (!overlapped) return;
 
-        auto context = (os_file_async_context_t*)overlapped->Pointer;
+        auto context = (os_file_context_t*)overlapped->Pointer;
 
         context->bytes_transferred = bytes_transferred;
         context->error             = win32_file_get_last_error();
