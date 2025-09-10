@@ -8,7 +8,7 @@ namespace sld {
     // API
     //-------------------------------------------------------------------
 
-    SLD_FUNC bool
+    SLD_API bool
     reservation_validate(
         reservation_t* reservation) {
 
@@ -26,7 +26,7 @@ namespace sld {
     }
 
 
-    SLD_FUNC reservation_t*
+    SLD_API reservation_t*
     reservation_acquire(
         const u64 size_min_reservation,
         const u64 size_min_arena) {
@@ -65,7 +65,7 @@ namespace sld {
         return(reservation);
     }
     
-    SLD_FUNC bool
+    SLD_API bool
     reservation_release(
         reservation_t* reservation) {
 
@@ -102,7 +102,7 @@ namespace sld {
         return(is_released);
     }
 
-    SLD_FUNC bool
+    SLD_API bool
     reservation_reset(
         reservation_t* reservation) {
 
@@ -135,7 +135,7 @@ namespace sld {
         return(result);            
     }
 
-    SLD_FUNC u64
+    SLD_API u64
     reservation_size_committed(
         reservation_t* reservation) {
 
@@ -158,7 +158,7 @@ namespace sld {
         return(size_committed);
     }
 
-    SLD_FUNC u64
+    SLD_API u64
     reservation_size_decommitted(
         reservation_t* reservation) {
 
@@ -188,7 +188,7 @@ namespace sld {
     // INTERNAL
     //-------------------------------------------------------------------
 
-    SLD_INLINE arena_t*
+    SLD_INTERNAL arena_t*
     reservation_remove_next_decommitted_arena(
         reservation_t* reservation) {
         
@@ -203,7 +203,7 @@ namespace sld {
         return(arena);
     }
 
-    SLD_INLINE void
+    SLD_INTERNAL void
     reservation_remove_committed_arena(
         reservation_t* reservation,
         arena_t*       arena) {
@@ -216,7 +216,7 @@ namespace sld {
         if (arena->next != NULL) arena->next = arena->prev;
     }
 
-    SLD_INLINE void
+    SLD_INTERNAL void
     reservation_insert_committed_arena(
         reservation_t* reservation,
         arena_t*       arena) {
@@ -227,7 +227,7 @@ namespace sld {
         reservation->arena_list.committed = arena;        
     }
 
-    SLD_INLINE void
+    SLD_INTERNAL void
     reservation_insert_decommitted_arena(
         reservation_t* reservation,
         arena_t*       arena) {
@@ -238,7 +238,7 @@ namespace sld {
         reservation->arena_list.decommitted = arena;
     }
 
-    SLD_INLINE reservation_t*
+    SLD_INTERNAL reservation_t*
     reservation_list_remove_next_released(
         reservation_list_t& reservation_list) {
 
@@ -256,7 +256,7 @@ namespace sld {
         return(reservation);
     }
 
-    SLD_INLINE bool
+    SLD_INTERNAL bool
     reservation_list_remove_reserved(
         reservation_list_t& reservation_list,
         reservation_t*      reservation) {
@@ -291,7 +291,7 @@ namespace sld {
         return(is_valid);
     }
 
-    SLD_INLINE void
+    SLD_INTERNAL void
     reservation_list_insert_released(
         reservation_list_t& reservation_list,
         reservation_t*      reservation) {
@@ -304,7 +304,7 @@ namespace sld {
         reservation_list.released = reservation;
     }
 
-    SLD_INLINE void
+    SLD_INTERNAL void
     reservation_list_insert_reserved(
         reservation_list_t& reservation_list,
         reservation_t*      reservation) {

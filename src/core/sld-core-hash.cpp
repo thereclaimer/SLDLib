@@ -6,7 +6,7 @@
 
 namespace sld {
 
-    SLD_FUNC bool
+    SLD_API bool
     hash_data(
         const byte* data,
         const u32   length,
@@ -19,13 +19,13 @@ namespace sld {
         if (can_hash) {
 
             const meow_u128 meow_hash = MeowHash(MeowDefaultSeed, length, (void*)data);
-            _mm_storeu_si128(&hash, meow_hash);
+            _mm_storeu_si128((__m128i*)&hash, meow_hash);
         }
 
         return(can_hash);
     }
 
-    SLD_FUNC bool
+    SLD_API bool
     hash_data_batch(
         const u32   count,
         const byte* data,
@@ -45,15 +45,15 @@ namespace sld {
                 ++index) {
 
                 const u32     offset   = index * stride;
-                const __m128i hash_reg = MeowHash(MeowDefaultSeed, length, ((void*))&data[offset]);
-                _mm_store_si128((__m128i*)&hash, hash_reg);
+                const __m128i hash_reg = MeowHash(MeowDefaultSeed, stride, (void*)&data[offset]);
+                _mm_store_si128((__m128i*)&hashes[index], hash_reg);
             }
         }
 
         return(can_hash);
     }
 
-    SLD_FUNC bool
+    SLD_API bool
     hash_search(
         const u32     count,
         const hash_t  search,
@@ -62,10 +62,10 @@ namespace sld {
 
         bool can_search = true;
         can_search &= (count  != 0);
-        can_search &= (hashes != NULL);
+        can_search &= (array != NULL);
         if (!can_search) return(can_search);
 
-        const meow_u128 meow_search = _mm_load_si128((meow_u128*)&hash);
+        const meow_u128 meow_search = _mm_load_si128((meow_u128*)&search);
 
         bool is_found = false;
         for (
@@ -83,26 +83,26 @@ namespace sld {
         return(is_found);
     }
 
-    SLD_FUNC bool
+    SLD_API bool
     hash_is_equal(
         const byte* data_a,
         const byte* data_b,
         const u32   length) {
 
-        const meow_u128 meow_a   = MeowHash           (MeowDefaultSeed, length, data_a);
-        const meow_u128 meow_b   = MeowHash           (MeowDefaultSeed, length, data_b);
+        const meow_u128 meow_a   = MeowHash           (MeowDefaultSeed, length, (void*)data_a);
+        const meow_u128 meow_b   = MeowHash           (MeowDefaultSeed, length, (void*)data_b);
         const bool      is_equal = MeowHashesAreEqual (meow_a, meow_b); 
         return(is_equal);
     }
 
-    SLD_FUNC bool
+    SLD_API bool
     hash_is_equal(
         const hash_t& hash,
         const byte*   data,
         const u32     length) {
   
-        const meow_u128 meow_a   = _mm_load_si128((meow_u128*)&array[index]);
-        const meow_u128 meow_b   = MeowHash           (MeowDefaultSeed, length, data);
+        const meow_u128 meow_a   = _mm_load_si128((meow_u128*)&hash);
+        const meow_u128 meow_b   = MeowHash           (MeowDefaultSeed, length, (void*)data);
         const bool      is_equal = MeowHashesAreEqual (meow_a, meow_b); 
         return(is_equal);
     }

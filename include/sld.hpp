@@ -15,9 +15,8 @@
 
 #define SLD_UTILITY  static constexpr inline // compile time inline
 #define SLD_INLINE   static inline           // run time inline
+#define SLD_INTERNAL static
 #define SLD_API
-#define SLD_INTERNAL
-#define SLD_FUNC     static
 
 namespace sld {
 

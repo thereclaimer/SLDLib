@@ -5,3 +5,7 @@
 #include "sld-string.cpp"
 #include "sld-os.cpp"
 #include "sld-memory.cpp"
+#include "sld-memory-reservation.cpp"
+#include "sld-memory-arena.cpp"
+#include "sld-memory-stack.cpp"
+#include "sld-core-hash.cpp"

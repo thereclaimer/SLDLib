@@ -4,6 +4,7 @@
 #include "sld-memory-internal.cpp"
 #include "sld-memory-reservation.cpp"
 #include "sld-memory-arena.cpp"
+#include "sld-memory-stack.cpp"
 
 namespace sld {
 

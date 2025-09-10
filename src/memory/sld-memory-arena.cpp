@@ -8,7 +8,7 @@ namespace sld {
     // API
     //-------------------------------------------------------------------
 
-    SLD_FUNC bool
+    SLD_API bool
     arena_validate(
         arena_t* arena) {
 
@@ -24,7 +24,7 @@ namespace sld {
         return(is_valid);
     }
 
-    SLD_FUNC arena_t*
+    SLD_API arena_t*
     arena_commit(
         reservation_t* reservation) {
 
@@ -84,7 +84,7 @@ namespace sld {
         return(arena);
     }
 
-    SLD_FUNC bool
+    SLD_API bool
     arena_decommit(
         arena_t* arena) {
 
@@ -111,7 +111,7 @@ namespace sld {
         return(is_decommitted);
     }
 
-    SLD_FUNC byte*
+    SLD_API byte*
     arena_push_bytes(
         arena_t*  arena,
         const u64 size,
@@ -139,7 +139,7 @@ namespace sld {
         return(bytes);
     }
 
-    SLD_FUNC bool
+    SLD_API bool
     arena_pull_bytes(
         arena_t*  arena,
         const u64 size,
@@ -162,7 +162,7 @@ namespace sld {
         return(is_pulled);
     }
 
-    SLD_FUNC u64
+    SLD_API u64
     arena_size_total(
         arena_t* arena) {
 
@@ -173,7 +173,7 @@ namespace sld {
         return(size_total);
     }
 
-    SLD_FUNC u64
+    SLD_API u64
     arena_size_free(
         arena_t* arena) {
 
@@ -184,7 +184,7 @@ namespace sld {
         return(size_free);
     }
 
-    SLD_FUNC u64
+    SLD_API u64
     arena_size_used(
         arena_t* arena) {
 
@@ -199,7 +199,7 @@ namespace sld {
     // INTERNAL
     //-------------------------------------------------------------------
 
-    SLD_INLINE arena_t*
+    SLD_INTERNAL arena_t*
     arena_list_remove_next_released(
         arena_list_t& arena_list) {
         
@@ -214,7 +214,7 @@ namespace sld {
         return(arena);
     }
 
-    SLD_INLINE void
+    SLD_INTERNAL void
     arena_list_insert_released(
         arena_list_t& arena_list,
         arena_t*      arena) {
@@ -226,7 +226,7 @@ namespace sld {
         arena_list.released  = arena;
     }
 
-    SLD_INLINE void
+    SLD_INTERNAL void
     arena_list_insert_all_released(
         arena_list_t&  arena_list,
         reservation_t* reservation) {
