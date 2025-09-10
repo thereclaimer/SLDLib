@@ -161,7 +161,6 @@ namespace sld {
         LPOVERLAPPED overlapped = (LPOVERLAPPED)context.os->data;
         overlapped->Pointer     = (PVOID)context.callback;
         overlapped->Offset      = buffer.offset;
-        async_context.handle    = handle;
 
         const bool result = ReadFileEx(
             handle.val,               // hFile 
@@ -186,9 +185,8 @@ namespace sld {
         os_file_async_context_t& context) {
 
         LPOVERLAPPED overlapped = (LPOVERLAPPED)context.os->data;
-        overlapped->Pointer     = (PVOID)&async_context;
+        overlapped->Pointer     = (PVOID)&context.callback;
         overlapped->Offset      = buffer.offset;
-        async_context.handle    = handle;
 
         const bool result = WriteFileEx(
             handle.val,               // hFile 

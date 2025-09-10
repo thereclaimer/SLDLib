@@ -412,7 +412,7 @@ namespace sld {
 
     struct os_file_os_context_t {
         byte data[SLD_OS_FILE_ASYNC_CONTEXT_SIZE];                 
-    }
+    };
 
     struct os_file_callback_context_t {
         os_file_async_callback_f func;
