@@ -417,13 +417,11 @@ namespace sld {
     struct os_file_callback_context_t {
         os_file_async_callback_f func;
         void*                    data;
-        os_file_error_t          error;
-
     };
 
     struct os_file_async_context_t {
-        os_file_os_context_t*      os;
-        os_file_callback_context_t callback;
+        os_file_os_context_t*       os;
+        os_file_callback_context_t* callback;
     };
 
     struct os_file_context_t {

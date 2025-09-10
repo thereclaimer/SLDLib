@@ -24,7 +24,7 @@ namespace sld {
     };
 
     void                   win32_file_async_callback (DWORD error_code, DWORD bytes_transferred, LPOVERLAPPED overlapped);
-    const os_file_error_t  win32_file_get_last_error (void);
+    const os_file_error_t  win32_file_get_error_code (const DWORD error_code);
     const os_file_error_t& win32_file_error_success  (void);
 
     //-------------------------------------------------------------------
@@ -76,9 +76,11 @@ namespace sld {
             file_args.template_handle
         );
 
+        const DWORD win32_error = GetLastError();
+
         const os_file_error_t error = (file_handle.val != INVALID_HANDLE_VALUE)
             ? win32_file_error_success  ()
-            : win32_file_get_last_error (); 
+            : win32_file_get_error_code(win32_error);
         return(error);
     }
 
@@ -94,9 +96,11 @@ namespace sld {
             win32_handle,
             win32_file_size_high);
 
+        const DWORD win32_error = GetLastError();
+
         const os_file_error_t error = (size != INVALID_FILE_SIZE)
-            ? win32_file_get_last_error()
-            : win32_file_error_success ();       
+            ? win32_file_error_success()
+            : win32_file_get_error_code(win32_error);
         return(error);
     }
 
@@ -116,10 +120,12 @@ namespace sld {
             &overlapped                   // lpOverlapped
         );
 
+        const DWORD win32_error = GetLastError();
+
         const os_file_error_t error = (result)
             ? win32_file_error_success()
-            : win32_file_get_last_error();
-        return(error);    
+            : win32_file_get_error_code(win32_error);
+        return(error);   
     }
 
     SLD_OS_API_FUNC const os_file_error_t
@@ -138,9 +144,11 @@ namespace sld {
             &overlapped                   // lpOverlapped
         );
 
+        const DWORD win32_error = GetLastError();
+
         const os_file_error_t error = (result)
             ? win32_file_error_success()
-            : win32_file_get_last_error();
+            : win32_file_get_error_code(win32_error);
         return(error);
     }
 
@@ -148,10 +156,10 @@ namespace sld {
     win32_file_read_async(
         const os_file_handle_t   handle,
         os_file_buffer_t&        buffer,
-        os_file_context_t& async_context) {
+        os_file_async_context_t& context) {
 
-        LPOVERLAPPED overlapped = (LPOVERLAPPED)async_context.os_data;
-        overlapped->Pointer     = (PVOID)&async_context;
+        LPOVERLAPPED overlapped = (LPOVERLAPPED)context.os->data;
+        overlapped->Pointer     = (PVOID)context.callback;
         overlapped->Offset      = buffer.offset;
         async_context.handle    = handle;
 
@@ -163,9 +171,11 @@ namespace sld {
             win32_file_async_callback // lpCompletionRoutine 
         );
 
+        const DWORD win32_error = GetLastError();
+
         const os_file_error_t error = (result)
             ? win32_file_error_success()
-            : win32_file_get_last_error();
+            : win32_file_get_error_code(win32_error);
         return(error);
     }
 
@@ -173,9 +183,9 @@ namespace sld {
     win32_file_write_async(
         const os_file_handle_t   handle,
         os_file_buffer_t&        buffer,
-        os_file_context_t& async_context) {
+        os_file_async_context_t& context) {
 
-        LPOVERLAPPED overlapped = (LPOVERLAPPED)async_context.os_data;
+        LPOVERLAPPED overlapped = (LPOVERLAPPED)context.os->data;
         overlapped->Pointer     = (PVOID)&async_context;
         overlapped->Offset      = buffer.offset;
         async_context.handle    = handle;
@@ -188,9 +198,11 @@ namespace sld {
             win32_file_async_callback // lpCompletionRoutine 
         );
 
+        const DWORD win32_error = GetLastError();
+
         const os_file_error_t error = (result)
             ? win32_file_error_success()
-            : win32_file_get_last_error();
+            : win32_file_get_error_code(win32_error);
         return(error);
     }
 
@@ -200,11 +212,10 @@ namespace sld {
 
     SLD_OS_API_INTERNAL const os_file_error_t
     win32_file_get_error_code(
-        void) {
+        const DWORD win32_error) {
 
         os_file_error_t error;
 
-        const DWORD win32_error = GetLastError();
         switch (win32_error) {
             case (ERROR_SUCCESS):              { error.val = os_file_error_e_success;             return(error); }
             case (ERROR_INVALID_PARAMETER):    { error.val = os_file_error_e_invalid_args;        return(error); }
@@ -233,6 +244,8 @@ namespace sld {
             case (ERROR_NOT_ENOUGH_MEMORY):    { error.val = os_file_error_e_out_of_memory;       return(error); }
             default:                           { error.val = os_file_error_e_unknown;             return(error); }
         }
+
+        return(error);
     }
 
     SLD_OS_API_INTERNAL const os_file_error_t&
@@ -251,10 +264,10 @@ namespace sld {
 
         if (!overlapped) return;
 
-        auto context = (os_file_context_t*)overlapped->Pointer;
+        auto context = (os_file_callback_context_t*)overlapped->Pointer;
 
-        context->bytes_transferred = bytes_transferred;
-        context->error             = win32_file_get_last_error();
-        context->callback(context);
+        const os_file_error_t error = win32_file_get_error_code(error_code);
+
+        context->func(context->data, error, bytes_transferred);
     }
 };
