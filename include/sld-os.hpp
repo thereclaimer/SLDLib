@@ -390,31 +390,45 @@ namespace sld {
     struct os_file_error_t  : os_error_t  { };
 
     struct os_file_buffer_t;
-    struct os_file_context_t;
+    struct os_file_callback_context_t;
+    struct os_file_os_context_t;
+    struct os_file_async_context_t;
 
-    using os_file_callback_async_io_f = void (*) (const os_file_context_t* os_context); 
-
-    using os_file_open_f              = const os_file_error_t (*) (os_file_handle_t&      file_handle, const c8* path, const os_file_flags_t flags);
-    using os_file_size_f              = const os_file_error_t (*) (const os_file_handle_t file_handle, u64& size);
-    using os_file_read_f              = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
-    using os_file_write_f             = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
-    using os_file_read_async_f        = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_context_t& async_context);    
-    using os_file_write_async_f       = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_context_t& async_context);    
+    using os_file_async_callback_f = void                  (*) (const void* data, const os_file_error_t error, const u32 bytes_transferred);
+    using os_file_open_f           = const os_file_error_t (*) (os_file_handle_t&      file_handle, const c8* path, const os_file_flags_t flags);
+    using os_file_size_f           = const os_file_error_t (*) (const os_file_handle_t file_handle, u64& size);
+    using os_file_read_f           = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
+    using os_file_write_f          = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
+    using os_file_read_async_f     = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_async_context_t& context);    
+    using os_file_write_async_f    = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_async_context_t& context);    
 
     struct os_file_buffer_t {
         byte* data;
-        u64   offset;
         u64   size;
         u64   length;
+        u64   offset;
         u64   transferred;
+    };
+
+    struct os_file_os_context_t {
+        byte data[SLD_OS_FILE_ASYNC_CONTEXT_SIZE];                 
+    }
+
+    struct os_file_callback_context_t {
+        os_file_async_callback_f func;
+        void*                    data;
+        os_file_error_t          error;
+
+    };
+
+    struct os_file_async_context_t {
+        os_file_os_context_t*      os;
+        os_file_callback_context_t callback;
     };
 
     struct os_file_context_t {
         os_file_handle_t            handle;
-        os_file_callback_async_io_f callback;
-        os_file_error_t             error;
         u32                         bytes_transferred;
-        byte                        os_data[SLD_OS_FILE_ASYNC_CONTEXT_SIZE];                 
     };
 
     enum os_file_flag_e {
