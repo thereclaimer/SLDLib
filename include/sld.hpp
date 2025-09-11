@@ -89,8 +89,8 @@ namespace sld {
     SLD_UTILITY const u64 size_kilobytes   (const u64 n_kilobytes)               { return (n_kilobytes * 1024);                               }
     SLD_UTILITY const u64 size_megabytes   (const u64 n_megabytes)               { return (n_megabytes * 1024 * 1024);                        }
     SLD_UTILITY const u64 size_gigabytes   (const u64 n_gigabytes)               { return (n_gigabytes * 1024 * 1024 * 1024);                 }
-    SLD_UTILITY const u64 size_align       (const u64 size, const u64 alignment) { return ((size + alignment - 1) / (alignment * alignment)); }
-    SLD_UTILITY const u64 size_align_pow_2 (const u64 size, const u64 alignment) { return ((size + alignment - 1) & ~(alignment - 1));        }
+    SLD_UTILITY const u64 size_align       (const u64 size, const u64 alignment) { return ((alignment == 0) ? size : (size + alignment - 1) / (alignment * alignment)); }
+    SLD_UTILITY const u64 size_align_pow_2 (const u64 size, const u64 alignment) { return ((alignment == 0) ? size : (size + alignment - 1) & ~(alignment - 1));        }
     SLD_UTILITY bool      size_is_pow_2    (const u64 size)                      { return (((size > 0) && ((size & (size - 1)) == 0)));       }               
 
     //-------------------------------------------------------------------
