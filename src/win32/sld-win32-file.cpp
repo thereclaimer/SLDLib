@@ -19,7 +19,7 @@ namespace sld {
         HANDLE                template_handle;
         DWORD                 access;
         DWORD                 share;
-        DWORD                 on_create;
+        DWORD                 mode;
         DWORD                 flags;
     };
 
@@ -33,37 +33,46 @@ namespace sld {
 
     SLD_OS_API_FUNC const os_file_error_t
     win32_file_open(
-        os_file_handle_t&     file_handle,
-        const c8*             path,
-        const os_file_flags_t flags) {
+        os_file_handle_t&       file_handle,
+        const c8*               path,
+        const os_file_config_t& config) {
 
         win32_file_args_t file_args = {0};
-        file_args.security         = NULL;
-        file_args.template_handle  = NULL;
-        file_args.on_create        = CREATE_NEW;
-        file_args.flags            = FILE_ATTRIBUTE_NORMAL; 
+        file_args.access          = 0;
+        file_args.security        = NULL;
+        file_args.template_handle = NULL;
+        file_args.flags           = FILE_ATTRIBUTE_NORMAL; 
 
         // access
-        if (flags.val & os_file_flag_e_read)  file_args.access |= GENERIC_READ;
-        if (flags.val & os_file_flag_e_write) file_args.access |= GENERIC_WRITE;
+        const bool access_read  = (config.access_flags.val & os_file_access_flag_e_read);
+        const bool access_write = (config.access_flags.val & os_file_access_flag_e_write);
+        if (access_read)  file_args.access |= GENERIC_READ;
+        if (access_write) file_args.access |= GENERIC_WRITE;
 
         // share        
-        if (flags.val & os_file_flag_e_share_read)   file_args.share  |= FILE_SHARE_READ;
-        if (flags.val & os_file_flag_e_share_write)  file_args.share  |= FILE_SHARE_WRITE;
-        if (flags.val & os_file_flag_e_share_delete) file_args.share  |= FILE_SHARE_DELETE;
+        const bool share_read   = (config.share_flags.val & os_file_share_flag_e_read);
+        const bool share_write  = (config.share_flags.val & os_file_share_flag_e_write);
+        const bool share_delete = (config.share_flags.val & os_file_share_flag_e_delete);
+        if (share_read)   file_args.share  |= FILE_SHARE_READ;
+        if (share_write)  file_args.share  |= FILE_SHARE_WRITE;
+        if (share_delete) file_args.share  |= FILE_SHARE_DELETE;
 
-        // on create
-        const bool existing      = (flags.val & os_file_flag_e_open_existing);
-        const bool overwrite     = (flags.val & os_file_flag_e_overwrite);
-        const bool create_always = (overwrite  && !existing);
-        const bool open_existing = (!overwrite && existing);
-        const bool open_always   = (overwrite  && existing); 
-        if      (create_always)  file_args.on_create = CREATE_ALWAYS;
-        else if (open_existing)  file_args.on_create = OPEN_EXISTING;
-        else if (open_always)    file_args.on_create = OPEN_ALWAYS;
+        // mode
+        const bool mode_create_new         = config.mode.val & os_file_mode_e_create_new;
+        const bool mode_open_existing      = config.mode.val & os_file_mode_e_open_existing;
+        const bool mode_open_always        = config.mode.val & os_file_mode_e_open_always;
+        const bool mode_overwrite_existing = config.mode.val & os_file_mode_e_overwrite_existing;
 
-        // flags
-        if (flags.val & os_file_flag_e_async) file_args.flags |= FILE_FLAG_OVERLAPPED;
+        switch (config.mode.val) {
+            case(os_file_mode_e_create_new):          file_args.mode = CREATE_NEW;    break;
+            case(os_file_mode_e_open_existing):       file_args.mode = OPEN_EXISTING; break;
+            case(os_file_mode_e_open_always):         file_args.mode = OPEN_ALWAYS;   break;
+            case(os_file_mode_e_overwrite_existing):  file_args.mode = CREATE_ALWAYS; break;
+            default:                                  file_args.mode = CREATE_NEW;    break;
+        }
+
+        // async
+        if (config.is_async) file_args.flags |= FILE_FLAG_OVERLAPPED;
 
         // create file
         file_handle.val = CreateFile(
@@ -71,7 +80,7 @@ namespace sld {
             file_args.access,
             file_args.share,
             file_args.security,
-            file_args.on_create,
+            file_args.mode,
             file_args.flags,
             file_args.template_handle
         );

@@ -389,13 +389,18 @@ namespace sld {
     struct os_file_flags_t  : os_flags_t  { };
     struct os_file_error_t  : os_error_t  { };
 
+    struct os_file_access_flags_t : u8_t { };
+    struct os_file_share_flags_t  : u8_t { };
+    struct os_file_mode_t         : u8_t { };
+    struct os_file_config_t;
+
     struct os_file_buffer_t;
     struct os_file_callback_context_t;
     struct os_file_os_context_t;
     struct os_file_async_context_t;
 
     using os_file_async_callback_f = void                  (*) (const void* data, const os_file_error_t error, const u32 bytes_transferred);
-    using os_file_open_f           = const os_file_error_t (*) (os_file_handle_t&      file_handle, const c8* path, const os_file_flags_t flags);
+    using os_file_open_f           = const os_file_error_t (*) (os_file_handle_t&      file_handle, const c8* path, const os_file_config_t& config);
     using os_file_size_f           = const os_file_error_t (*) (const os_file_handle_t file_handle, u64& size);
     using os_file_read_f           = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
     using os_file_write_f          = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
@@ -425,20 +430,35 @@ namespace sld {
     };
 
     struct os_file_context_t {
-        os_file_handle_t            handle;
-        u32                         bytes_transferred;
+        os_file_handle_t handle;
+        u32              bytes_transferred;
     };
 
-    enum os_file_flag_e {
-        os_file_flag_e_none          = 0,
-        os_file_flag_e_async         = bit_value(0),
-        os_file_flag_e_read          = bit_value(1),
-        os_file_flag_e_write         = bit_value(2),
-        os_file_flag_e_share_read    = bit_value(3), 
-        os_file_flag_e_share_write   = bit_value(4),
-        os_file_flag_e_share_delete  = bit_value(5),
-        os_file_flag_e_open_existing = bit_value(6),
-        os_file_flag_e_overwrite     = bit_value(7),
+    enum os_file_access_flag_e {
+        os_file_access_flag_e_none           = 0,        
+        os_file_access_flag_e_read           = bit_value(0),        
+        os_file_access_flag_e_write          = bit_value(1)
+    };
+
+    enum os_file_share_flag_e {
+        os_file_share_flag_e_none   = 0 ,
+        os_file_share_flag_e_read   = bit_value(0),
+        os_file_share_flag_e_write  = bit_value(1),
+        os_file_share_flag_e_delete = bit_value(2)
+    };
+
+    enum os_file_mode_e {
+        os_file_mode_e_create_new         = 0, 
+        os_file_mode_e_open_existing      = 1, 
+        os_file_mode_e_open_always        = 2, 
+        os_file_mode_e_overwrite_existing = 3 
+    };
+
+    struct os_file_config_t {
+        os_file_access_flags_t access_flags;
+        os_file_share_flags_t  share_flags;
+        os_file_mode_t         mode;
+        bool                   is_async;
     };
 
     enum os_file_error_e {
