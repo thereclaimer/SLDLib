@@ -75,7 +75,7 @@ namespace sld {
         if (config.is_async) file_args.flags |= FILE_FLAG_OVERLAPPED;
 
         // create file
-        file_handle.val = CreateFile(
+        const HANDLE win32_handle = CreateFile(
             path,
             file_args.access,
             file_args.share,
@@ -84,6 +84,7 @@ namespace sld {
             file_args.flags,
             file_args.template_handle
         );
+        file_handle.val = win32_handle;
 
         const DWORD win32_error = GetLastError();
 
@@ -143,12 +144,15 @@ namespace sld {
         os_file_buffer_t&      buffer) {
 
         OVERLAPPED overlapped;
+        ZeroMemory(&overlapped, sizeof(overlapped));
         overlapped.Offset = buffer.offset;
+
+        const HANDLE win32_handle = (HANDLE)handle.val;
 
         // write the file
         const BOOL result = WriteFile(
-            (HANDLE)handle.val,           // hFile,
-            (LPCVOID)buffer.data,         // lpBuffer,
+            win32_handle,                 // hFile,
+            (LPVOID)buffer.data,          // lpBuffer,
             buffer.length,                // nNumberOfBytesToWrite,
             (LPDWORD)&buffer.transferred, // lpNumberOfBytesWritten,
             &overlapped                   // lpOverlapped
