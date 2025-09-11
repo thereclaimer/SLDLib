@@ -145,6 +145,7 @@ namespace sld {
         OVERLAPPED overlapped;
         overlapped.Offset = buffer.offset;
 
+        // write the file
         const BOOL result = WriteFile(
             (HANDLE)handle.val,           // hFile,
             (LPCVOID)buffer.data,         // lpBuffer,
@@ -153,12 +154,24 @@ namespace sld {
             &overlapped                   // lpOverlapped
         );
 
-        const DWORD wait_result = WaitForSingleObject((HANDLE)handle.val, INFINITE);
-        const DWORD win32_error = GetLastError();
+        // get the last error
+        DWORD      win32_error   = GetLastError();
+        const bool io_is_pending = !result && (win32_error == ERROR_IO_PENDING); 
+        
+        // if its pending, try waiting
+        if (io_is_pending) {
+            const DWORD wait_result = WaitForSingleObject((HANDLE)handle.val, INFINITE);
+            win32_error = (wait_result == WAIT_OBJECT_0) 
+                ? ERROR_SUCCESS
+                : GetLastError();
+        }
+        // otherwise, get the last error
+        else {
+            win32_error = result ? ERROR_SUCCESS : GetLastError(); 
+        }
 
-        const os_file_error_t error = (result)
-            ? win32_file_error_success()
-            : win32_file_get_error_code(win32_error);
+        // translate the error
+        const os_file_error_t error = win32_file_get_error_code(win32_error);
         return(error);
     }
 
