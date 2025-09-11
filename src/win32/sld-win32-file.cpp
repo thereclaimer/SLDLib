@@ -144,6 +144,7 @@ namespace sld {
             &overlapped                   // lpOverlapped
         );
 
+        const DWORD wait_result = WaitForSingleObject((HANDLE)handle.val, INFINITE);
         const DWORD win32_error = GetLastError();
 
         const os_file_error_t error = (result)
