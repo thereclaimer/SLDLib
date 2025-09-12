@@ -120,7 +120,7 @@ namespace sld {
         os_file_buffer_t&      buffer) {
 
         OVERLAPPED overlapped;
-        overlapped.Offset = buffer.offset;
+        overlapped.Offset = buffer.cursor;
 
         BOOL result = ReadFile(
             (HANDLE)handle.val,           // hFile
@@ -145,7 +145,7 @@ namespace sld {
 
         OVERLAPPED overlapped;
         ZeroMemory(&overlapped, sizeof(overlapped));
-        overlapped.Offset = buffer.offset;
+        overlapped.Offset = buffer.cursor;
 
         const HANDLE win32_handle = (HANDLE)handle.val;
 
@@ -187,7 +187,7 @@ namespace sld {
 
         LPOVERLAPPED overlapped = (LPOVERLAPPED)context.os->data;
         overlapped->Pointer     = (PVOID)context.callback;
-        overlapped->Offset      = buffer.offset;
+        overlapped->Offset      = buffer.cursor;
 
         const bool result = ReadFileEx(
             handle.val,               // hFile 
@@ -213,7 +213,7 @@ namespace sld {
 
         LPOVERLAPPED overlapped = (LPOVERLAPPED)context.os->data;
         overlapped->Pointer     = (PVOID)&context.callback;
-        overlapped->Offset      = buffer.offset;
+        overlapped->Offset      = buffer.cursor;
 
         const bool result = WriteFileEx(
             handle.val,               // hFile 

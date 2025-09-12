@@ -411,7 +411,7 @@ namespace sld {
         byte* data;
         u64   size;
         u64   length;
-        u64   offset;
+        u64   cursor;
         u64   transferred;
     };
 
