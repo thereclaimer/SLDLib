@@ -110,4 +110,34 @@ namespace sld {
         const bool      is_equal = MeowHashesAreEqual (meow_a, meow_b); 
         return(is_equal);
     }
+
+    SLD_API void
+    hash_block_begin(
+        hash_state_t&      state,
+        const hash_seed_t& seed) {
+
+        MeowBegin(&state, (void*)seed.buffer);
+    }
+
+    SLD_API void
+    hash_block_consume(
+        hash_state_t& state,
+        const u64     block_size,
+        const byte*   block_data) {
+
+        MeowAbsorb(&state, block_size, (void*)block_data);
+    }
+
+    SLD_API const hash_t
+    hash_block_end(
+        hash_state_t& state) {
+
+        static meow_u8* store_128 = NULL;
+        const meow_u128 meow_hash = MeowEnd(&state, store_128);
+
+        hash_t hash;
+        _mm_storeu_si128((__m128i*)&hash, meow_hash);
+
+        return(hash);
+    }
 };
