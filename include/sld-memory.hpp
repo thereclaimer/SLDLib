@@ -19,7 +19,7 @@ namespace sld {
     struct reservation_list_t;
     struct arena_t;
     struct arena_list_t;
-
+    struct memory_t;
     //-------------------------------------------------------------------
     // API
     //-------------------------------------------------------------------
@@ -74,6 +74,11 @@ namespace sld {
     //-------------------------------------------------------------------
     // DEFINITIONS
     //-------------------------------------------------------------------
+
+    struct memory_t {
+        const void* start;
+        const u64   size;
+    };
 
     struct reservation_t {
         addr start;
