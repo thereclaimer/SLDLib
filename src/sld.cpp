@@ -15,3 +15,4 @@
 #include "sld-memory-stack.cpp"
 #include "sld-core-hash.cpp"
 #include "sld-core-heap.cpp"
+#include "sld-xml-allocator.cpp"

@@ -4,15 +4,15 @@
 
 namespace sld {
 
-    struct stack_allocation_t {
-        stack_allocation_t* next;
-        stack_allocation_t* prev;
+    struct stack_alloc_t {
+        stack_alloc_t* next;
+        stack_alloc_t* prev;
         u64                 size;
     };
 
-    struct stack_allocator_t {
+    struct stack_alctr_t {
         struct {
-            stack_allocation_t* first;
+            stack_alloc_t* first;
         } allocation_list;
     };
 

@@ -199,7 +199,7 @@ namespace sld {
     // INTERNAL
     //-------------------------------------------------------------------
 
-    SLD_INTERNAL arena_t*
+    SLD_FUNC arena_t*
     arena_list_remove_next_released(
         arena_list_t& arena_list) {
         
@@ -214,7 +214,7 @@ namespace sld {
         return(arena);
     }
 
-    SLD_INTERNAL void
+    SLD_FUNC void
     arena_list_insert_released(
         arena_list_t& arena_list,
         arena_t*      arena) {
@@ -226,7 +226,7 @@ namespace sld {
         arena_list.released  = arena;
     }
 
-    SLD_INTERNAL void
+    SLD_FUNC void
     arena_list_insert_all_released(
         arena_list_t&  arena_list,
         reservation_t* reservation) {

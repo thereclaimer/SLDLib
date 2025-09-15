@@ -8,34 +8,34 @@ namespace sld {
     // DEFINITIONS
     //-------------------------------------------------------------------
 
-    struct block_allocator_t {
+    struct block_alctr_t {
         u64 granularity;
         struct {
-            block_allocation_t* free;
-            block_allocation_t* used;
+            block_alloc_t* free;
+            block_alloc_t* used;
         } allocation_list;
     };
 
-    struct block_allocation_t {
-        block_allocator_t*  allocator;
-        block_allocation_t* next;
-        block_allocation_t* prev;
+    struct block_alloc_t {
+        block_alctr_t*  allocator;
+        block_alloc_t* next;
+        block_alloc_t* prev;
     };
 
     //-------------------------------------------------------------------
     // CONSTANTS
     //-------------------------------------------------------------------
 
-    constexpr u64 _size_block_allocation = sizeof(block_allocation_t);
-    constexpr u64 _size_block_allocator  = sizeof(block_allocator_t); 
+    constexpr u64 _size_block_allocation = sizeof(block_alloc_t);
+    constexpr u64 _size_block_allocator  = sizeof(block_alctr_t); 
 
     //-------------------------------------------------------------------
     // API
     //-------------------------------------------------------------------
 
     SLD_API bool
-    block_allocator_validate(
-        block_allocator_t* block_allocator) {
+    block_alctr_validate(
+        block_alctr_t* block_allocator) {
 
         bool is_valid = (block_allocator != NULL);
         if (is_valid) {
@@ -46,7 +46,7 @@ namespace sld {
     }
 
     SLD_API const u64
-    block_allocator_get_required_memory_size(
+    block_alctr_get_required_memory_size(
         const u64 count,
         const u64 granularity) {
 
@@ -61,13 +61,13 @@ namespace sld {
         return(size_required);
     }
 
-    SLD_API block_allocator_t*
-    block_allocator_init_from_memory(
+    SLD_API block_alctr_t*
+    block_alctr_init_from_memory(
         const void*     block_memory,
         const u64       block_memory_size,
         const u64       block_size) {
 
-        block_allocator_t* allocator = NULL;
+        block_alctr_t* allocator = NULL;
 
         // calculate the number of blocks we can fit in the memory
         const u64 granularity_pow_2 = size_round_up_pow2(block_size);
@@ -85,9 +85,9 @@ namespace sld {
         return(allocator);
 
         // initialize allocator
-        allocator = (block_allocator_t*)block_memory;
+        allocator = (block_alctr_t*)block_memory;
         allocator->granularity          = granularity_pow_2;
-        allocator->allocation_list.free = (block_allocation_t*)(((addr)block_memory) + _size_block_allocator);
+        allocator->allocation_list.free = (block_alloc_t*)(((addr)block_memory) + _size_block_allocator);
         allocator->allocation_list.used = NULL;
 
         // initialize block list
@@ -104,17 +104,17 @@ namespace sld {
             const addr          start_next    = (block == count_blocks - 1) ? 0 : (start_current + granularity_pow_2); 
 
             // cast pointers            
-            block_allocation_t* current = (block_allocation_t*)start_current; 
+            block_alloc_t* current = (block_alloc_t*)start_current; 
             current->allocator          = allocator;
-            current->prev               = (block_allocation_t*)start_prev; 
-            current->next               = (block_allocation_t*)start_next;
+            current->prev               = (block_alloc_t*)start_prev; 
+            current->next               = (block_alloc_t*)start_next;
         }
 
         return(allocator);
     }
 
-    SLD_API block_allocator_t*
-    block_allocator_init_from_arena(
+    SLD_API block_alctr_t*
+    block_alctr_init_from_arena(
         arena_t*  arena,
         const u64 size,
         const u64 granularity) {
@@ -125,7 +125,7 @@ namespace sld {
             size,
             granularity_pow_2);
 
-        block_allocator_t* allocator = block_allocator_init_from_memory(
+        block_alctr_t* allocator = block_alctr_init_from_memory(
             memory,
             size,
             granularity_pow_2
@@ -136,20 +136,20 @@ namespace sld {
 
     SLD_API void*                   
     block_alloc(
-        block_allocator_t* block_allocator) {
+        block_alctr_t* block_allocator) {
 
         void* block = NULL;
 
         const bool can_alloc = (
-            block_allocator_validate(block_allocator) &&
+            block_alctr_validate(block_allocator) &&
             block_allocator->allocation_list.free != NULL
         );
 
         if (can_alloc) {
 
-            block_allocation_t* alloc     = block_allocator->allocation_list.free;
-            block_allocation_t* next_used = block_allocator->allocation_list.used;
-            block_allocation_t* next_free = alloc->next;
+            block_alloc_t* alloc     = block_allocator->allocation_list.free;
+            block_alloc_t* next_used = block_allocator->allocation_list.used;
+            block_alloc_t* next_free = alloc->next;
 
             if (next_free != NULL) next_free->prev = NULL;
             if (next_used != NULL) next_used->prev = alloc;
@@ -169,23 +169,23 @@ namespace sld {
 
     SLD_API bool                    
     block_free(
-        block_allocator_t* block_allocator,
+        block_alctr_t* block_allocator,
         const void*        block) {
         
         const addr          start_block = (addr)block;
         const addr          start_alloc = (start_block != NULL) ? (start_block - _size_block_allocation) : NULL;
-        block_allocation_t* alloc       = (block_allocation_t*)start_alloc;
+        block_alloc_t* alloc       = (block_alloc_t*)start_alloc;
 
         const bool can_free = (
-            block_allocator_validate(block_allocator) &&
+            block_alctr_validate(block_allocator) &&
             alloc != NULL                             &&
             alloc->allocator == block_allocator
         );
 
         if (can_free) {
 
-            block_allocation_t* next_used = alloc->next;
-            block_allocation_t* next_free = block_allocator->allocation_list.free;
+            block_alloc_t* next_used = alloc->next;
+            block_alloc_t* next_free = block_allocator->allocation_list.free;
 
             if (alloc)     next_used->prev = NULL;
             if (next_free) next_free->prev = alloc;

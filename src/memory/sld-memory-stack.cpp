@@ -70,7 +70,7 @@ namespace sld {
     // INTERNAL
     //-------------------------------------------------------------------
 
-    SLD_INTERNAL global_stack_t&
+    SLD_FUNC global_stack_t&
     global_stack_instance(
         void) {
         
@@ -93,13 +93,13 @@ namespace sld {
         return(stack);
     }
 
-    SLD_INTERNAL reservation_list_t& global_stack_get_reservation_list(void) {
+    SLD_FUNC reservation_list_t& global_stack_get_reservation_list(void) {
 
         static global_stack_t& stack = global_stack_instance();
         return(stack.reservation_list);
     }
 
-    SLD_INTERNAL arena_list_t&      
+    SLD_FUNC arena_list_t&      
     global_stack_get_arena_list(
         void) {
 

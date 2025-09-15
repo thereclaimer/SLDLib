@@ -12,38 +12,38 @@ namespace sld {
     // TYPES
     //-------------------------------------------------------------------
 
-    struct block_allocator_t;
-    struct block_allocation_t;
+    struct block_alctr_t;
+    struct block_alloc_t;
 
-    struct heap_allocator_t;
-    struct heap_allocation_t;
-    
-    struct stack_allocator_t;
-    struct stack_allocation_t;
+    struct heap_alctr_t;
+    struct heap_alloc_t;
+
+    struct stack_alctr_t;
+    struct stack_alloc_t;
 
     //-------------------------------------------------------------------
     // API
     //-------------------------------------------------------------------
 
-    SLD_API const u64          stack_allocator_get_required_memory_size (const u64       stack_size);
-    SLD_API stack_allocator_t* stack_allocator_init_from_memory         (const memory_t& memory);
-    SLD_API stack_allocator_t* stack_allocator_init_from_arena          (arena_t*        arena);
-    SLD_API void*              stack_alloc                              (stack_allocator_t* stack_allocator, const u64 size);
-    SLD_API bool               stack_free                               (stack_allocator_t* stack_allocator, const u64 size);
+    SLD_API stack_alctr_t* stack_alctr_init_from_memory (const memory_t& memory);
+    SLD_API stack_alctr_t* stack_alctr_init_from_arena  (arena_t*        arena);
+    SLD_API bool           stack_alctr_validate         (stack_alctr_t*  alctr);
+    SLD_API void*          stack_alctr_alloc            (stack_alctr_t*  alctr, const u64 size);
+    SLD_API bool           stack_alctr_free             (stack_alctr_t*  alctr, const u64 size);
 
-    SLD_API const u64          block_allocator_get_required_memory_size (const u64   block_memory_size, const u64 block_size);
-    SLD_API block_allocator_t* block_allocator_init_from_memory         (const void* block_memory,      const u64 block_memory_size, const u64 block_size);
-    SLD_API block_allocator_t* block_allocator_init_from_arena          (arena_t*    arena,             const u64 block_size,        const u64 block_count);
-    SLD_API bool               block_allocator_validate                 (block_allocator_t* block_allocator);
-    SLD_API void*              block_alloc                              (block_allocator_t* block_allocator);
-    SLD_API bool               block_free                               (block_allocator_t* block_allocator, const void* block);
+    SLD_API block_alctr_t* block_alctr_init_from_memory (const void*    memory, const u64 size, const u64 granularity);
+    SLD_API block_alctr_t* block_alctr_init_from_arena  (arena_t*       arena,  const u64 size, const u64 granularity);
+    SLD_API bool           block_alctr_validate         (block_alctr_t* alctr);
+    SLD_API void*          block_alctr_alloc            (block_alctr_t* alctr);
+    SLD_API bool           block_alctr_free             (block_alctr_t* alctr, const void* memory);
     
-    SLD_API const u64          heap_allocator_get_required_memory_size  (const u64   heap_size,  const u64 heap_granularity);
-    SLD_API heap_allocator_t*  heap_allocator_init_from_memory          (const void* heap_start, const u64 heap_size, const u64 heap_granularity);
-    SLD_API heap_allocator_t*  heap_allocator_init_from_arena           (arena_t*    arena,      const u64 heap_size, const u64 heap_granularity);
-    SLD_API            void*   heap_allocator_validate                  (heap_allocator_t*  heap_allocator,  const u64   size);
-    SLD_API            void*   heap_alloc                               (heap_allocator_t*  heap_allocator,  const u64   size);
-    SLD_API            bool    heap_free                                (heap_allocator_t*  heap_allocator,  const void* memory);
+    SLD_API heap_alctr_t*  heap_alctr_init_from_memory  (const void*    memory, const u64   size, const u64 granularity);
+    SLD_API heap_alctr_t*  heap_alctr_init_from_arena   (arena_t*       arena,  const u64   size, const u64 granularity);
+    SLD_API         void*  heap_alctr_validate          (heap_alctr_t*  alctr,  const u64   size);
+    SLD_API         void*  heap_alctr_alloc             (heap_alctr_t*  alctr,  const u64   size);
+    SLD_API         bool   heap_alctr_free              (heap_alctr_t*  alctr,  const void* memory);
+    SLD_API         bool   heap_alctr_reset             (heap_alctr_t*  alctr);
+
 };
 
 

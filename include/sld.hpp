@@ -14,9 +14,18 @@
 #include <GL/glext.h>
 
 #define SLD_INLINE   static inline
-#define SLD_INTERNAL static
+#define SLD_FUNC static
 #define SLD_API
 #define SLD_UTILITY  static constexpr
+
+#ifndef assert
+#   ifdef WIN32
+#       define assert(expr) if(!expr) DebugBreak()
+#   else
+#       define assert(expr) if(!expr) *(int*)(NULL)=1
+#   endif
+#endif
+
 namespace sld {
 
     //-------------------------------------------------------------------
@@ -120,6 +129,8 @@ namespace sld {
     SLD_UTILITY void      bit_set_high     (const u32 bit, u32&      value)      { value |=  (1 << bit);        }
     SLD_UTILITY void      bit_set_low      (const u32 bit, u32&      value)      { value &= ~(1 << bit);        }
     SLD_UTILITY void      bit_toggle       (const u32 bit, u32&      value)      { value ^=  (1 << bit);        }
+
+
 };
 
 
