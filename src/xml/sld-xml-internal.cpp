@@ -6,7 +6,7 @@
 namespace sld {
 
     struct xml_memory_t {
-        heap_alctr_t* alloc;
+        heap_alctr_t* alctr;
     } static _xml_mem;
 
     struct xml_doc_t       : pugi::xml_document  { };
