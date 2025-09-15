@@ -5,14 +5,22 @@
 #include "sld-allocator-block.cpp"
 #include "sld-allocator-heap.cpp"
 #include "sld-allocator-stack.cpp"
+
 #include "sld-core.cpp"
+#include "sld-core-hash.cpp"
+#include "sld-core-heap.cpp"
+
 #include "sld-win32.cpp"
 #include "sld-string.cpp"
 #include "sld-os.cpp"
+
 #include "sld-memory.cpp"
 #include "sld-memory-reservation.cpp"
 #include "sld-memory-arena.cpp"
 #include "sld-memory-stack.cpp"
-#include "sld-core-hash.cpp"
-#include "sld-core-heap.cpp"
-#include "sld-xml-allocator.cpp"
+
+#include "sld-xml-memory.cpp"
+#include "sld-xml-attrib.cpp"
+#include "sld-xml-doc.cpp"
+#include "sld-xml-internal.cpp"
+#include "sld-xml-node.cpp"

@@ -1,17 +1,12 @@
 #pragma once
 
-#include <pugixml.hpp>
 #include "sld-xml.hpp"
 #include "sld-allocator.hpp"
 
+#include "sld-xml-internal.cpp"
+
 namespace sld {
 
-    struct xml_memory_t {
-        heap_alctr_t* alloc;
-    } static _xml_mem;
-
-    void* xml_memory_alloc (size_t size);
-    void  xml_memory_free  (void*  ptr);
 
     SLD_API void
     xml_memory_init(
@@ -43,16 +38,17 @@ namespace sld {
 
     SLD_API void
     xml_memory_reset(
-        xml_memory_t* alloc) {
+        void) {
 
+        const bool is_reset = heap_alctr_reset(_xml_mem.alloc);
+        assert(is_reset);
     }
-
     
     SLD_FUNC void*
     xml_memory_alloc(
         size_t size) {
 
-        void* xml_mem = heap_alloc(_xml_mem.alloc, size);
+        void* xml_mem = heap_alctr_alloc(_xml_mem.alloc, size);
         assert(xml_mem);
         return(xml_mem);
     }
@@ -61,7 +57,7 @@ namespace sld {
     xml_memory_free(
         void*  ptr) {
 
-        const bool is_free = heap_free(_xml_mem.alloc, ptr);
+        const bool is_free = heap_alctr_free(_xml_mem.alloc, ptr);
         assert(is_free);
     }
 };
