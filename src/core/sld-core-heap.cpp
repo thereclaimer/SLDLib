@@ -35,7 +35,7 @@ namespace sld {
         const u64 heap_size_min) {
 
         const u64 heap_size = 
-            _node_struct_size +
+            _struct_size_heap +
             size_round_up_pow2(heap_size_min);
         
         return(heap_size);
@@ -47,8 +47,7 @@ namespace sld {
 
         bool is_valid = (heap != NULL);
         if (is_valid) {
-            is_valid &= (heap->size        != 0);
-            is_valid &= (heap->granularity <= heap.size);
+            is_valid &= (heap->granularity != 0);
             is_valid &= size_is_pow_2(heap->granularity);
             is_valid &= (heap->size_free <= (heap->size_total - _struct_size_heap));
         }

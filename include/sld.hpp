@@ -16,7 +16,7 @@
 #define SLD_INLINE   static inline
 #define SLD_INTERNAL static
 #define SLD_API
-
+#define SLD_UTILITY  static constexpr
 namespace sld {
 
     //-------------------------------------------------------------------
@@ -85,14 +85,14 @@ namespace sld {
     // SIZE UTILITIES
     //-------------------------------------------------------------------
     
-    SLD_INLINE const u64 size_kilobytes   (const u64 n_kilobytes)               { return (n_kilobytes * 1024);                                                         }
-    SLD_INLINE const u64 size_megabytes   (const u64 n_megabytes)               { return (n_megabytes * 1024 * 1024);                                                  }
-    SLD_INLINE const u64 size_gigabytes   (const u64 n_gigabytes)               { return (n_gigabytes * 1024 * 1024 * 1024);                                           }
-    SLD_INLINE const u64 size_align       (const u64 size, const u64 alignment) { return ((alignment == 0) ? size : (size + alignment - 1) / (alignment * alignment)); }
-    SLD_INLINE const u64 size_align_pow_2 (const u64 size, const u64 alignment) { return ((alignment == 0) ? size : (size + alignment - 1) & ~(alignment - 1));        }
-    SLD_INLINE bool      size_is_pow_2    (const u64 size)                      { return (((size > 0) && ((size & (size - 1)) == 0)));                                 }               
+    SLD_UTILITY const u64 size_kilobytes   (const u64 n_kilobytes)               { return (n_kilobytes * 1024);                                                         }
+    SLD_UTILITY const u64 size_megabytes   (const u64 n_megabytes)               { return (n_megabytes * 1024 * 1024);                                                  }
+    SLD_UTILITY const u64 size_gigabytes   (const u64 n_gigabytes)               { return (n_gigabytes * 1024 * 1024 * 1024);                                           }
+    SLD_UTILITY const u64 size_align       (const u64 size, const u64 alignment) { return ((alignment == 0) ? size : (size + alignment - 1) / (alignment * alignment)); }
+    SLD_UTILITY const u64 size_align_pow_2 (const u64 size, const u64 alignment) { return ((alignment == 0) ? size : (size + alignment - 1) & ~(alignment - 1));        }
+    SLD_UTILITY bool      size_is_pow_2    (const u64 size)                      { return (((size > 0) && ((size & (size - 1)) == 0)));                                 }               
     
-    SLD_INLINE const u64
+    SLD_UTILITY const u64
     size_round_up_pow2(
         const u64 size) {
 
@@ -115,11 +115,11 @@ namespace sld {
     // BITWISE UTILITIES
     //-------------------------------------------------------------------
     
-    SLD_INLINE const u32 bit_value        (const u32 bit)                       { return (1 << bit);           }
-    SLD_INLINE bool      bit_test         (const u32 bit, const u32 value)      { return ((value >> bit) & 1); }
-    SLD_INLINE void      bit_set_high     (const u32 bit, u32&      value)      { value |=  (1 << bit);        }
-    SLD_INLINE void      bit_set_low      (const u32 bit, u32&      value)      { value &= ~(1 << bit);        }
-    SLD_INLINE void      bit_toggle       (const u32 bit, u32&      value)      { value ^=  (1 << bit);        }
+    SLD_UTILITY const u32 bit_value        (const u32 bit)                       { return (1 << bit);           }
+    SLD_UTILITY bool      bit_test         (const u32 bit, const u32 value)      { return ((value >> bit) & 1); }
+    SLD_UTILITY void      bit_set_high     (const u32 bit, u32&      value)      { value |=  (1 << bit);        }
+    SLD_UTILITY void      bit_set_low      (const u32 bit, u32&      value)      { value &= ~(1 << bit);        }
+    SLD_UTILITY void      bit_toggle       (const u32 bit, u32&      value)      { value ^=  (1 << bit);        }
 };
 
 

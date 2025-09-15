@@ -2,6 +2,9 @@
 
 #include "sld-heap.hpp"
 
+#include "sld-allocator-block.cpp"
+#include "sld-allocator-heap.cpp"
+#include "sld-allocator-stack.cpp"
 #include "sld-core.cpp"
 #include "sld-win32.cpp"
 #include "sld-string.cpp"

@@ -4,8 +4,34 @@
 
 namespace sld {
 
+    //-------------------------------------------------------------------
+    // DEFINITIONS
+    //-------------------------------------------------------------------
+
+    struct block_allocator_t {
+        u64 granularity;
+        struct {
+            block_allocation_t* free;
+            block_allocation_t* used;
+        } allocation_list;
+    };
+
+    struct block_allocation_t {
+        block_allocator_t*  allocator;
+        block_allocation_t* next;
+        block_allocation_t* prev;
+    };
+
+    //-------------------------------------------------------------------
+    // CONSTANTS
+    //-------------------------------------------------------------------
+
     constexpr u64 _size_block_allocation = sizeof(block_allocation_t);
     constexpr u64 _size_block_allocator  = sizeof(block_allocator_t); 
+
+    //-------------------------------------------------------------------
+    // API
+    //-------------------------------------------------------------------
 
     SLD_API bool
     block_allocator_validate(
@@ -24,28 +50,29 @@ namespace sld {
         const u64 count,
         const u64 granularity) {
 
-        const u64 size_granularity = size_round_up_pow2(granularity);
-        const u64 size_mem         = count * granularity_aligned;
-        const u64 size_block_list  = count * _size_block_allocation; 
-        const u64 size_required    = (
+        const u64 granularity_pow_2 = size_round_up_pow2(granularity);
+        const u64 size_mem          = count * granularity_pow_2;
+        const u64 size_block_list   = count * _size_block_allocation; 
+        const u64 size_required     = (
             size_mem        +
             size_block_list +
-            _size_block_allocator;
+            _size_block_allocator
         );
         return(size_required);
     }
 
     SLD_API block_allocator_t*
     block_allocator_init_from_memory(
-        const memory_t& memory,
-        const u64       granularity) {
+        const void*     block_memory,
+        const u64       block_memory_size,
+        const u64       block_size) {
 
         block_allocator_t* allocator = NULL;
 
         // calculate the number of blocks we can fit in the memory
-        const u64 granularity_pow_2 = size_round_up_pow2(granularity);
+        const u64 granularity_pow_2 = size_round_up_pow2(block_size);
         const u64 size_allocation   = granularity_pow_2 + _size_block_allocation;
-        const u64 size_mem          = memory.size       - _size_block_allocator;
+        const u64 size_mem          = block_memory_size - _size_block_allocator;
         const u64 count_blocks      = size_mem / size_allocation;
 
         // verify we have enough memory to proceed
@@ -54,13 +81,13 @@ namespace sld {
         can_init &= (size_allocation   != 0);
         can_init &= (size_mem          != 0);
         can_init &= (count_blocks      != 0);
-        can_init &= (memory.start      != NULL);
+        can_init &= (block_memory      != NULL);
         return(allocator);
 
         // initialize allocator
-        allocator = (block_allocator_t*)memory.start;
+        allocator = (block_allocator_t*)block_memory;
         allocator->granularity          = granularity_pow_2;
-        allocator->allocation_list.free = (block_allocation_t*)(memory.start + _size_block_allocator);
+        allocator->allocation_list.free = (block_allocation_t*)(((addr)block_memory) + _size_block_allocator);
         allocator->allocation_list.used = NULL;
 
         // initialize block list
@@ -71,7 +98,7 @@ namespace sld {
             ++block) {
 
             // calculate block addresses
-            const u64           offset        = (block * size_granularity);
+            const u64           offset        = (block * allocator->granularity);
             const addr          start_current = (start + offset); 
             const addr          start_prev    = (block == 0)                ? 0 : (start_current - granularity_pow_2); 
             const addr          start_next    = (block == count_blocks - 1) ? 0 : (start_current + granularity_pow_2); 
@@ -92,17 +119,15 @@ namespace sld {
         const u64 size,
         const u64 granularity) {
 
-        const u64 granularity_pow_2 = size_round_up_pow2(granularity);
-
-        memory_t mem;
-        mem.size  = size;
-        mem.start = (addr)arena_push_bytes(
+        const u64   granularity_pow_2 = size_round_up_pow2(granularity);
+        const void* memory            = (void*)arena_push_bytes(
             arena,
             size,
             granularity_pow_2);
 
         block_allocator_t* allocator = block_allocator_init_from_memory(
-            mem,
+            memory,
+            size,
             granularity_pow_2
         );
 
@@ -135,7 +160,7 @@ namespace sld {
             alloc->prev = NULL;
 
             const addr start_alloc = (addr)alloc;
-            const addr start_block = alloc_start + _size_block_allocation;
+            const addr start_block = start_alloc + _size_block_allocation;
             block                  = (void*)start_block;
         }
 

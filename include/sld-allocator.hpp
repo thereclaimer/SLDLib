@@ -8,72 +8,42 @@
 
 namespace sld {
 
-    struct stack_allocator_t;
-    struct stack_allocation_t;
+    //-------------------------------------------------------------------
+    // TYPES
+    //-------------------------------------------------------------------
 
     struct block_allocator_t;
     struct block_allocation_t;
-    
+
     struct heap_allocator_t;
     struct heap_allocation_t;
-
-    const u64                stack_allocator_get_required_memory_size (const u64       stack_size);
-    const stack_allocator_t* stack_allocator_init_from_memory         (const memory_t& memory);
-    const stack_allocator_t* stack_allocator_init_from_arena          (arena_t*        arena);
-    void*                    stack_alloc                              (stack_allocator_t* stack_allocator, const u64 size);
-    bool                     stack_free                               (stack_allocator_t* stack_allocator, const u64 size);
-
-    bool                     block_allocator_validate                 (block_allocator_t* block_allocator);
-    const u64                block_allocator_get_required_memory_size (const u64       block_size, const u64 block_count);
-    const block_allocator_t* block_allocator_init_from_memory         (const memory_t& memory,     const u64 block_size);
-    const block_allocator_t* block_allocator_init_from_arena          (arena_t* arena,  const u64 block_size, const u64 block_count);
-    void*                    block_alloc                              (block_allocator_t* block_allocator);
-    bool                     block_free                               (block_allocator_t* block_allocator, const void* block);
     
-    const u64                heap_allocator_get_required_memory_size  (const u64       heap_size, const u64 node_size_min, const u64 node_size_max);
-    const heap_allocator_t*  heap_allocator_init_from_memory          (const memory_t& memory,    const u64 heap_granularity);
-    const heap_allocator_t*  heap_allocator_init_from_arena           (arena_t*        arena,     const u64 heap_size, const u64 heap_granularity);
-                      void*  heap_alloc                               (heap_allocator_t*  heap_allocator,  const u64   size);
-                      bool   heap_free                                (heap_allocator_t*  heap_allocator,  const void* memory);
+    struct stack_allocator_t;
+    struct stack_allocation_t;
 
-    struct stack_allocation_t {
-        stack_allocation_t* next;
-        stack_allocation_t* prev;
-        u64                 size;
-    };
+    //-------------------------------------------------------------------
+    // API
+    //-------------------------------------------------------------------
 
-    struct block_allocator_t {
-        u64 granularity;
-        struct {
-            block_allocation_t* free;
-            block_allocation_t* used;
-        } allocation_list;
-    };
+    SLD_API const u64          stack_allocator_get_required_memory_size (const u64       stack_size);
+    SLD_API stack_allocator_t* stack_allocator_init_from_memory         (const memory_t& memory);
+    SLD_API stack_allocator_t* stack_allocator_init_from_arena          (arena_t*        arena);
+    SLD_API void*              stack_alloc                              (stack_allocator_t* stack_allocator, const u64 size);
+    SLD_API bool               stack_free                               (stack_allocator_t* stack_allocator, const u64 size);
 
-    struct block_allocation_t {
-        block_allocator_t*  allocator;
-        block_allocation_t* next;
-        block_allocation_t* prev;
-    };
-    struct heap_allocation_t {
-        heap_allocation_t* next;
-        heap_allocation_t* prev;
-        heap_node_t        node;
-    };
-    struct stack_allocator_t : memory_t {
-        stack_t;
-        struct {
-            stack_allocation_t* first;
-        } allocation_list;
-    };
-
-    struct heap_allocator_t : memory_t {
-        heap_t heap;
-        struct {
-            heap_allocation_t* first;
-        } allocation_list;
-    };
-
+    SLD_API const u64          block_allocator_get_required_memory_size (const u64   block_memory_size, const u64 block_size);
+    SLD_API block_allocator_t* block_allocator_init_from_memory         (const void* block_memory,      const u64 block_memory_size, const u64 block_size);
+    SLD_API block_allocator_t* block_allocator_init_from_arena          (arena_t*    arena,             const u64 block_size,        const u64 block_count);
+    SLD_API bool               block_allocator_validate                 (block_allocator_t* block_allocator);
+    SLD_API void*              block_alloc                              (block_allocator_t* block_allocator);
+    SLD_API bool               block_free                               (block_allocator_t* block_allocator, const void* block);
+    
+    SLD_API const u64          heap_allocator_get_required_memory_size  (const u64   heap_size,  const u64 heap_granularity);
+    SLD_API heap_allocator_t*  heap_allocator_init_from_memory          (const void* heap_start, const u64 heap_size, const u64 heap_granularity);
+    SLD_API heap_allocator_t*  heap_allocator_init_from_arena           (arena_t*    arena,      const u64 heap_size, const u64 heap_granularity);
+    SLD_API            void*   heap_allocator_validate                  (heap_allocator_t*  heap_allocator,  const u64   size);
+    SLD_API            void*   heap_alloc                               (heap_allocator_t*  heap_allocator,  const u64   size);
+    SLD_API            bool    heap_free                                (heap_allocator_t*  heap_allocator,  const void* memory);
 };
 
 
