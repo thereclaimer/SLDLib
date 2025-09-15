@@ -76,8 +76,8 @@ namespace sld {
     //-------------------------------------------------------------------
 
     struct memory_t {
-        const void* start;
-        const u64   size;
+        const addr start;
+        const u64  size;
     };
 
     struct reservation_t {

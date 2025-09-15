@@ -10,8 +10,10 @@ namespace sld {
 
     struct stack_allocator_t;
     struct stack_allocation_t;
+
     struct block_allocator_t;
     struct block_allocation_t;
+    
     struct heap_allocator_t;
     struct heap_allocation_t;
 
@@ -21,6 +23,7 @@ namespace sld {
     void*                    stack_alloc                              (stack_allocator_t* stack_allocator, const u64 size);
     bool                     stack_free                               (stack_allocator_t* stack_allocator, const u64 size);
 
+    bool                     block_allocator_validate                 (block_allocator_t* block_allocator);
     const u64                block_allocator_get_required_memory_size (const u64       block_size, const u64 block_count);
     const block_allocator_t* block_allocator_init_from_memory         (const memory_t& memory,     const u64 block_size);
     const block_allocator_t* block_allocator_init_from_arena          (arena_t* arena,  const u64 block_size, const u64 block_count);
@@ -39,11 +42,19 @@ namespace sld {
         u64                 size;
     };
 
+    struct block_allocator_t {
+        u64 granularity;
+        struct {
+            block_allocation_t* free;
+            block_allocation_t* used;
+        } allocation_list;
+    };
+
     struct block_allocation_t {
+        block_allocator_t*  allocator;
         block_allocation_t* next;
         block_allocation_t* prev;
     };
-
     struct heap_allocation_t {
         heap_allocation_t* next;
         heap_allocation_t* prev;
@@ -55,13 +66,7 @@ namespace sld {
             stack_allocation_t* first;
         } allocation_list;
     };
-    struct block_allocator_t : memory_t {
-        u64 block_size;
-        struct {
-            block_allocation_t* free;
-            block_allocation_t* used;
-        } allocation_list;
-    };
+
     struct heap_allocator_t : memory_t {
         heap_t heap;
         struct {
