@@ -10,7 +10,7 @@ namespace sld {
     SLD_API void
     xml_memory_init(
         const void* memory,
-        const u64   size) {
+        const u32   size) {
 
         const bool can_init = (
             memory != NULL && 
@@ -152,23 +152,87 @@ namespace sld {
         is_free &= heap_alctr_free_abs(_xml_mem.alctr, (void*)doc);
         assert(is_free);
     }
+    
+    SLD_FUNC void
+    xml_memory_reset_doc(
+        xml_doc_t* doc) {
+        bool       is_free = false;
+        xml_doc_t* next    = doc->next;
 
-    SLD_FUNC const xml_hnd_t
-    xml_memory_get_hnd(
-        const void* ptr) {
+        for (
+            xml_node_t* node = doc->nodes;
+            node != NULL;
+            node = node->next) {
 
-        const alloc_hnd_t hnd_mem = heap_alctr_get_hnd(_xml_mem.alctr, ptr);
-        const xml_hnd_t   hnd_xml = {hnd_mem.val};
+            for (
+                xml_attrib_t* attrib = node->attribs;
+                attrib != NULL;
+                attrib = attrib->next) {
+
+                is_free &= heap_alctr_free_abs(_xml_mem.alctr, (void*)attrib);
+            }
+            is_free &= heap_alctr_free_abs(_xml_mem.alctr, (void*)node);
+        }
+
+        assert(is_free);
+    }
+
+    SLD_FUNC const xml_hnd_doc_t
+    xml_memory_get_hnd_doc(
+        const xml_doc_t* ptr) {
+
+        const alloc_hnd_t   hnd_mem = heap_alctr_get_hnd(_xml_mem.alctr, ptr);
+        const xml_hnd_doc_t hnd_xml = {hnd_mem.val};
+        assert(hnd_xml.val != 0);
+        return(hnd_xml);
+    }
+
+    SLD_FUNC const xml_hnd_node_t
+    xml_memory_get_hnd_node(
+        const xml_node_t* ptr) {
+
+        const alloc_hnd_t    hnd_mem = heap_alctr_get_hnd(_xml_mem.alctr, ptr);
+        const xml_hnd_node_t hnd_xml = {hnd_mem.val};
+        assert(hnd_xml.val != 0);
+        return(hnd_xml);
+    }
+
+    SLD_FUNC const xml_hnd_attrib_t
+    xml_memory_get_hnd_attrib(
+        const xml_attrib_t* ptr) {
+
+        const alloc_hnd_t      hnd_mem = heap_alctr_get_hnd(_xml_mem.alctr, ptr);
+        const xml_hnd_attrib_t hnd_xml = {hnd_mem.val};
         assert(hnd_xml.val != 0);
         return(hnd_xml);
     }
     
-    SLD_FUNC void*
-    xml_memory_get_ptr(
-        const xml_hnd_t hnd) {
+    SLD_FUNC xml_doc_t*
+    xml_memory_get_ptr_doc(
+        const xml_hnd_doc_t hnd) {
+        
+        const alloc_hnd_t hnd_mem = {hnd.val};
+        xml_doc_t*        ptr     = (xml_doc_t*)heap_alctr_get_ptr(_xml_mem.alctr, hnd_mem);
+        assert(ptr);
+        return(ptr);
+    }
+
+    SLD_FUNC xml_node_t*
+    xml_memory_get_ptr_node(
+        const xml_hnd_node_t hnd) {
 
         const alloc_hnd_t hnd_mem = {hnd.val};
-        void*             ptr     = heap_alctr_get_ptr(_xml_mem.alctr, hnd_mem);
+        xml_node_t*       ptr     = (xml_node_t*)heap_alctr_get_ptr(_xml_mem.alctr, hnd_mem);
+        assert(ptr);
+        return(ptr);
+    }
+
+    SLD_FUNC xml_attrib_t*
+    xml_memory_get_ptr_attrib(
+        const xml_hnd_attrib_t hnd) {
+
+        const alloc_hnd_t hnd_mem = {hnd.val};
+        xml_attrib_t*     ptr     = (xml_attrib_t*)heap_alctr_get_ptr(_xml_mem.alctr, hnd_mem);
         assert(ptr);
         return(ptr);
     }

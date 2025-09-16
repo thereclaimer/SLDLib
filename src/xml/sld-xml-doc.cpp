@@ -22,8 +22,16 @@ namespace sld {
     xml_doc_destroy(
         const xml_hnd_doc_t h_doc) {
 
-        xml_doc_t* doc = (xml_doc_t*)xml_memory_get_ptr(h_doc); 
+        xml_doc_t* doc = xml_memory_get_ptr_doc(h_doc); 
         xml_memory_free_doc(doc);
+    }
+
+    SLD_API void
+    xml_doc_reset(
+        const xml_hnd_doc_t h_doc) {
+
+        xml_doc_t* doc = xml_memory_get_ptr_doc(h_doc); 
+        xml_memory_reset_doc(doc);
     }
 
     SLD_API bool
@@ -31,7 +39,7 @@ namespace sld {
         const xml_hnd_doc_t h_doc,
         const buffer_t&  buffer) {
     
-            xml_doc_t* doc = (xml_doc_t*)xml_memory_get_ptr(h_doc);
+        xml_doc_t* doc = xml_memory_get_ptr_doc(h_doc); 
 
         return(NULL);
     }
@@ -41,7 +49,8 @@ namespace sld {
         const xml_hnd_doc_t h_doc,
         buffer_t&           buffer) {
 
-        xml_doc_t* doc = (xml_doc_t*)xml_memory_get_ptr(h_doc);
+        xml_doc_t* doc = xml_memory_get_ptr_doc(h_doc); 
+
         assert(doc);
         assert(buffer.data != NULL && buffer.size != 0);
 
@@ -61,7 +70,7 @@ namespace sld {
     xml_doc_buffer_size(
         const xml_hnd_doc_t h_doc) {
 
-        xml_doc_t* doc = (xml_doc_t*)xml_memory_get_ptr(h_doc);
+        xml_doc_t* doc = xml_memory_get_ptr_doc(h_doc); 
         assert(doc);
 
         xml_writer_t xml_writer;
@@ -79,9 +88,9 @@ namespace sld {
     xml_doc_get_next_child_node(
         const xml_hnd_doc_t h_doc,
         const xml_utf8_t*   child_name) {
-        
-        xml_doc_t*  doc        = (xml_doc_t*)xml_memory_get_ptr(h_doc);
-        xml_node_t* child_node = xml_memory_alloc_node(doc);
+
+        xml_doc_t*  doc        = xml_memory_get_ptr_doc (h_doc); 
+        xml_node_t* child_node = xml_memory_alloc_node  (doc);
 
         bool is_valid = true;
         is_valid &= (doc        != NULL);
@@ -91,9 +100,8 @@ namespace sld {
 
         child_node->pugi = doc->pugi.child(child_name); 
 
+        const xml_hnd_node_t hnd_node = xml_memory_get_hnd_node(child_node);
 
-        const xml_hnd_t      hnd      = xml_memory_get_hnd((void*)child_node);        
-        const xml_hnd_node_t hnd_node = {hnd.val};
         return(hnd_node);
     }
 
@@ -102,16 +110,15 @@ namespace sld {
         const xml_hnd_doc_t h_doc,
         const c8*           child_name) {
 
-        xml_doc_t*  doc = (xml_doc_t*)xml_memory_get_ptr(h_doc);
-        xml_node_t* child_node = xml_memory_alloc_node(doc);
+        xml_doc_t*  doc        = xml_memory_get_ptr_doc (h_doc); 
+        xml_node_t* child_node = xml_memory_alloc_node  (doc);
 
         assert(doc);
         assert(child_name);
         assert(child_node);
 
-        child_node->pugi = doc->pugi.append_child(child_name);
-        const xml_hnd_t      hnd      = xml_memory_get_hnd((void*)child_node);        
-        const xml_hnd_node_t hnd_node = {hnd.val};
+        child_node->pugi              = doc->pugi.append_child(child_name);
+        const xml_hnd_node_t hnd_node = xml_memory_get_hnd_node(child_node);
         return(hnd_node);
     }
 };
