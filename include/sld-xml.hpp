@@ -23,10 +23,11 @@ namespace sld {
     SLD_API void              xml_memory_free_node        (xml_node_t*   node);
     SLD_API void              xml_memory_free_attrib      (xml_attrib_t* attrib);
 
-    SLD_API bool              xml_doc_load_from_buffer    (xml_doc_t*       doc, const buffer_t&   buffer);
-    SLD_API bool              xml_doc_write_to_buffer     (xml_doc_t*       doc, buffer_t&         buffer);
-    SLD_API bool              xml_doc_get_next_child_node (const xml_doc_t* doc, const xml_utf8_t* child_name, xml_node_t*       child_node);
-    SLD_API bool              xml_doc_add_child_node      (xml_doc_t*       doc, const xml_utf8_t* child_name, const xml_node_t* child_node);
+    SLD_API bool              xml_doc_buffer_read         (xml_doc_t* const doc, const buffer_t&   buffer);
+    SLD_API bool              xml_doc_buffer_write        (xml_doc_t* const doc, buffer_t&         buffer);
+    SLD_API u64               xml_doc_buffer_size         (xml_doc_t* const doc);
+    SLD_API bool              xml_doc_get_next_child_node (xml_doc_t* const doc, const xml_utf8_t* child_name, xml_node_t* child_node);
+    SLD_API bool              xml_doc_add_child_node      (xml_doc_t* const doc, const xml_utf8_t* child_name, xml_node_t* child_node);
 
     SLD_API bool              xml_node_get_next_sibling   (const xml_node_t* node, const xml_utf8_t* sibling_name,   const xml_node_t* sibling_node);
     SLD_API bool              xml_node_add_sibling        (xml_node_t*       node, const xml_utf8_t* sibling_name,   xml_node_t*       sibling_node);
