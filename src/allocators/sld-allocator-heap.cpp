@@ -211,8 +211,8 @@ namespace sld {
             current != NULL;
             current = current->next) {
 
-            const addr start_next  = (addr)current; 
-            const addr start_prev  = (addr)current->prev;
+            const addr start_next = (addr)current; 
+            const addr start_prev = (addr)current->prev;
 
             bool insert = true;
             insert &= (start_alloc > start_prev);
