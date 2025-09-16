@@ -97,19 +97,23 @@ namespace sld {
     xml_memory_free_doc(
         xml_doc_t*    doc) {
 
+        const bool is_free = heap_alctr_free(_xml_mem.alctr, (void*)doc);
+        assert(is_free);
     }
 
     SLD_API void
     xml_memory_free_node(
-        xml_node_t*   node) {
+        xml_node_t* node) {
 
+        const bool is_free = heap_alctr_free(_xml_mem.alctr, (void*)node);
+        assert(is_free);
     }
 
     SLD_API void
     xml_memory_free_attrib(
         xml_attrib_t* attrib) {
 
+        const bool is_free = heap_alctr_free(_xml_mem.alctr, (void*)attrib);
+        assert(is_free);
     }
-
-
 };

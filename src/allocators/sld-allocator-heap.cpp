@@ -15,14 +15,14 @@ namespace sld {
         struct {
             heap_alloc_t* free;
             heap_alloc_t* used;
-        } allocation_list;
+        } alloc_list;
     };
 
     struct heap_alloc_t {
-        heap_alctr_t*  allocator;
+        heap_alctr_t* alctr;
         heap_alloc_t* next;
         heap_alloc_t* prev;
-        u64                size;
+        u64           size;
     };
 
     //-------------------------------------------------------------------
@@ -38,33 +38,36 @@ namespace sld {
 
     SLD_API heap_alctr_t*
     heap_alctr_init_from_memory(
-        const void* heap_start,
-        const u64   heap_size,
-        const u64   heap_granularity) {
+        const void* start,
+        const u64   size,
+        const u64   granularity) {
 
-        heap_alctr_t* allocator = NULL;
-
+        // check args
         bool can_init = true;
-        can_init &= (heap_start       != NULL);
-        can_init &= (heap_size        != 0);
-        can_init &= (heap_granularity != 0);        
-        can_init &= (heap_granularity <= heap_size);        
-        if (!can_init) return(allocator);
+        can_init &= (start       != NULL);
+        can_init &= (size        != 0);
+        can_init &= (granularity != 0);        
+        can_init &= (granularity <= size);        
+        if (!can_init) return(NULL);
 
-        const addr free_start   = (addr)heap_start + _size_alctr;
-        heap_alloc_t* free = (heap_alloc_t*)free_start;
-        free->allocator = allocator;
-        free->next      = NULL;
-        free->prev      = NULL;
-        free->size      = heap_size - (_size_alctr + _size_heap_allocation); 
+        // cast pointers
+        const addr start_addr = (addr)start;
+        heap_alctr_t* alctr   = (heap_alctr_t*)start_addr;
+        heap_alloc_t* free    = (heap_alloc_t*)(start_addr + _size_alctr);
 
-        allocator                       = (heap_alctr_t*)heap_start;
-        allocator->granularity          = size_round_up_pow2(heap_granularity);
-        allocator->size_total           = heap_size;
-        allocator->size_used            = heap_size - free->size;  
-        allocator->allocation_list.free = free;
-        allocator->allocation_list.used = NULL;
-        return(allocator);
+        // init first free node
+        free->alctr = alctr;
+        free->next  = NULL;
+        free->prev  = NULL;
+        free->size  = size - (_size_alctr + _size_heap_allocation); 
+
+        // init allocator
+        alctr->granularity     = size_round_up_pow2(granularity);
+        alctr->size_total      = size;
+        alctr->size_used       = size - free->size;  
+        alctr->alloc_list.free = free;
+        alctr->alloc_list.used = NULL;
+        return(alctr);
     }
 
     SLD_API heap_alctr_t*
@@ -91,7 +94,7 @@ namespace sld {
         bool is_valid = (alctr != NULL);
         if (is_valid) {
             is_valid &= size_is_pow_2(alctr->granularity);
-            is_valid &= (alctr->allocation_list.free != NULL || alctr->allocation_list.used != NULL);  
+            is_valid &= (alctr->alloc_list.free != NULL || alctr->alloc_list.used != NULL);  
         }
         return(is_valid);
     }
@@ -119,7 +122,7 @@ namespace sld {
         // find the first free node that can fit the size
         heap_alloc_t* alloc = NULL;
         for (
-            heap_alloc_t* node = alctr->allocation_list.free;
+            heap_alloc_t* node = alctr->alloc_list.free;
             node != NULL && alloc == NULL;
             node = node->next) {
 
@@ -136,13 +139,14 @@ namespace sld {
         if (space_remaining > 0) {
 
             heap_alloc_t* split = (heap_alloc_t*)(((addr)alloc) + size_pow2);
-            split->prev      = alloc;
-            split->next      = alloc->next;
-            split->allocator = alctr;
-            split->size      = space_remaining;
+            split->prev  = alloc;
+            split->next  = alloc->next;
+            split->alctr = alctr;
+            split->size  = space_remaining;
 
-            heap_alloc_t* split_next = split->next;
+            heap_alloc_t*   split_next       = split->next;
             if (split_next) split_next->prev = split;
+
             alloc->next = split;
         };
 
@@ -151,14 +155,14 @@ namespace sld {
         heap_alloc_t* prev_free = alloc->prev;        
         if (next_free) next_free->prev = prev_free;
         if (prev_free) prev_free->next = next_free;
-        if (alctr->allocation_list.free == alloc) alctr->allocation_list.free = alloc->next;
+        if (alctr->alloc_list.free == alloc) alctr->alloc_list.free = alloc->next;
 
         // add the node to the used list
-        heap_alloc_t* next_used = alctr->allocation_list.used;
+        heap_alloc_t* next_used = alctr->alloc_list.used;
         if (next_used) next_used->prev = alloc;
         alloc->prev = NULL;
         alloc->next = next_used;
-        alctr->allocation_list.used = alloc;                
+        alctr->alloc_list.used = alloc;                
 
         // update the size used
         alctr->size_used += size_pow2;
@@ -185,11 +189,9 @@ namespace sld {
         heap_alloc_t* alloc        = (heap_alloc_t*)start_alloc; 
 
         // make sure we can free the allocation
-        const bool can_free = (
-            heap_alctr_validate(alctr) &&
-            alloc            != NULL                &&
-            alloc->allocator == alctr
-        );
+        bool can_free = true;
+        can_free &= heap_alctr_validate(alctr);
+        can_free &= can_free && (alloc->alctr == alctr);
         if (!can_free) return(can_free);
 
         // cache this for when we update the heap size used
@@ -200,26 +202,24 @@ namespace sld {
         prev = alloc->prev;
         if (next) next->prev = prev;
         if (prev) prev->next = next;
-        if (alctr->allocation_list.used == alloc) alctr->allocation_list.used = next;
+        if (alctr->alloc_list.used == alloc) alctr->alloc_list.used = next;
 
         // calculate where we need to add the allocation
         // in the free list
         for (
-            heap_alloc_t* current = alctr->allocation_list.free;
+            heap_alloc_t* current = alctr->alloc_list.free;
             current != NULL;
             current = current->next) {
 
-            const addr start_current = (addr)current;
-            const addr start_next    = (addr)current->next; 
+            const addr start_next  = (addr)current; 
+            const addr start_prev  = (addr)current->prev;
 
-            const bool insert = (
-                start_alloc > start_current &&
-                start_alloc < start_next
-            );
-
+            bool insert = true;
+            insert &= (start_alloc > start_prev);
+            insert &= (start_alloc < start_next);
             if (insert) {
-                prev = current;
-                next = current->next;
+                next = current;
+                prev = current->prev;
                 break; 
             }            
         }
@@ -277,14 +277,14 @@ namespace sld {
 
             const addr free_start   = (addr)alctr + _size_alctr;
             heap_alloc_t* free = (heap_alloc_t*)free_start;
-            free->allocator = alctr;
+            free->alctr = alctr;
             free->next      = NULL;
             free->prev      = NULL;
             free->size      = alctr->size_total - (_size_alctr + _size_heap_allocation); 
 
             alctr->size_used            = alctr->size_total - free->size;  
-            alctr->allocation_list.free = free;
-            alctr->allocation_list.used = NULL;
+            alctr->alloc_list.free = free;
+            alctr->alloc_list.used = NULL;
         }
         return(can_reset);
     }
