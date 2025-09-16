@@ -3,21 +3,47 @@
 #include <pugixml.hpp>
 #include "sld-xml.hpp"
 #include "sld-buffer.hpp"
+#include "sld-allocator.hpp"
 
 namespace sld {
     
+    struct xml_doc_t;
+    struct xml_node_t;
+    struct xml_attrib_t;
+    struct xml_memory_t;
+    struct xml_writer_t;
+
+    constexpr u64 _xml_mem_granularity = sizeof(pugi::xml_document);
+
+    SLD_FUNC xml_doc_t*       xml_memory_alloc_doc    (void);
+    SLD_FUNC xml_node_t*      xml_memory_alloc_node   (xml_doc_t*      doc);
+    SLD_FUNC xml_attrib_t*    xml_memory_alloc_attrib (xml_node_t*     node);
+    SLD_FUNC void             xml_memory_free_doc     (xml_doc_t*      doc);
+    SLD_FUNC void*            xml_memory_alloc        (size_t          size);
+    SLD_FUNC void             xml_memory_free         (void*           ptr);
+    SLD_FUNC const xml_hnd_t  xml_memory_get_hnd      (const void*     ptr);
+    SLD_FUNC void*            xml_memory_get_ptr      (const xml_hnd_t hnd);
+
     struct xml_doc_t {
-        pugi::xml_document pugi_doc;
+        pugi::xml_document pugi;
+        xml_doc_t*         next;
+        xml_node_t*        nodes;
     };     
     struct xml_node_t {
-        pugi::xml_node pugi_node;
+        pugi::xml_node pugi;
+        xml_node_t*    next;
+        xml_attrib_t*  attribs;
+        xml_doc_t*     doc;
     };      
-    struct xml_attribute_t {
-        pugi::xml_attribute pugi_attrib;
+    struct xml_attrib_t {
+        xml_node_t*         node;
+        xml_attrib_t*       next;
+        pugi::xml_attribute pugi;
     };
 
     struct xml_memory_t {
         heap_alctr_t* alctr;
+        xml_doc_t*    docs;
     } static _xml_mem;
 
     struct xml_writer_t : pugi::xml_writer {
@@ -51,6 +77,4 @@ namespace sld {
         }
     };
 
-    void* xml_memory_alloc (size_t size);
-    void  xml_memory_free  (void*  ptr);
 };

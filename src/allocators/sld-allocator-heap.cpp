@@ -9,28 +9,30 @@ namespace sld {
     //-------------------------------------------------------------------
 
     struct heap_alctr_t {
-        u64 granularity;
-        u64 size_total;
-        u64 size_used;
         struct {
             heap_alloc_t* free;
             heap_alloc_t* used;
         } alloc_list;
+        u32   granularity;
+        u32   size_total;
+        u32   size_used;
+        pad32 pad;
     };
 
     struct heap_alloc_t {
         heap_alctr_t* alctr;
         heap_alloc_t* next;
         heap_alloc_t* prev;
-        u64           size;
+        u32           size;
+        pad32         pad;
     };
 
     //-------------------------------------------------------------------
     // CONSTANTS
     //-------------------------------------------------------------------
 
-    constexpr u64 _size_alctr  = sizeof(heap_alctr_t);
-    constexpr u64 _size_heap_allocation = sizeof(heap_alloc_t);
+    constexpr u32 _size_alctr           = sizeof(heap_alctr_t);
+    constexpr u32 _size_heap_allocation = sizeof(heap_alloc_t);
 
     //-------------------------------------------------------------------
     // API
@@ -39,8 +41,8 @@ namespace sld {
     SLD_API heap_alctr_t*
     heap_alctr_init_from_memory(
         const void* start,
-        const u64   size,
-        const u64   granularity) {
+        const u32   size,
+        const u32   granularity) {
 
         // check args
         bool can_init = true;
@@ -73,8 +75,8 @@ namespace sld {
     SLD_API heap_alctr_t*
     heap_alctr_init_from_arena(
         arena_t*  arena,
-        const u64 heap_size,
-        const u64 heap_granularity) {
+        const u32 heap_size,
+        const u32 heap_granularity) {
 
         const void* heap_memory = (void*)arena_push_bytes(arena, heap_size);
 
@@ -100,9 +102,9 @@ namespace sld {
     }
 
     SLD_API void*
-    heap_alctr_alloc(
+    heap_alctr_alloc_abs(
         heap_alctr_t* alctr, 
-        const u64     size) {
+        const u32     size) {
 
         void* memory = NULL;
 
@@ -114,8 +116,8 @@ namespace sld {
         if (!can_alloc) return(memory);
 
         // calculate the size aligned to the next power of 2
-        const u64 size_min  = size + sizeof(heap_alloc_t);
-        const u64 size_pow2 = (size_min <= alctr->granularity)
+        const u32 size_min  = size + sizeof(heap_alloc_t);
+        const u32 size_pow2 = (size_min <= alctr->granularity)
             ? alctr->granularity
             : size_round_up_pow2(size_min);
         
@@ -134,7 +136,7 @@ namespace sld {
 
         // if the node size is greater than the needed size
         // we need to split it
-        const u64 space_remaining = (alloc->size - size_pow2);  
+        const u32 space_remaining = (alloc->size - size_pow2);  
         alloc->size               = size_pow2;
         if (space_remaining > 0) {
 
@@ -174,18 +176,36 @@ namespace sld {
         return(memory);
     }
 
-    SLD_API bool
-    heap_alctr_free(
+    SLD_API const alloc_hnd_t
+    heap_alctr_alloc_rel(
         heap_alctr_t* alctr,
-        const void*       memory) {
+        const u32     size) {
+
+        alloc_hnd_t hnd = {0};
+
+        void* mem = heap_alctr_alloc_abs(alctr, size);
+        if (mem) {
+            
+            const addr start_mem   = (addr)mem;
+            const addr start_alctr = (addr)alctr;
+            const u32  diff        = (start_mem - start_alctr);
+            hnd.val                = *(u32*)&diff;
+        }
+        return(hnd);
+    }
+
+    SLD_API bool
+    heap_alctr_free_abs(
+        heap_alctr_t* alctr,
+        const void*   memory) {
 
         heap_alloc_t* tmp  = NULL;
         heap_alloc_t* next = NULL;
         heap_alloc_t* prev = NULL;
 
         // calculate the allocation header
-        const addr         start_memory = (addr)memory;
-        const addr         start_alloc  = (start_memory != 0) ? (start_memory - _size_heap_allocation) : 0; 
+        const addr    start_memory = (addr)memory;
+        const addr    start_alloc  = (start_memory != 0) ? (start_memory - _size_heap_allocation) : 0; 
         heap_alloc_t* alloc        = (heap_alloc_t*)start_alloc; 
 
         // make sure we can free the allocation
@@ -195,7 +215,7 @@ namespace sld {
         if (!can_free) return(can_free);
 
         // cache this for when we update the heap size used
-        const u64 alloc_size = alloc->size;
+        const u32 alloc_size = alloc->size;
 
         // remove the allocation from the used list
         next = alloc->next;
@@ -269,6 +289,64 @@ namespace sld {
     }
 
     SLD_API bool
+    heap_alctr_free_rel(
+        heap_alctr_t*     alctr,
+        const alloc_hnd_t h_memory) {
+
+        bool is_valid = true;
+        is_valid &= heap_alctr_validate(alctr);
+        is_valid &= (h_memory.val != 0);
+        is_valid &= (is_valid && h_memory.val < alctr->size_used);
+
+        if (is_valid) {
+
+            const void* mem = (void*)(((addr)alctr) + h_memory.val);
+            is_valid        = heap_alctr_free_abs(alctr, mem);
+        }
+
+        return(is_valid);
+    }
+
+    SLD_API void*
+    heap_alctr_get_ptr(
+        heap_alctr_t*     alctr,
+        const alloc_hnd_t h_memory) {
+
+        bool is_valid = true;
+        is_valid &= heap_alctr_validate(alctr);
+        is_valid &= (h_memory.val != 0);        
+        is_valid &= (is_valid && h_memory.val < alctr->size_used);
+
+        const addr    start = ((addr)alctr + h_memory.val); 
+        heap_alloc_t* alloc = (heap_alloc_t*)(start - _size_heap_allocation);
+        void*         mem   = (alloc->alctr == alctr) ? (void*)start : NULL;
+
+        return(mem);
+    }
+
+    SLD_API const alloc_hnd_t
+    heap_alctr_get_hnd(
+        heap_alctr_t* alctr,
+        const void*   memory) {
+
+        // calculate the allocation header
+        const addr    start_memory = (addr)memory;
+        const addr    start_alloc  = (start_memory != 0) ? (start_memory - _size_heap_allocation) : 0; 
+        const u64     diff         = start_memory - ((addr)alctr);
+        heap_alloc_t* alloc        = (heap_alloc_t*)start_alloc; 
+
+        // validate args
+        bool is_valid = true;
+        is_valid &= heap_alctr_validate(alctr);
+        is_valid &= is_valid && (alloc->alctr == alctr);
+
+        alloc_hnd_t hnd;
+        hnd.val = is_valid ? *(u32*)&diff : 0;
+
+        return(hnd);
+    }
+
+    SLD_API bool
     heap_alctr_reset(
         heap_alctr_t* alctr) {
 
@@ -282,7 +360,7 @@ namespace sld {
             free->prev      = NULL;
             free->size      = alctr->size_total - (_size_alctr + _size_heap_allocation); 
 
-            alctr->size_used            = alctr->size_total - free->size;  
+            alctr->size_used       = alctr->size_total - free->size;  
             alctr->alloc_list.free = free;
             alctr->alloc_list.used = NULL;
         }
