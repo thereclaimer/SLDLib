@@ -94,4 +94,172 @@ namespace sld {
         const xml_hnd_attrib_t hnd = xml_memory_get_hnd_attrib(attrib);        
         return(hnd);   
     }
+
+    SLD_API u32
+    xml_node_get_child_count(
+        const xml_hnd_node_t h_node,
+        const xml_utf8_t*    child_name) {
+
+        xml_node_t* node = xml_memory_get_ptr_node (h_node);
+        assert(node);
+
+        auto children = node->pugi.children(child_name);
+
+        u32 count = 0;
+        for (
+            auto iter = children.begin();
+            iter != children.end();
+            ++iter) {
+            ++count;
+        }
+        return(count);
+    }
+
+    SLD_API bool
+    xml_node_set_attrib_utf8(
+        const xml_hnd_node_t          h_node,
+        const xml_utf8_t*             name,
+        const xml_attrib_value_t& value) {
+
+        xml_node_t* node = xml_memory_get_ptr_node(h_node);
+        assert(node);
+
+        pugi::xml_attribute attrib = node->pugi.attribute(name);
+        if (attrib == NULL) {
+            attrib = node->pugi.append_attribute(name);
+            assert(attrib);
+        }
+
+        bool is_set = attrib.set_value(value.as_utf8);
+        return(is_set);
+    }
+
+    SLD_API bool
+    xml_node_set_attrib_u32(
+        const xml_hnd_node_t          h_node,
+        const xml_utf8_t*             name,
+        const xml_attrib_value_t& value) {
+
+        xml_node_t* node = xml_memory_get_ptr_node(h_node);
+        assert(node);
+
+        pugi::xml_attribute attrib = node->pugi.attribute(name);
+        if (attrib == NULL) {
+            attrib = node->pugi.append_attribute(name);
+            assert(attrib);
+        }
+
+        bool is_set = attrib.set_value(value.as_u32);
+        return(is_set);
+    }
+
+    SLD_API bool
+    xml_node_set_attrib_u64(
+        const xml_hnd_node_t          h_node,
+        const xml_utf8_t*             name,
+        const xml_attrib_value_t& value) {
+
+        xml_node_t* node = xml_memory_get_ptr_node(h_node);
+        assert(node);
+
+        pugi::xml_attribute attrib = node->pugi.attribute(name);
+        if (attrib == NULL) {
+            attrib = node->pugi.append_attribute(name);
+            assert(attrib);
+        }
+
+        bool is_set = attrib.set_value(value.as_u64);
+        return(is_set);
+    }
+
+    SLD_API bool
+    xml_node_set_attrib_f32(
+        const xml_hnd_node_t          h_node,
+        const xml_utf8_t*             name,
+        const xml_attrib_value_t& value) {
+
+        xml_node_t* node = xml_memory_get_ptr_node(h_node);
+        assert(node);
+
+        pugi::xml_attribute attrib = node->pugi.attribute(name);
+        if (attrib == NULL) {
+            attrib = node->pugi.append_attribute(name);
+            assert(attrib);
+        }
+
+        bool is_set = attrib.set_value(value.as_f32);
+        return(is_set);
+    }
+
+    SLD_API bool
+    xml_node_get_attrib_utf8(
+        const xml_hnd_node_t    h_node,
+        const xml_utf8_t*       name,
+        xml_attrib_value_t& value) {
+
+        xml_node_t* node = xml_memory_get_ptr_node(h_node);
+        assert(node);
+
+        pugi::xml_attribute attrib = node->pugi.attribute(name);
+        if (attrib == NULL) {
+            return(false);
+        }
+
+        value.as_utf8 = (xml_utf8_t*)attrib.as_string();
+        return(true);
+    }
+
+    SLD_API bool
+    xml_node_get_attrib_u32(
+        const xml_hnd_node_t    h_node,
+        const xml_utf8_t*       name,
+        xml_attrib_value_t& value) {
+
+        xml_node_t* node = xml_memory_get_ptr_node(h_node);
+        assert(node);
+
+        pugi::xml_attribute attrib = node->pugi.attribute(name);
+        if (attrib == NULL) {
+            return(false);
+        }
+
+        value.as_u32 = attrib.as_uint();
+        return(true);
+    }
+
+    SLD_API bool
+    xml_node_get_attrib_u64(
+        const xml_hnd_node_t    h_node,
+        const xml_utf8_t*       name,
+        xml_attrib_value_t& value) {
+
+        xml_node_t* node = xml_memory_get_ptr_node(h_node);
+        assert(node);
+
+        pugi::xml_attribute attrib = node->pugi.attribute(name);
+        if (attrib == NULL) {
+            return(false);
+        }
+
+        value.as_u64 = attrib.as_ullong();
+        return(true);
+    }
+
+    SLD_API bool
+    xml_node_get_attrib_f32(
+        const xml_hnd_node_t    h_node,
+        const xml_utf8_t*       name,
+        xml_attrib_value_t& value) {
+
+        xml_node_t* node = xml_memory_get_ptr_node(h_node);
+        assert(node);
+
+        pugi::xml_attribute attrib = node->pugi.attribute(name);
+        if (attrib == NULL) {
+            return(false);
+        }
+
+        value.as_f32 = attrib.as_float();
+        return(true);
+    }
 };

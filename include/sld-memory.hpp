@@ -47,6 +47,9 @@ namespace sld {
     SLD_API bool                arena_decommit                (arena_t*       arena);
     SLD_API byte*               arena_push_bytes              (arena_t*       arena, const u64 size, const u64 alignment = 0);
     SLD_API bool                arena_pull_bytes              (arena_t*       arena, const u64 size, const u64 alignment = 0);
+    SLD_API bool                arena_reset                   (arena_t*       arena);
+    SLD_API bool                arena_roll_back               (arena_t*       arena);
+    SLD_API bool                arena_save_position           (arena_t*       arena);
     SLD_API u64                 arena_size_total              (arena_t*       arena);
     SLD_API u64                 arena_size_free               (arena_t*       arena);
     SLD_API u64                 arena_size_used               (arena_t*       arena);

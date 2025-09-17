@@ -162,6 +162,39 @@ namespace sld {
         return(is_pulled);
     }
 
+    SLD_API bool
+    arena_reset(
+        arena_t* arena) {
+
+        const bool is_valid = arena_validate(arena);
+        if (!is_valid) return(is_valid);
+
+        const bool did_reset = stack_reset(arena->stack);
+        return(did_reset);
+    }
+
+    SLD_API bool
+    arena_roll_back(
+        arena_t* arena) {
+
+        const bool is_valid = arena_validate(arena);
+        if (!is_valid) return(is_valid);
+
+        const bool did_reset = stack_reset_to_save(arena->stack);
+        return(did_reset);        
+    }
+
+    SLD_API bool
+    arena_save_position(
+        arena_t* arena) {
+
+        const bool is_valid = arena_validate(arena);
+        if (!is_valid) return(is_valid);
+
+        const bool did_save = stack_save(arena->stack);
+        return(did_save);        
+    }
+
     SLD_API u64
     arena_size_total(
         arena_t* arena) {

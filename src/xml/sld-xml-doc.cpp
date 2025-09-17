@@ -41,6 +41,7 @@ namespace sld {
     
         xml_doc_t* doc = xml_memory_get_ptr_doc(h_doc); 
 
+
         return(NULL);
     }
 
@@ -120,5 +121,27 @@ namespace sld {
         child_node->pugi              = doc->pugi.append_child(child_name);
         const xml_hnd_node_t hnd_node = xml_memory_get_hnd_node(child_node);
         return(hnd_node);
+    }
+
+    SLD_API u32
+    xml_doc_get_child_node_count(
+        const xml_hnd_doc_t h_doc,
+        const xml_utf8_t*   child_name) {
+
+        xml_doc_t* doc = xml_memory_get_ptr_doc (h_doc); 
+
+        assert(doc);
+        assert(child_name);
+
+        u32  count    = 0;
+        auto children = doc->pugi.children(child_name); 
+        for (
+            auto iter = children.begin();
+            iter != children.end();
+            ++iter) {
+            ++count;
+        }
+    
+        return(count);
     }
 };
