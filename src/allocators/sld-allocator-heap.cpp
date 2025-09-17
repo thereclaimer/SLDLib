@@ -116,10 +116,7 @@ namespace sld {
         if (!can_alloc) return(memory);
 
         // calculate the size aligned to the next power of 2
-        const u32 size_min  = size + sizeof(heap_alloc_t);
-        const u32 size_pow2 = (size_min <= alctr->granularity)
-            ? alctr->granularity
-            : size_round_up_pow2(size_min);
+        const u32 size_aligned = size_align_pow_2(size, alctr->granularity);
         
         // find the first free node that can fit the size
         heap_alloc_t* alloc = NULL;
@@ -128,7 +125,7 @@ namespace sld {
             node != NULL && alloc == NULL;
             node = node->next) {
 
-            if (node->size >= size_pow2) alloc = node;
+            if (node->size >= size_aligned) alloc = node;
         }
 
         // return if we don't have one
@@ -136,11 +133,11 @@ namespace sld {
 
         // if the node size is greater than the needed size
         // we need to split it
-        const u32 space_remaining = (alloc->size - size_pow2);  
-        alloc->size               = size_pow2;
+        const u32 space_remaining = (alloc->size - size_aligned);  
+        alloc->size               = size_aligned;
         if (space_remaining > 0) {
 
-            heap_alloc_t* split = (heap_alloc_t*)(((addr)alloc) + size_pow2);
+            heap_alloc_t* split = (heap_alloc_t*)(((addr)alloc) + size_aligned);
             split->prev  = alloc;
             split->next  = alloc->next;
             split->alctr = alctr;
@@ -167,7 +164,7 @@ namespace sld {
         alctr->alloc_list.used = alloc;                
 
         // update the size used
-        alctr->size_used += size_pow2;
+        alctr->size_used += size_aligned;
 
         // calculate the memory for this allocation
         const addr start_alloc  = (addr)alloc;

@@ -4,12 +4,15 @@
 
 #include "sld.hpp"
 #include "sld-buffer.hpp"
+#include "sld-memory.hpp"
 
 /*
 /* TODO(SAM): The memory layout works, but we don't need to create a new
 /* object every single time. Most of the time we should be able to recycle
 /* stuff, but it works for now
 */
+
+#define SLD_XML_INVALID_HANDLE 0
 
 namespace sld {
 
@@ -25,8 +28,9 @@ namespace sld {
     struct xml_node_t;
     struct xml_attrib_t;
 
-    SLD_API void                   xml_memory_init           (const void* memory, const u32 size);
-    SLD_API void                   xml_memory_reset          (void);
+    SLD_API void                   xml_memory_init            (const void* memory, const u32 size);
+    SLD_API void                   xml_memory_init_from_arena (arena_t*    arena);
+    SLD_API void                   xml_memory_reset           (void);
 
     SLD_API const xml_hnd_doc_t    xml_doc_create            (void);
     SLD_API void                   xml_doc_reset             (const xml_hnd_doc_t h_doc);

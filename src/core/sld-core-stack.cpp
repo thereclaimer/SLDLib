@@ -66,7 +66,7 @@ namespace sld {
         
         bool result = true;
         result &= stack_validate(stack);
-        result &= (new_position < stack.size); 
+        result &= (new_position <= stack.size); 
         if (!result) return(NULL);
 
         void* ptr = (void*)(stack.start + stack.position);
