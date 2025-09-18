@@ -37,12 +37,23 @@ namespace sld {
     SLD_API bool
     xml_doc_buffer_read(
         const xml_hnd_doc_t h_doc,
-        const buffer_t&  buffer) {
-    
+        const buffer_t&     buffer) {
+
+        const u64 buffer_length = xml_doc_buffer_length(h_doc);
+
         xml_doc_t* doc = xml_memory_get_ptr_doc(h_doc); 
 
+        assert(doc);
+        assert(buffer.data != NULL && buffer.size != 0);
 
-        return(NULL);
+        const pugi::xml_parse_result result = doc->pugi.load_buffer(
+            (void*)buffer.data,
+            buffer.size
+        );
+
+        const bool did_read = (result.status == pugi::xml_parse_status::status_ok);
+
+        return(did_read);
     }
 
     SLD_API bool
@@ -56,7 +67,6 @@ namespace sld {
         assert(buffer.data != NULL && buffer.size != 0);
 
         xml_writer_t writer;
-
         writer.buffer = buffer;
 
         doc->pugi.save(writer);
@@ -68,21 +78,19 @@ namespace sld {
     }
     
     SLD_API u64
-    xml_doc_buffer_size(
+    xml_doc_buffer_length(
         const xml_hnd_doc_t h_doc) {
 
         xml_doc_t* doc = xml_memory_get_ptr_doc(h_doc); 
         assert(doc);
 
         xml_writer_t xml_writer;
-        xml_writer.buffer.data   = NULL;
-        xml_writer.buffer.length = 0;
-        xml_writer.buffer.size   = 0;
+        xml_writer.buffer.data = NULL;
 
         doc->pugi.save(xml_writer);
 
-        const u64 size = xml_writer.buffer.size;
-        return(size);
+        const u64 length = xml_writer.buffer.length;
+        return(length);
     }
 
     SLD_API const xml_hnd_node_t

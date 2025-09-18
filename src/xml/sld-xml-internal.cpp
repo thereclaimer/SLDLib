@@ -61,20 +61,39 @@ namespace sld {
             buffer.length = 0;
         }
 
+        void
+        set_buffer_memory(
+            byte* data,
+            u64   size) {
+
+            buffer.data   = data;
+            buffer.size   = size;
+            buffer.length = 0;
+        }
+
+        void
+        clear_buffer_memory(
+            void) {
+
+            buffer.data   = NULL;
+            buffer.size   = 0;
+            buffer.length = 0;
+        }
+
         virtual void
         write(
             const void* data,
             size_t      size) {
 
-            // set the size
-            buffer.size = size;
+            // set the length
+            buffer.length = size;
 
             // check if we can copy the buffer
             // if not, return
             bool can_write = true;
-            can_write &= (data != NULL);
-            can_write &= (size != 0);
-            can_write &= (size <= buffer.size);
+            can_write &= (data          != NULL);
+            can_write &= (buffer.length != 0);
+            can_write &= (buffer.length <= buffer.size);
             if (!can_write) return;
 
             // copy the buffer
