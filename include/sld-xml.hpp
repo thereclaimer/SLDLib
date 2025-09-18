@@ -51,7 +51,6 @@ namespace sld {
     SLD_API const xml_hnd_node_t   xml_doc_add_child_node       (const xml_hnd_doc_t h_doc, const xml_utf8_t* name);
     SLD_API u32                    xml_doc_get_child_node_count (const xml_hnd_doc_t h_doc, const xml_utf8_t* name);
 
-
     SLD_API const xml_hnd_node_t   xml_node_add_sibling         (const xml_hnd_node_t h_node, const xml_utf8_t* name);
     SLD_API const xml_hnd_node_t   xml_node_get_sibling         (const xml_hnd_node_t h_node, const xml_utf8_t* name);
     SLD_API const xml_hnd_node_t   xml_node_add_child           (const xml_hnd_node_t h_node, const xml_utf8_t* name);
