@@ -122,13 +122,18 @@ namespace sld {
         OVERLAPPED overlapped;
         overlapped.Offset = buffer.cursor;
 
+        LPVOID    lp_buffer     = (LPVOID)&buffer.data[buffer.length];
+        const u32 bytes_to_read = buffer.size - buffer.length;
+
         BOOL result = ReadFile(
             (HANDLE)handle.val,           // hFile
-            (LPVOID)buffer.data,          // lpBuffer
-            buffer.length,                // nNumberOfBytesToRead
+            (LPVOID)lp_buffer,            // lpBuffer
+            bytes_to_read,                // nNumberOfBytesToRead
             (LPDWORD)&buffer.transferred, // lpNumberOfBytesRead
             &overlapped                   // lpOverlapped
         );
+
+        buffer.length += buffer.transferred;
 
         const DWORD win32_error = GetLastError();
 
