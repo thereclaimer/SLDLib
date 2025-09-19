@@ -58,11 +58,6 @@ namespace sld {
         if (share_delete) file_args.share  |= FILE_SHARE_DELETE;
 
         // mode
-        const bool mode_create_new         = config.mode.val & os_file_mode_e_create_new;
-        const bool mode_open_existing      = config.mode.val & os_file_mode_e_open_existing;
-        const bool mode_open_always        = config.mode.val & os_file_mode_e_open_always;
-        const bool mode_overwrite_existing = config.mode.val & os_file_mode_e_overwrite_existing;
-
         switch (config.mode.val) {
             case(os_file_mode_e_create_new):          file_args.mode = CREATE_NEW;    break;
             case(os_file_mode_e_open_existing):       file_args.mode = OPEN_EXISTING; break;
@@ -120,6 +115,7 @@ namespace sld {
         os_file_buffer_t&      buffer) {
 
         OVERLAPPED overlapped;
+        ZeroMemory(&overlapped, sizeof(overlapped));
         overlapped.Offset = buffer.cursor;
 
         LPVOID    lp_buffer     = (LPVOID)&buffer.data[buffer.length];
@@ -133,14 +129,28 @@ namespace sld {
             &overlapped                   // lpOverlapped
         );
 
+        // get the last error
+        DWORD      win32_error   = GetLastError();
+        const bool io_is_pending = !result && (win32_error == ERROR_IO_PENDING); 
+        
+        // if its pending, try waiting
+        if (io_is_pending) {
+            const DWORD wait_result = WaitForSingleObject((HANDLE)handle.val, INFINITE);
+            win32_error = (wait_result == WAIT_OBJECT_0) 
+                ? ERROR_SUCCESS
+                : GetLastError();
+
+        }
+        // otherwise, get the last error
+        else {
+            win32_error = result ? ERROR_SUCCESS : GetLastError(); 
+        }
+
+        // translate the error
         buffer.length += buffer.transferred;
-
-        const DWORD win32_error = GetLastError();
-
-        const os_file_error_t error = (result)
-            ? win32_file_error_success()
-            : win32_file_get_error_code(win32_error);
-        return(error);   
+        buffer.cursor += buffer.transferred;
+        const os_file_error_t error = win32_file_get_error_code(win32_error);
+        return(error);
     }
 
     SLD_OS_API_FUNC const os_file_error_t
