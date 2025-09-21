@@ -9,9 +9,13 @@
 
 namespace sld {
 
-    struct hash_t;
-    struct hash_seed_t;
-    struct hash_state_t;
+    //-------------------------------------------------------------------
+    // TYPES
+    //-------------------------------------------------------------------
+    
+    struct hash128_t;
+    struct hash128_seed_t;
+    struct hash128_state_t;
 
     struct hash32_t;
     struct hash32_seed_t;
@@ -20,16 +24,16 @@ namespace sld {
     // HASH 128
     //-------------------------------------------------------------------
 
-    SLD_API const hash_t hash_data          (const hash_seed_t& seed, const byte*   data,   const u32     length);
-    SLD_API bool         hash_data_batch    (const hash_seed_t& seed, const u32     count,  const byte*   data,   const u32  stride, hash_t* hashes);
-    SLD_API bool         hash_is_equal      (const hash_seed_t& seed, const byte*   data_a, const byte*   data_b, const u32  length);
-    SLD_API bool         hash_is_equal      (const hash_seed_t& seed, const hash_t& hash,   const byte*   data,   const u32  length);
-    SLD_API bool         hash_search        (const u32 count,   const hash_t  search, const hash_t* array,  u32&       index);
-    SLD_API void         hash_block_begin   (hash_state_t& state, const hash_seed_t& seed);
-    SLD_API void         hash_block_consume (hash_state_t& state, const u64 block_size, const byte* block_data);
-    SLD_API const hash_t hash_block_end     (hash_state_t& state);
+    SLD_API const hash128_t hash128_data          (const hash128_seed_t& seed,  const byte*           data,   const u32        length);
+    SLD_API bool            hash128_data_batch    (const hash128_seed_t& seed,  const u32             count,  const byte*      data,   const u32  stride, hash128_t* hashes);
+    SLD_API bool            hash128_is_equal      (const hash128_seed_t& seed,  const byte*           data_a, const byte*      data_b, const u32  length);
+    SLD_API bool            hash128_is_equal      (const hash128_seed_t& seed,  const hash128_t&      hash,   const byte*      data,   const u32  length);
+    SLD_API bool            hash128_search        (const u32             count, const hash128_t       search, const hash128_t* array,  u32&       index);
+    SLD_API void            hash128_block_begin   (hash128_state_t&      state, const hash128_seed_t& seed);
+    SLD_API void            hash128_block_consume (hash128_state_t&      state, const u64             block_size, const byte* block_data);
+    SLD_API const hash128_t hash128_block_end     (hash128_state_t&      state);
 
-    struct SLD_HASH_ALIGN_128 hash_t {
+    struct SLD_HASH_ALIGN_128 hash128_t {
         union {
             u32  as_u32   [4];
             u64  as_u64   [2];
@@ -38,20 +42,20 @@ namespace sld {
         } val;
     };
 
-    struct hash_seed_t {
+    struct hash128_seed_t {
         byte buffer[128];
     };
 
-    struct hash_state_t : meow_state { };
+    struct hash128_state_t : meow_state { };
 
     //-------------------------------------------------------------------
     // HASH 32
     //-------------------------------------------------------------------
 
-    SLD_API const hash32_t hash32          (const hash_seed_t seed, const byte*   data,   const u32     length);
-    SLD_API bool           hash32_batch    (const hash_seed_t seed, const byte*   data,   const u32     stride, const u32      count, hash32_t* hashes);
-    SLD_API bool           hash32_is_equal (const hash_seed_t seed, const byte*   data,   const u32     length, const hash32_t hash);
-    SLD_API bool           hash32_search   (const u32         count, const hash_t search, const hash_t* array,  u32&           index);
+    SLD_API const hash32_t hash32          (const hash32_seed_t seed,  const byte*    data,   const u32       length);
+    SLD_API bool           hash32_batch    (const hash32_seed_t seed,  const byte*    data,   const u32       stride, const u32      count, hash32_t* hashes);
+    SLD_API bool           hash32_is_equal (const hash32_seed_t seed,  const byte*    data,   const u32       length, const hash32_t hash);
+    SLD_API bool           hash32_search   (const u32           count, const hash32_t search, const hash32_t* array,  u32&           index);
 
     struct SLD_HASH_ALIGN_32 hash32_t {
         union {

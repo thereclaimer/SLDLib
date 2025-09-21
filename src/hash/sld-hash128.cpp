@@ -6,9 +6,9 @@
 
 namespace sld {
 
-    SLD_API const hash_t
-    hash_data(
-        const hash_seed_t& seed,
+    SLD_API const hash128_t
+    hash128_data(
+        const hash128_seed_t& seed,
         const byte*        data,
         const u32          length) {
 
@@ -16,7 +16,7 @@ namespace sld {
         can_hash &= (data   != NULL);
         can_hash &= (length != 0);
 
-        hash_t hash = {0,0,0,0};
+        hash128_t hash = {0,0,0,0};
         if (can_hash) {
 
             const meow_u128 meow_hash = MeowHash((void*)seed.buffer, length, (void*)data);
@@ -27,12 +27,12 @@ namespace sld {
     }
 
     SLD_API bool
-    hash_data_batch(
-        const hash_seed_t& in_seed,
+    hash128_data_batch(
+        const hash128_seed_t& in_seed,
         const u32          in_count,
         const byte*        in_data,
         const u32          in_stride,
-        hash_t*            out_hashes) {
+        hash128_t*            out_hashes) {
 
         bool can_hash = true;
         can_hash &= (in_count   != 0);
@@ -56,10 +56,10 @@ namespace sld {
     }
 
     SLD_API bool
-    hash_search(
+    hash128_search(
         const u32      in_count,
-        const hash_t   in_search,
-        const hash_t*  in_array,
+        const hash128_t   in_search,
+        const hash128_t*  in_array,
         u32&          out_index) {
 
         bool can_search = true;
@@ -86,8 +86,8 @@ namespace sld {
     }
 
     SLD_API bool
-    hash_is_equal(
-        const hash_seed_t& seed,
+    hash128_is_equal(
+        const hash128_seed_t& seed,
         const byte*        data_a,
         const byte*        data_b,
         const u32          length) {
@@ -99,9 +99,9 @@ namespace sld {
     }
 
     SLD_API bool
-    hash_is_equal(
-        const hash_seed_t& seed,
-        const hash_t&      hash,
+    hash128_is_equal(
+        const hash128_seed_t& seed,
+        const hash128_t&      hash,
         const byte*        data,
         const u32          length) {
   
@@ -112,30 +112,30 @@ namespace sld {
     }
 
     SLD_API void
-    hash_block_begin(
-        hash_state_t&      state,
-        const hash_seed_t& seed) {
+    hash128_block_begin(
+        hash128_state_t&      state,
+        const hash128_seed_t& seed) {
 
         MeowBegin(&state, (void*)seed.buffer);
     }
 
     SLD_API void
-    hash_block_consume(
-        hash_state_t& state,
+    hash128_block_consume(
+        hash128_state_t& state,
         const u64     block_size,
         const byte*   block_data) {
 
         MeowAbsorb(&state, block_size, (void*)block_data);
     }
 
-    SLD_API const hash_t
-    hash_block_end(
-        hash_state_t& state) {
+    SLD_API const hash128_t
+    hash128_block_end(
+        hash128_state_t& state) {
 
         static meow_u8* store_128 = NULL;
         const meow_u128 meow_hash = MeowEnd(&state, store_128);
 
-        hash_t hash;
+        hash128_t hash;
         _mm_storeu_si128((__m128i*)&hash, meow_hash);
 
         return(hash);
