@@ -10,6 +10,8 @@
 #include "sld-core-hash.cpp"
 #include "sld-core-heap.cpp"
 
+#include "sld-hash32.cpp"
+
 #include "sld-win32.cpp"
 #include "sld-string.cpp"
 #include "sld-os.cpp"
