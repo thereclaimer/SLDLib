@@ -296,7 +296,6 @@ namespace sld {
         is_valid &= (is_valid && h_memory.val < alctr->size_used);
 
         if (is_valid) {
-
             const void* mem = (void*)(((addr)alctr) + h_memory.val);
             is_valid        = heap_alctr_free_abs(alctr, mem);
         }

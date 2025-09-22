@@ -7,8 +7,6 @@
 
 namespace sld {
     
-    struct xml_doc_t_ : pugi::xml_document { };
-
     struct xml_doc_t;
     struct xml_node_t;
     struct xml_attrib_t;
@@ -26,10 +24,8 @@ namespace sld {
     SLD_FUNC void                   xml_memory_free           (void*                  ptr);
     SLD_FUNC const xml_hnd_doc_t    xml_memory_get_hnd_doc    (const xml_doc_t*       ptr);
     SLD_FUNC const xml_hnd_node_t   xml_memory_get_hnd_node   (const xml_node_t*      ptr);
-    SLD_FUNC const xml_hnd_attrib_t xml_memory_get_hnd_attrib (const xml_attrib_t*    ptr);
     SLD_FUNC xml_doc_t*             xml_memory_get_ptr_doc    (const xml_hnd_doc_t    hnd);
     SLD_FUNC xml_node_t*            xml_memory_get_ptr_node   (const xml_hnd_node_t   hnd);
-    SLD_FUNC xml_attrib_t*          xml_memory_get_ptr_attrib (const xml_hnd_attrib_t hnd);
 
     struct xml_doc_t {
         pugi::xml_document pugi;
@@ -38,16 +34,9 @@ namespace sld {
     };     
     struct xml_node_t {
         pugi::xml_node pugi;
-        xml_node_t*    parent;
         xml_node_t*    next;
-        xml_node_t*    children;
         xml_doc_t*     doc;
     };      
-    struct xml_attrib_t {
-        pugi::xml_attribute pugi;
-        xml_node_t*         node;
-        xml_attrib_t*       next;
-    };
 
     struct xml_memory_t {
         heap_alctr_t* alctr;

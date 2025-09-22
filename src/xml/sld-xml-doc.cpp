@@ -11,10 +11,11 @@ namespace sld {
         xml_doc_t* doc = xml_memory_alloc_doc();
         assert(doc);
 
+        doc->next = _xml_mem.docs;
+        _xml_mem.docs = doc; 
+
         const alloc_hnd_t   hnd_mem = heap_alctr_get_hnd(_xml_mem.alctr,(const void*)doc);
         const xml_hnd_doc_t hnd_doc = {hnd_mem.val};
-        assert(hnd_doc.val != 0);
-
         return(hnd_doc);
     }
 
@@ -113,9 +114,7 @@ namespace sld {
             assert(child_node);
 
             child_node->pugi     = pugi_node;
-            child_node->parent   = NULL;
             child_node->next     = doc->nodes;
-            child_node->children = NULL;
             child_node->doc      = doc;
 
             doc->nodes = child_node;
@@ -141,19 +140,17 @@ namespace sld {
         pugi::xml_node pugi_node = doc->pugi.child(child_name); 
         if (pugi_node == NULL) {
             pugi_node = doc->pugi.append_child(child_name);            
-            if (pugi_node != NULL) {
+        }
+        if (pugi_node != NULL) {
 
-                child_node = xml_memory_alloc_node();
-                assert(child_node);
+            child_node = xml_memory_alloc_node();
+            assert(child_node);
 
-                child_node->pugi     = pugi_node;
-                child_node->parent   = NULL;
-                child_node->next     = doc->nodes;
-                child_node->children = NULL;
-                child_node->doc      = doc;
+            child_node->pugi = pugi_node;
+            child_node->next = doc->nodes;
+            child_node->doc  = doc;
 
-                doc->nodes = child_node;
-            }
+            doc->nodes = child_node;
         }
 
         const xml_hnd_node_t hnd_node = xml_memory_get_hnd_node(child_node);
@@ -179,11 +176,9 @@ namespace sld {
             child_node = xml_memory_alloc_node();
             assert(child_node);
 
-            child_node->pugi     = pugi_node;
-            child_node->parent   = NULL;
-            child_node->next     = doc->nodes;
-            child_node->children = NULL;
-            child_node->doc      = doc;
+            child_node->pugi = pugi_node;
+            child_node->next = doc->nodes;
+            child_node->doc  = doc;
 
             doc->nodes = child_node;
         }

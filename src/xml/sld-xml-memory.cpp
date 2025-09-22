@@ -82,10 +82,9 @@ namespace sld {
         xml_doc_t*       doc  = (xml_doc_t*) new (mem) xml_doc_t();
         assert(doc);
 
-        doc->nodes    = NULL;
-        doc->next     = _xml_mem.docs;
-        _xml_mem.docs = doc;
-        
+        doc->next  = NULL;
+        doc->nodes = NULL;
+
         return(doc);
     }
 
@@ -98,10 +97,8 @@ namespace sld {
         xml_node_t*      node = (xml_node_t*)(new (mem) xml_node_t());
         assert(node != NULL);
 
-        node->parent   = NULL;
-        node->next     = NULL;
-        node->children = NULL;
-        node->doc      = NULL;
+        node->next = NULL;
+        node->doc  = NULL;
         return(node);
     }
 
