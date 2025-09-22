@@ -127,11 +127,11 @@ namespace sld {
     xml_memory_free_doc(
         xml_doc_t*    doc) {
 
-        bool       is_free = false;
-        xml_doc_t* next    = doc->next;
+        bool       can_free = false;
+        xml_doc_t* next     = doc->next;
 
         if (_xml_mem.docs == doc) {
-            is_free       = true;
+            can_free       = true;
             _xml_mem.docs = next;
             doc->next     = NULL;
         }
@@ -142,11 +142,14 @@ namespace sld {
                 prev = prev->next) {
 
                 if (prev->next == doc) {
-                    is_free    = true;
+                    can_free    = true;
                     prev->next = next;
                 }
             }
         }
+
+        assert(can_free);
+        bool is_free = true;
 
         for (
             xml_node_t* node = doc->nodes;
@@ -170,7 +173,8 @@ namespace sld {
     SLD_FUNC void
     xml_memory_reset_doc(
         xml_doc_t* doc) {
-        bool       is_free = false;
+
+        bool       is_free = true;
         xml_doc_t* next    = doc->next;
 
         for (

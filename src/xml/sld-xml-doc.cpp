@@ -94,7 +94,7 @@ namespace sld {
     }
 
     SLD_API const xml_hnd_node_t
-    xml_doc_get_next_child_node(
+    xml_doc_get_child_node(
         const xml_hnd_doc_t h_doc,
         const xml_utf8_t*   child_name) {
 
@@ -108,6 +108,30 @@ namespace sld {
         assert(is_valid);
 
         child_node->pugi = doc->pugi.child(child_name); 
+
+        const xml_hnd_node_t hnd_node = xml_memory_get_hnd_node(child_node);
+
+        return(hnd_node);
+    }
+
+    SLD_API const xml_hnd_node_t
+    xml_doc_get_or_add_child_node(
+        const xml_hnd_doc_t h_doc,
+        const xml_utf8_t*   child_name) {
+
+        xml_doc_t*  doc        = xml_memory_get_ptr_doc (h_doc); 
+        xml_node_t* child_node = xml_memory_alloc_node  (doc);
+
+        bool is_valid = true;
+        is_valid &= (doc        != NULL);
+        is_valid &= (child_name != NULL);
+        is_valid &= (child_node != NULL);
+        assert(is_valid);
+
+        child_node->pugi = doc->pugi.child(child_name); 
+        if (child_node->pugi == NULL) {
+            child_node->pugi = doc->pugi.append_child(child_name);            
+        }
 
         const xml_hnd_node_t hnd_node = xml_memory_get_hnd_node(child_node);
 

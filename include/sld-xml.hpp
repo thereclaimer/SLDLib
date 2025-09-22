@@ -41,15 +41,16 @@ namespace sld {
     SLD_API void                   xml_memory_init_from_arena   (arena_t*    arena);
     SLD_API void                   xml_memory_reset             (void);
 
-    SLD_API const xml_hnd_doc_t    xml_doc_create               (void);
-    SLD_API void                   xml_doc_reset                (const xml_hnd_doc_t h_doc);
-    SLD_API void                   xml_doc_destroy              (const xml_hnd_doc_t h_doc);
-    SLD_API u64                    xml_doc_buffer_length        (const xml_hnd_doc_t h_doc);
-    SLD_API bool                   xml_doc_buffer_read          (const xml_hnd_doc_t h_doc, const buffer_t&   buffer);
-    SLD_API bool                   xml_doc_buffer_write         (const xml_hnd_doc_t h_doc, buffer_t&         buffer);
-    SLD_API const xml_hnd_node_t   xml_doc_get_child_node       (const xml_hnd_doc_t h_doc, const xml_utf8_t* name);
-    SLD_API const xml_hnd_node_t   xml_doc_add_child_node       (const xml_hnd_doc_t h_doc, const xml_utf8_t* name);
-    SLD_API u32                    xml_doc_get_child_node_count (const xml_hnd_doc_t h_doc, const xml_utf8_t* name);
+    SLD_API const xml_hnd_doc_t    xml_doc_create                (void);
+    SLD_API void                   xml_doc_reset                 (const xml_hnd_doc_t h_doc);
+    SLD_API void                   xml_doc_destroy               (const xml_hnd_doc_t h_doc);
+    SLD_API u64                    xml_doc_buffer_length         (const xml_hnd_doc_t h_doc);
+    SLD_API bool                   xml_doc_buffer_read           (const xml_hnd_doc_t h_doc, const buffer_t&   buffer);
+    SLD_API bool                   xml_doc_buffer_write          (const xml_hnd_doc_t h_doc, buffer_t&         buffer);
+    SLD_API const xml_hnd_node_t   xml_doc_get_child_node        (const xml_hnd_doc_t h_doc, const xml_utf8_t* name);
+    SLD_API const xml_hnd_node_t   xml_doc_add_child_node        (const xml_hnd_doc_t h_doc, const xml_utf8_t* name);
+    SLD_API const xml_hnd_node_t   xml_doc_get_or_add_child_node (const xml_hnd_doc_t h_doc, const xml_utf8_t* name);
+    SLD_API u32                    xml_doc_get_child_node_count  (const xml_hnd_doc_t h_doc, const xml_utf8_t* name);
 
     SLD_API const xml_hnd_node_t   xml_node_add_sibling         (const xml_hnd_node_t h_node, const xml_utf8_t* name);
     SLD_API const xml_hnd_node_t   xml_node_get_sibling         (const xml_hnd_node_t h_node, const xml_utf8_t* name);
