@@ -6,38 +6,37 @@
 namespace sld {
 
     //-------------------------------------------------------------------
-    // STRING 8 | C-STRING | ASCII | UTF-8
+    // TYPES
     //-------------------------------------------------------------------
 
-    struct str8_t {
-        c8* chars;
-        u32 size;
-    };
+    typedef c8  cchar;
+    typedef c16 wchar;
+
+    struct cstr_t { cchar* chars; u64 size; };
+    struct wstr_t { wchar* chars; u64 size; };
+
+    //-------------------------------------------------------------------
+    // STRING 8 | C-STRING | ASCII | UTF-8
+    //-------------------------------------------------------------------
     
-    bool str8_validate (const str8_t& str);
-    bool str8_is_empty (const str8_t& str);
-    bool str8_reset    (str8_t&       str);
-    bool str8_zero     (str8_t&       str);
-    u32  str8_length   (str8_t&       str);
-    u32  str8_copy     (str8_t&       str, const c8* src_chars, const u32 src_length);
-    u32  str8_append   (str8_t&       str, const c8* src_chars, const u32 src_length);
+    bool cstr_validate (const cstr_t& str);
+    bool cstr_is_empty (const cstr_t& str);
+    bool cstr_reset    (cstr_t&       str);
+    bool cstr_zero     (cstr_t&       str);
+    u32  cstr_length   (cstr_t&       str);
+    u32  cstr_copy     (cstr_t&       str, const cchar* src_chars, const u32 src_length);
+    u32  cstr_append   (cstr_t&       str, const cchar* src_chars, const u32 src_length);
 
     //-------------------------------------------------------------------
     // STRING 16 | W-STRING | UNICODE | UTF-16
     //-------------------------------------------------------------------
 
-    struct str16_t {
-        c16* chars;
-        u32  size;
-    };
-
-    bool str16_validate (const str16_t& str);
-    bool str16_is_empty (const str16_t& str);
-    bool str16_reset    (str16_t&       str);
-    u32  str16_length   (str16_t&       str);
-    u32  str16_copy     (str16_t&       str, const c16* src_chars, const u32 src_length);
-    u32  str16_append   (str16_t&       str, const c16* src_chars, const u32 src_length);
-
+    bool wstr_validate (const wstr_t& str);
+    bool wstr_is_empty (const wstr_t& str);
+    bool wstr_reset    (wstr_t&       str);
+    u32  wstr_length   (wstr_t&       str);
+    u32  wstr_copy     (wstr_t&       str, const wchar* src_chars, const u32 src_length);
+    u32  wstr_append   (wstr_t&       str, const wchar* src_chars, const u32 src_length);
 };
 
 #endif  //SLD_STRING_HPP

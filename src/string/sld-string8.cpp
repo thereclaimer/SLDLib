@@ -6,7 +6,7 @@ namespace sld {
 
     bool
     string8_validate(
-        const str8_t& string) {
+        const cstr_t& string) {
 
         bool result = true;
         result &= (string.size  != 0);
@@ -15,7 +15,7 @@ namespace sld {
     }
     bool
     string8_is_empty(
-        const str8_t& string) {
+        const cstr_t& string) {
 
         const bool is_empty = string8_validate(string)
             ? string.chars[0] == 0
@@ -26,7 +26,7 @@ namespace sld {
 
     bool
     string8_reset(
-        str8_t& string) {
+        cstr_t& string) {
 
         const bool result = string8_validate(string);
 
@@ -41,7 +41,7 @@ namespace sld {
 
     bool
     string8_zero(
-        str8_t& string) {
+        cstr_t& string) {
 
         const bool result = string8_validate(string);
 
@@ -61,7 +61,7 @@ namespace sld {
 
     u32
     string8_length(
-        str8_t& string) {
+        cstr_t& string) {
 
         const bool result = string8_validate(string);
         u32 length = 0;
@@ -82,7 +82,7 @@ namespace sld {
 
     u32
     string8_copy(
-        str8_t& string,
+        cstr_t& string,
         const c8*  src_chars,
         const u32  src_length) {
 
@@ -114,7 +114,7 @@ namespace sld {
 
     u32
     string8_append(
-        str8_t& string,
+        cstr_t& string,
         const c8*  src_chars,
         const u32  src_length) {
 
