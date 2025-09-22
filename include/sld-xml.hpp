@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <pugixml.hpp>
@@ -52,18 +53,19 @@ namespace sld {
     SLD_API const xml_hnd_node_t   xml_doc_get_or_add_child_node (const xml_hnd_doc_t h_doc, const xml_utf8_t* name);
     SLD_API u32                    xml_doc_get_child_node_count  (const xml_hnd_doc_t h_doc, const xml_utf8_t* name);
 
-    SLD_API const xml_hnd_node_t   xml_node_add_sibling         (const xml_hnd_node_t h_node, const xml_utf8_t* name);
-    SLD_API const xml_hnd_node_t   xml_node_get_sibling         (const xml_hnd_node_t h_node, const xml_utf8_t* name);
-    SLD_API const xml_hnd_node_t   xml_node_add_child           (const xml_hnd_node_t h_node, const xml_utf8_t* name);
-    SLD_API const xml_hnd_node_t   xml_node_get_child           (const xml_hnd_node_t h_node, const xml_utf8_t* name);
-    SLD_API u32                    xml_node_get_child_count     (const xml_hnd_node_t h_node, const xml_utf8_t* name);
-    SLD_API u32                    xml_node_get_attrib_count    (const xml_hnd_node_t h_node, const xml_utf8_t* name);
-    SLD_API bool                   xml_node_set_attrib_utf8     (const xml_hnd_node_t h_node, const xml_utf8_t* name, const xml_attrib_value_t& value);
-    SLD_API bool                   xml_node_set_attrib_u32      (const xml_hnd_node_t h_node, const xml_utf8_t* name, const xml_attrib_value_t& value);
-    SLD_API bool                   xml_node_set_attrib_u64      (const xml_hnd_node_t h_node, const xml_utf8_t* name, const xml_attrib_value_t& value);
-    SLD_API bool                   xml_node_set_attrib_f32      (const xml_hnd_node_t h_node, const xml_utf8_t* name, const xml_attrib_value_t& value);
-    SLD_API bool                   xml_node_get_attrib_utf8     (const xml_hnd_node_t h_node, const xml_utf8_t* name, xml_attrib_value_t&       value);
-    SLD_API bool                   xml_node_get_attrib_u32      (const xml_hnd_node_t h_node, const xml_utf8_t* name, xml_attrib_value_t&       value);
-    SLD_API bool                   xml_node_get_attrib_u64      (const xml_hnd_node_t h_node, const xml_utf8_t* name, xml_attrib_value_t&       value);
-    SLD_API bool                   xml_node_get_attrib_f32      (const xml_hnd_node_t h_node, const xml_utf8_t* name, xml_attrib_value_t&       value);
+    SLD_API const xml_hnd_node_t   xml_node_add_sibling          (const xml_hnd_node_t h_node, const xml_utf8_t* name);
+    SLD_API const xml_hnd_node_t   xml_node_get_next_sibling     (const xml_hnd_node_t h_node, const xml_utf8_t* name);
+    SLD_API const xml_hnd_node_t   xml_node_get_prev_sibling     (const xml_hnd_node_t h_node, const xml_utf8_t* name);
+    SLD_API const xml_hnd_node_t   xml_node_add_child            (const xml_hnd_node_t h_node, const xml_utf8_t* name);
+    SLD_API const xml_hnd_node_t   xml_node_get_child            (const xml_hnd_node_t h_node, const xml_utf8_t* name);
+    SLD_API u32                    xml_node_get_child_count      (const xml_hnd_node_t h_node, const xml_utf8_t* name);
+    SLD_API u32                    xml_node_get_attrib_count     (const xml_hnd_node_t h_node, const xml_utf8_t* name);
+    SLD_API bool                   xml_node_set_attrib_utf8      (const xml_hnd_node_t h_node, const xml_utf8_t* name, const xml_attrib_value_t& value);
+    SLD_API bool                   xml_node_set_attrib_u32       (const xml_hnd_node_t h_node, const xml_utf8_t* name, const xml_attrib_value_t& value);
+    SLD_API bool                   xml_node_set_attrib_u64       (const xml_hnd_node_t h_node, const xml_utf8_t* name, const xml_attrib_value_t& value);
+    SLD_API bool                   xml_node_set_attrib_f32       (const xml_hnd_node_t h_node, const xml_utf8_t* name, const xml_attrib_value_t& value);
+    SLD_API bool                   xml_node_get_attrib_utf8      (const xml_hnd_node_t h_node, const xml_utf8_t* name, xml_attrib_value_t&       value);
+    SLD_API bool                   xml_node_get_attrib_u32       (const xml_hnd_node_t h_node, const xml_utf8_t* name, xml_attrib_value_t&       value);
+    SLD_API bool                   xml_node_get_attrib_u64       (const xml_hnd_node_t h_node, const xml_utf8_t* name, xml_attrib_value_t&       value);
+    SLD_API bool                   xml_node_get_attrib_f32       (const xml_hnd_node_t h_node, const xml_utf8_t* name, xml_attrib_value_t&       value);
 };

@@ -7,6 +7,8 @@
 
 namespace sld {
     
+    struct xml_doc_t_ : pugi::xml_document { };
+
     struct xml_doc_t;
     struct xml_node_t;
     struct xml_attrib_t;
@@ -16,8 +18,8 @@ namespace sld {
     constexpr u64 _xml_mem_granularity = sizeof(pugi::xml_document);
 
     SLD_FUNC xml_doc_t*             xml_memory_alloc_doc      (void);
-    SLD_FUNC xml_node_t*            xml_memory_alloc_node     (xml_doc_t*             doc);
-    SLD_FUNC xml_attrib_t*          xml_memory_alloc_attrib   (xml_node_t*            node);
+    SLD_FUNC xml_node_t*            xml_memory_alloc_node     (void);
+    SLD_FUNC xml_node_t*            xml_memory_alloc_node     (void);
     SLD_FUNC void                   xml_memory_free_doc       (xml_doc_t*             doc);
     SLD_FUNC void                   xml_memory_reset_doc      (xml_doc_t*             doc);
     SLD_FUNC void*                  xml_memory_alloc          (size_t                 size);
@@ -36,8 +38,9 @@ namespace sld {
     };     
     struct xml_node_t {
         pugi::xml_node pugi;
+        xml_node_t*    parent;
         xml_node_t*    next;
-        xml_attrib_t*  attribs;
+        xml_node_t*    children;
         xml_doc_t*     doc;
     };      
     struct xml_attrib_t {

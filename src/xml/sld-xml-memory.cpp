@@ -91,36 +91,18 @@ namespace sld {
 
     SLD_FUNC xml_node_t*
     xml_memory_alloc_node(
-        xml_doc_t* doc) {
+        void) {
 
         static const u64 size = sizeof(xml_node_t); 
         void*            mem  = heap_alctr_alloc_abs(_xml_mem.alctr, size);
         xml_node_t*      node = (xml_node_t*)(new (mem) xml_node_t());
-        assert(node != NULL && doc != NULL);
+        assert(node != NULL);
 
-        node->attribs = NULL;
-        node->doc     = doc;
-        node->attribs = NULL;
-        node->next    = doc->nodes;
-        doc->nodes    = node;  
-
+        node->parent   = NULL;
+        node->next     = NULL;
+        node->children = NULL;
+        node->doc      = NULL;
         return(node);
-    }
-
-    SLD_FUNC xml_attrib_t*
-    xml_memory_alloc_attrib(
-        xml_node_t* node) {
-
-        static const u64 size   = sizeof(xml_attrib_t); 
-        void*            mem    = heap_alctr_alloc_abs(_xml_mem.alctr, size);
-        xml_attrib_t*    attrib = (xml_attrib_t*)(new (mem) xml_attrib_t());
-        assert(attrib != NULL && node != NULL);
-        
-        attrib->node  = node;
-        attrib->next  = node->attribs;
-        node->attribs = attrib;
-
-        return(attrib);
     }
 
     SLD_FUNC void
@@ -156,13 +138,6 @@ namespace sld {
             node != NULL;
             node = node->next) {
 
-            for (
-                xml_attrib_t* attrib = node->attribs;
-                attrib != NULL;
-                attrib = attrib->next) {
-
-                is_free &= heap_alctr_free_abs(_xml_mem.alctr, (void*)attrib);
-            }
             is_free &= heap_alctr_free_abs(_xml_mem.alctr, (void*)node);
         }
         doc->nodes = NULL;
@@ -182,13 +157,6 @@ namespace sld {
             node != NULL;
             node = node->next) {
 
-            for (
-                xml_attrib_t* attrib = node->attribs;
-                attrib != NULL;
-                attrib = attrib->next) {
-
-                is_free &= heap_alctr_free_abs(_xml_mem.alctr, (void*)attrib);
-            }
             is_free &= heap_alctr_free_abs(_xml_mem.alctr, (void*)node);
         }
 
