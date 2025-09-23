@@ -7,6 +7,9 @@
 #ifndef    SLD_MEMORY_INTERNAL_STACK_SIZE_KB
 #   define SLD_MEMORY_INTERNAL_STACK_SIZE_KB 128
 #endif 
+#ifndef    SLD_MEMORY_DEFAULT_ALIGNMENT
+#   define SLD_MEMORY_DEFAULT_ALIGNMENT 4
+#endif 
 
 namespace sld {
 
@@ -20,6 +23,15 @@ namespace sld {
     struct arena_t;
     struct arena_list_t;
     struct memory_t;
+
+    struct allocation_t;
+    struct allocation_list_t;
+
+    class allocator_base_t;
+    template<typename t> class block_allocator_t;
+    template<typename t> class stack_allocator_t;
+    template<typename t> class heap_allocator_t;
+
     //-------------------------------------------------------------------
     // API
     //-------------------------------------------------------------------
@@ -45,8 +57,8 @@ namespace sld {
     SLD_API bool                arena_validate                (arena_t*       arena);
     SLD_API arena_t*            arena_commit                  (reservation_t* reservation);
     SLD_API bool                arena_decommit                (arena_t*       arena);
-    SLD_API byte*               arena_push_bytes              (arena_t*       arena, const u64 size, const u64 alignment = 0);
-    SLD_API bool                arena_pull_bytes              (arena_t*       arena, const u64 size, const u64 alignment = 0);
+    SLD_API byte*               arena_push_bytes              (arena_t*       arena, const u64 size, const u64 alignment = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API bool                arena_pull_bytes              (arena_t*       arena, const u64 size, const u64 alignment = SLD_MEMORY_DEFAULT_ALIGNMENT);
     SLD_API bool                arena_reset                   (arena_t*       arena);
     SLD_API bool                arena_roll_back               (arena_t*       arena);
     SLD_API bool                arena_save_position           (arena_t*       arena);
@@ -103,6 +115,75 @@ namespace sld {
         arena_t*       prev;
         reservation_t* reservation;
         memory_error_t last_error;
+    };
+
+    struct allocation_t {
+        allocation_list_t* list;
+        allocation_t*      next;
+        allocation_t*      prev;
+        u32                size;
+        u32                handle;
+    };  
+
+    struct allocation_list_t {
+        allocator_base_t*  alctr;
+        allocation_t*      free;
+        allocation_t*      used;
+    };
+
+    allocation_t* allocation_list_split                                (allocation_list_t* const list, allocation_t* const allocation, const u32 size,     const u32 alignment = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    allocation_t* allocation_list_recycle_free_allocation              (allocation_list_t* const list, const u32           size = 0,   const u32 alignment = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    allocation_t* allocation_list_recycle_and_split_free_allocation    (allocation_list_t* const list, const u32           size = 0,   const u32 alignment = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    allocation_t* allocation_list_get_allocation_from_memory           (allocation_list_t* const list, const void*         memory);
+    void          allocation_list_free_used_allocation                 (allocation_list_t* const list, allocation_t*       allocation);
+    void          allocation_list_free_and_consolidate_used_allocation (allocation_list_t* const list, allocation_t*       allocation);
+    void*         allocation_list_get_memory_from_allocation           (allocation_list_t* const list, const allocation_t* allocation);
+    u32           allocation_list_get_count_free                       (allocation_list_t* const list);
+    u32           allocation_list_get_count_used                       (allocation_list_t* const list);
+    u32           allocation_list_get_size_free                        (allocation_list_t* const list);
+    u32           allocation_list_get_size_used                        (allocation_list_t* const list);
+
+    class allocator_base_t {
+
+    private:
+
+        addr              _start;
+        u32               _size;
+        allocation_t*     _free_allocations;
+        allocation_t*     _used_allocations;
+
+        allocation_t* get_allocation_from_memory (const void*         memory);
+        void*         get_memory_from_allocation (const allocation_t* allocation);
+        allocation_t* recycle_free_allocation    (void);
+        void          free_used_allocation       (allocation_t* allocation);
+
+    public:
+
+        allocator_base_t (const void* memory, const u32 size);
+        allocator_base_t (arena_t*    arena,  const u32 size);
+
+        u32  size_total  (void);
+
+        void* alloc_abs         (const u32   size = 0, const u32 alignment = 0);
+        u32   alloc_rel         (const u32   size = 0, const u32 alignment = 0);
+        void  free_abs          (const void* pointer);
+        void  free_rel          (const u32   handle);
+        void* alloc_get_pointer (const void* memory);
+        void* alloc_get_handle  (const void* memory);
+    };
+
+    template<typename t>
+    class block_allocator_t {
+
+    private:
+        memory_t _memory;
+        u64      _block_size;
+        
+
+    public:
+
+
+        virtual t* alloc() = 0;
     };
 };
 
