@@ -16,12 +16,12 @@ namespace sld {
         u64  save;
     };
 
-    bool  stack_validate        (const stack_t& stack);
-    bool  stack_reset           (stack_t& stack);
-    bool  stack_reset_to_save   (stack_t& stack);
-    bool  stack_save            (stack_t& stack);
-    void* stack_push            (stack_t& stack, const u64 size);
-    bool  stack_pull            (stack_t& stack, const u64 size);
+    bool  stack_validate        (const stack_t* stack);
+    bool  stack_reset           (stack_t* stack);
+    bool  stack_reset_to_save   (stack_t* stack);
+    bool  stack_save            (stack_t* stack);
+    void* stack_push            (stack_t* stack, const u64 size);
+    bool  stack_pull            (stack_t* stack, const u64 size);
 
     //-------------------------------------------------------------------
     // STACK LIST

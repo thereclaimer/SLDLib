@@ -21,7 +21,7 @@ namespace sld {
         memory_error_t     last_error;
     };
 
-    SLD_FUNC global_stack_t&     global_stack_instance                     (void);
+    SLD_FUNC global_stack_t*     global_stack_instance                     (void);
     SLD_FUNC reservation_list_t& global_stack_get_reservation_list         (void);
     SLD_FUNC arena_list_t&       global_stack_get_arena_list               (void);
 

@@ -98,8 +98,7 @@ namespace sld {
         memory_error_t last_error;
     }; 
 
-    struct arena_t {
-        stack_t        stack;
+    struct arena_t : stack_t {
         arena_t*       next;
         arena_t*       prev;
         reservation_t* reservation;

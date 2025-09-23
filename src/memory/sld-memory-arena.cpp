@@ -14,7 +14,7 @@ namespace sld {
 
         bool is_valid = (arena != NULL);
         if (is_valid) {
-            is_valid &= stack_validate       (arena->stack);
+            is_valid &= stack_validate       ((stack_t*)arena);
             is_valid &= reservation_validate (arena->reservation);
 
             arena->last_error.val = (is_valid)
@@ -60,7 +60,7 @@ namespace sld {
         // otherwise, we will reuse the address in the stack
         const u64 commit_offset = reservation_size_committed(reservation);
         void*     commit_start  = (is_recommit)
-            ? (void*)arena->stack.start
+            ? (void*)arena->start
             : (void*)(reservation->start + commit_offset);
 
         // attempt to commit memory
@@ -74,10 +74,10 @@ namespace sld {
         }
 
         // initialize the arena and add to the reservation
-        arena->stack.start    = (addr)commit_result;
-        arena->stack.size     = reservation->size.arena;
-        arena->stack.position = 0;
-        arena->stack.save     = 0;
+        arena->start          = (addr)commit_result;
+        arena->size           = reservation->size.arena;
+        arena->position       = 0;
+        arena->save           = 0;
         arena->reservation    = reservation;
         arena->last_error.val = memory_error_e_success;
         reservation_insert_committed_arena(reservation, arena);
@@ -97,8 +97,8 @@ namespace sld {
 
         // attempt to decommit the memory
         const bool is_decommitted = os_memory_decommit(
-            (void*)arena->stack.start,
-            arena->stack.size
+            (void*)arena->start,
+            arena->size
         );
         if (!is_decommitted) {
             arena->last_error.val = memory_error_e_os_failed_to_decommit;
@@ -129,7 +129,7 @@ namespace sld {
             : size_align       (size, alignment);
 
         // do the push
-        bytes = (byte*)stack_push(arena->stack, size_aligned);
+        bytes = (byte*)stack_push(arena, size_aligned);
         if (bytes == NULL) {
             arena->last_error.val = memory_error_e_arena_not_enough_memory;
             return(bytes);
@@ -155,7 +155,7 @@ namespace sld {
             : size_align       (size, alignment);
 
         // do the pull
-        const bool is_pulled = stack_pull(arena->stack, size_aligned);
+        const bool is_pulled = stack_pull(arena, size_aligned);
         arena->last_error.val = (is_pulled)
             ? memory_error_e_success 
             : memory_error_e_arena_not_enough_memory;
@@ -169,7 +169,7 @@ namespace sld {
         const bool is_valid = arena_validate(arena);
         if (!is_valid) return(is_valid);
 
-        const bool did_reset = stack_reset(arena->stack);
+        const bool did_reset = stack_reset(arena);
         return(did_reset);
     }
 
@@ -180,7 +180,7 @@ namespace sld {
         const bool is_valid = arena_validate(arena);
         if (!is_valid) return(is_valid);
 
-        const bool did_reset = stack_reset_to_save(arena->stack);
+        const bool did_reset = stack_reset_to_save(arena);
         return(did_reset);        
     }
 
@@ -191,7 +191,7 @@ namespace sld {
         const bool is_valid = arena_validate(arena);
         if (!is_valid) return(is_valid);
 
-        const bool did_save = stack_save(arena->stack);
+        const bool did_save = stack_save(arena);
         return(did_save);        
     }
 
@@ -200,7 +200,7 @@ namespace sld {
         arena_t* arena) {
 
         const u64 size_total = arena_validate(arena)
-            ? arena->stack.size
+            ? arena->size
             : 0;
 
         return(size_total);
@@ -211,7 +211,7 @@ namespace sld {
         arena_t* arena) {
 
         const u64 size_free = arena_validate(arena)
-            ? (arena->stack.size - arena->stack.position)
+            ? (arena->size - arena->position)
             : 0;
 
         return(size_free);
@@ -222,7 +222,7 @@ namespace sld {
         arena_t* arena) {
 
         const u64 size_used = arena_validate(arena)
-            ? (arena->stack.position)
+            ? (arena->position)
             : 0;
 
         return(size_used);

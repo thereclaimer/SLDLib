@@ -42,7 +42,7 @@ namespace sld {
         assert(is_valid); 
 
         // we will use the entire arena
-        const u64   size   = arena->stack.size;
+        const u64   size   = arena->size;
         const void* memory = (void*)arena_push_bytes(arena, size); 
 
         xml_memory_init(memory, size);

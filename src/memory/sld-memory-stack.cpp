@@ -13,12 +13,12 @@ namespace sld {
         const u64 size,
         const u64 alignment) {
 
-        static global_stack_t& stack        = global_stack_instance();
+        static global_stack_t* stack        = global_stack_instance();
         const  u64                      size_aligned = size_align(size, alignment);
 
         byte* bytes = (byte*)stack_push(stack, size_aligned);        
 
-        stack.last_error.val = (bytes != NULL)
+        stack->last_error.val = (bytes != NULL)
             ? memory_error_e_success
             : memory_error_e_stack_not_enough_memory;
         
@@ -29,40 +29,40 @@ namespace sld {
     global_stack_last_error(
         void) {
         
-        static global_stack_t& stack = global_stack_instance();
-        return(stack.last_error);
+        static global_stack_t* stack = global_stack_instance();
+        return(stack->last_error);
     }
 
     SLD_API u64 
     global_stack_size_total(
         void) {
 
-        static global_stack_t& stack = global_stack_instance();
-        return(stack.size);
+        static global_stack_t* stack = global_stack_instance();
+        return(stack->size);
     }
 
     SLD_API u64 
     global_stack_size_used(
         void) {
 
-        static global_stack_t& stack = global_stack_instance();
-        return(stack.position);
+        static global_stack_t* stack = global_stack_instance();
+        return(stack->position);
     }
 
     SLD_API u64 
     global_stack_size_free(
         void) {
         
-        static global_stack_t& stack = global_stack_instance();
-        return(stack.size - stack.position);
+        static global_stack_t* stack = global_stack_instance();
+        return(stack->size - stack->position);
     }
 
     SLD_API addr
     global_stack_start(
         void) {
 
-        static global_stack_t& stack = global_stack_instance();
-        return(stack.start);
+        static global_stack_t* stack = global_stack_instance();
+        return(stack->start);
     }
 
 
@@ -70,7 +70,7 @@ namespace sld {
     // INTERNAL
     //-------------------------------------------------------------------
 
-    SLD_FUNC global_stack_t&
+    SLD_FUNC global_stack_t*
     global_stack_instance(
         void) {
         
@@ -90,20 +90,20 @@ namespace sld {
             stack.last_error.val            = memory_error_e_success;
         }
 
-        return(stack);
+        return(&stack);
     }
 
     SLD_FUNC reservation_list_t& global_stack_get_reservation_list(void) {
 
-        static global_stack_t& stack = global_stack_instance();
-        return(stack.reservation_list);
+        static global_stack_t* stack = global_stack_instance();
+        return(stack->reservation_list);
     }
 
     SLD_FUNC arena_list_t&      
     global_stack_get_arena_list(
         void) {
 
-        static global_stack_t& stack = global_stack_instance();
-        return(stack.arena_list);
+        static global_stack_t* stack = global_stack_instance();
+        return(stack->arena_list);
     }
 };
