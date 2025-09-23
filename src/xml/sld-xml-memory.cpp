@@ -166,7 +166,6 @@ namespace sld {
 
         const alloc_hnd_t   hnd_mem = heap_alctr_get_hnd(_xml_mem.alctr, ptr);
         const xml_hnd_doc_t hnd_xml = {hnd_mem.val};
-        assert(hnd_xml.val != 0);
         return(hnd_xml);
     }
 
@@ -176,27 +175,15 @@ namespace sld {
 
         const alloc_hnd_t    hnd_mem = heap_alctr_get_hnd(_xml_mem.alctr, ptr);
         const xml_hnd_node_t hnd_xml = {hnd_mem.val};
-        assert(hnd_xml.val != 0);
         return(hnd_xml);
     }
 
-    SLD_FUNC const xml_hnd_attrib_t
-    xml_memory_get_hnd_attrib(
-        const xml_attrib_t* ptr) {
-
-        const alloc_hnd_t      hnd_mem = heap_alctr_get_hnd(_xml_mem.alctr, ptr);
-        const xml_hnd_attrib_t hnd_xml = {hnd_mem.val};
-        assert(hnd_xml.val != 0);
-        return(hnd_xml);
-    }
-    
     SLD_FUNC xml_doc_t*
     xml_memory_get_ptr_doc(
         const xml_hnd_doc_t hnd) {
         
         const alloc_hnd_t hnd_mem = {hnd.val};
         xml_doc_t*        ptr     = (xml_doc_t*)heap_alctr_get_ptr(_xml_mem.alctr, hnd_mem);
-        assert(ptr);
         return(ptr);
     }
 
@@ -206,7 +193,6 @@ namespace sld {
 
         const alloc_hnd_t hnd_mem = {hnd.val};
         xml_node_t*       ptr     = (xml_node_t*)heap_alctr_get_ptr(_xml_mem.alctr, hnd_mem);
-        assert(ptr);
         return(ptr);
     }
 
@@ -216,7 +202,6 @@ namespace sld {
 
         const alloc_hnd_t hnd_mem = {hnd.val};
         xml_attrib_t*     ptr     = (xml_attrib_t*)heap_alctr_get_ptr(_xml_mem.alctr, hnd_mem);
-        assert(ptr);
         return(ptr);
     }
 };

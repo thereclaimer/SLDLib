@@ -143,7 +143,7 @@ namespace sld {
         xml_node_t* node_child = NULL;
 
         pugi::xml_node pugi_node_child = node->pugi.child(child_name);
-        if (pugi_node_child) {
+        if (pugi_node_child != NULL) {
 
             node_child = xml_memory_alloc_node();
             assert(node_child);

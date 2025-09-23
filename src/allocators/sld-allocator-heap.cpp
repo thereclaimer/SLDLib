@@ -334,7 +334,7 @@ namespace sld {
         // validate args
         bool is_valid = true;
         is_valid &= heap_alctr_validate(alctr);
-        is_valid &= is_valid && (alloc->alctr == alctr);
+        is_valid &= (alloc != NULL) && (alloc->alctr == alctr);
 
         alloc_hnd_t hnd;
         hnd.val = is_valid ? *(u32*)&diff : 0;

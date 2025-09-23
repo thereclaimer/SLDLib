@@ -5,19 +5,23 @@
 namespace sld {
 
     bool
-    string8_validate(
+    cstr_validate(
         const cstr_t& string) {
 
         bool result = true;
         result &= (string.size  != 0);
-        result &= (string.chars != NULL) && (string.chars[string.size - 1] == 0);
-        return(false);
+        result &= (string.chars != NULL);
+        if (result) {
+            // make sure the string is terminated
+            string.chars[string.size - 1] = 0;
+        }
+        return(result);
     }
     bool
-    string8_is_empty(
+    cstr_is_empty(
         const cstr_t& string) {
 
-        const bool is_empty = string8_validate(string)
+        const bool is_empty = cstr_validate(string)
             ? string.chars[0] == 0
             : true;
 
@@ -25,10 +29,10 @@ namespace sld {
     }
 
     bool
-    string8_reset(
+    cstr_reset(
         cstr_t& string) {
 
-        const bool result = string8_validate(string);
+        const bool result = cstr_validate(string);
 
         if (result) {
 
@@ -40,10 +44,10 @@ namespace sld {
     }
 
     bool
-    string8_zero(
+    cstr_zero(
         cstr_t& string) {
 
-        const bool result = string8_validate(string);
+        const bool result = cstr_validate(string);
 
         if (result) {
 
@@ -60,10 +64,10 @@ namespace sld {
     }
 
     u32
-    string8_length(
+    cstr_length(
         cstr_t& string) {
 
-        const bool result = string8_validate(string);
+        const bool result = cstr_validate(string);
         u32 length = 0;
 
         if (result) {
@@ -81,13 +85,13 @@ namespace sld {
     }
 
     u32
-    string8_copy(
+    cstr_copy(
         cstr_t& string,
         const c8*  src_chars,
         const u32  src_length) {
 
         bool result = true;
-        result &= string8_validate(string);
+        result &= cstr_validate(string);
         result &= (src_chars  != NULL);
         result &= (src_length != 0);
 
@@ -103,7 +107,9 @@ namespace sld {
                 );
                 ++bytes_copied) {
 
-                string.chars[bytes_copied] = src_chars[bytes_copied];
+                const cchar c = src_chars[bytes_copied];
+                string.chars[bytes_copied] = c;
+                if (c == 0) break;
             }
 
             string.chars[string.size - 1] = 0;
@@ -113,12 +119,12 @@ namespace sld {
     }
 
     u32
-    string8_append(
+    cstr_append(
         cstr_t& string,
         const c8*  src_chars,
         const u32  src_length) {
 
-        const bool result = string8_validate(string);
+        const bool result = cstr_validate(string);
 
         u32 bytes_appended = 0;
 
