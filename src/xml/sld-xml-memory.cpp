@@ -38,8 +38,7 @@ namespace sld {
     xml_memory_init_from_arena(
         arena_t* arena) {
 
-        const bool is_valid = arena_validate(arena);
-        assert(is_valid); 
+        const bool is_valid = arena_validate(arena);        assert(is_valid); 
 
         // we will use the entire arena
         const u64   size   = arena->size;

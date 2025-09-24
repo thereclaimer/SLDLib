@@ -25,12 +25,11 @@ namespace sld {
     struct memory_t;
 
     struct allocation_t;
-    struct allocation_list_t;
+    struct allocator_base_t;
 
-    class allocator_base_t;
-    template<typename t> class block_allocator_t;
-    template<typename t> class stack_allocator_t;
-    template<typename t> class heap_allocator_t;
+    struct block_allocator_t;
+    struct stack_allocator_t;
+    struct heap_allocator_t;
 
     //-------------------------------------------------------------------
     // API
@@ -47,15 +46,15 @@ namespace sld {
     SLD_API u64                 global_stack_size_free        (void);
     SLD_API addr                global_stack_start            (void);
 
-    SLD_API bool                reservation_validate          (reservation_t* reservation);
     SLD_API reservation_t*      reservation_acquire           (const u64 size_min_reservation = 0, const u64 size_min_arena = 0);
+    SLD_API bool                reservation_validate          (reservation_t* reservation);
     SLD_API bool                reservation_release           (reservation_t* reservation);
     SLD_API bool                reservation_reset             (reservation_t* reservation);
     SLD_API u64                 reservation_size_committed    (reservation_t* reservation);
     SLD_API u64                 reservation_size_decommitted  (reservation_t* reservation);
 
-    SLD_API bool                arena_validate                (arena_t*       arena);
     SLD_API arena_t*            arena_commit                  (reservation_t* reservation);
+    SLD_API bool                arena_validate                (arena_t*       arena);
     SLD_API bool                arena_decommit                (arena_t*       arena);
     SLD_API byte*               arena_push_bytes              (arena_t*       arena, const u64 size, const u64 alignment = SLD_MEMORY_DEFAULT_ALIGNMENT);
     SLD_API bool                arena_pull_bytes              (arena_t*       arena, const u64 size, const u64 alignment = SLD_MEMORY_DEFAULT_ALIGNMENT);
@@ -65,6 +64,30 @@ namespace sld {
     SLD_API u64                 arena_size_total              (arena_t*       arena);
     SLD_API u64                 arena_size_free               (arena_t*       arena);
     SLD_API u64                 arena_size_used               (arena_t*       arena);
+
+    SLD_API block_allocator_t*  block_allocator_memory_init   (const void*              memory, const u32 total_size, const u32 block_size);
+    SLD_API block_allocator_t*  block_allocator_arena_init    (arena_t* const           arena,  const u32 total_size, const u32 block_size);
+    SLD_API void*               block_allocator_alloc_abs     (block_allocator_t* const allocator);
+    SLD_API u32                 block_allocator_alloc_rel     (block_allocator_t* const allocator);
+    SLD_API bool                block_allocator_free_abs      (block_allocator_t* const allocator, void* const block);
+    SLD_API bool                block_allocator_free_rel      (block_allocator_t* const allocator, const u32   block_number);
+
+    SLD_API stack_allocator_t*  stack_allocator_memory_init   (const void*               memory,    const u32   size, const u32   granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API stack_allocator_t*  stack_allocator_arena_init    (const arena_t*            arena,     const u32   size, const u32   granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API void*               stack_allocator_alloc_abs     (stack_allocator_t*  const allocator, const u32   size);
+    SLD_API u32                 stack_allocator_alloc_rel     (stack_allocator_t*  const allocator, const u32   size);
+    SLD_API bool                stack_allocator_free_abs      (stack_allocator_t*  const allocator, void* const memory);
+    SLD_API bool                stack_allocator_free_rel      (stack_allocator_t*  const allocator, const u32   offset);
+
+    SLD_API heap_allocator_t*   heap_allocator_memory_init    (const void*               memory,    const u32   size, const u32   granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API heap_allocator_t*   heap_allocator_arena_init     (const arena_t*            arena,     const u32   size, const u32   granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API void*               heap_allocator_alloc_abs      (heap_allocator_t*   const allocator, const u32   size);
+    SLD_API u32                 heap_allocator_alloc_rel      (heap_allocator_t*   const allocator, const u32   size);
+    SLD_API bool                heap_allocator_free_abs       (heap_allocator_t*   const allocator, void* const memory);
+    SLD_API bool                heap_allocator_free_rel       (heap_allocator_t*   const allocator, const u32   offset);
+
+    SLD_API allocation_t*       allocator_reuse_next_free_allocation(allocator_base_t* const allocator);
+    SLD_API bool                allocator_free_allocation           (allocator_base_t* const allocator, allocation_t* allocation, const bool consolidate);
 
     //-------------------------------------------------------------------
     // ENUMS
@@ -91,8 +114,8 @@ namespace sld {
     //-------------------------------------------------------------------
 
     struct memory_t {
-        const addr start;
-        const u64  size;
+        addr start;
+        u64  size;
     };
 
     struct reservation_t {
@@ -118,73 +141,163 @@ namespace sld {
     };
 
     struct allocation_t {
-        allocation_list_t* list;
-        allocation_t*      next;
-        allocation_t*      prev;
-        u32                size;
-        u32                handle;
-    };  
-
-    struct allocation_list_t {
-        allocator_base_t*  alctr;
-        allocation_t*      free;
-        allocation_t*      used;
+        allocator_base_t* alctr;
+        allocation_t*     next;
+        allocation_t*     prev;
+        u32               size;
+        u32               offset;       
     };
 
-    allocation_t* allocation_list_split                                (allocation_list_t* const list, allocation_t* const allocation, const u32 size,     const u32 alignment = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    allocation_t* allocation_list_recycle_free_allocation              (allocation_list_t* const list, const u32           size = 0,   const u32 alignment = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    allocation_t* allocation_list_recycle_and_split_free_allocation    (allocation_list_t* const list, const u32           size = 0,   const u32 alignment = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    allocation_t* allocation_list_get_allocation_from_memory           (allocation_list_t* const list, const void*         memory);
-    void          allocation_list_free_used_allocation                 (allocation_list_t* const list, allocation_t*       allocation);
-    void          allocation_list_free_and_consolidate_used_allocation (allocation_list_t* const list, allocation_t*       allocation);
-    void*         allocation_list_get_memory_from_allocation           (allocation_list_t* const list, const allocation_t* allocation);
-    u32           allocation_list_get_count_free                       (allocation_list_t* const list);
-    u32           allocation_list_get_count_used                       (allocation_list_t* const list);
-    u32           allocation_list_get_size_free                        (allocation_list_t* const list);
-    u32           allocation_list_get_size_used                        (allocation_list_t* const list);
-
-    class allocator_base_t {
-
-    private:
-
-        addr              _start;
-        u32               _size;
-        allocation_t*     _free_allocations;
-        allocation_t*     _used_allocations;
-
-        allocation_t* get_allocation_from_memory (const void*         memory);
-        void*         get_memory_from_allocation (const allocation_t* allocation);
-        allocation_t* recycle_free_allocation    (void);
-        void          free_used_allocation       (allocation_t* allocation);
-
-    public:
-
-        allocator_base_t (const void* memory, const u32 size);
-        allocator_base_t (arena_t*    arena,  const u32 size);
-
-        u32  size_total  (void);
-
-        void* alloc_abs         (const u32   size = 0, const u32 alignment = 0);
-        u32   alloc_rel         (const u32   size = 0, const u32 alignment = 0);
-        void  free_abs          (const void* pointer);
-        void  free_rel          (const u32   handle);
-        void* alloc_get_pointer (const void* memory);
-        void* alloc_get_handle  (const void* memory);
+    struct allocator_base_t {
+        struct {
+            allocation_t* used;
+            allocation_t* free;
+        } allocation_list;
+        u32 size;
+        u32 granularity;
     };
 
-    template<typename t>
-    class block_allocator_t {
+    struct block_allocator_t : allocator_base_t {
+        u32 block_count;
+    };
 
-    private:
-        memory_t _memory;
-        u64      _block_size;
+    struct stack_allocator_t : allocator_base_t {
+        u32 position;
+    };
+
+    struct heap_allocator_t : allocator_base_t {
+    };
+
+
+    ///////////////////////////////////////////////    
+    // REASONING:
+    // the allocators are 32 bit, meaning they can
+    // handle 4GB of memory max
+    //
+    // in theory, if we take 4GB as a number,
+    // subtract the size of the allocator header,
+    // then divide by the minimum allocation size,
+    // that should give us a reasonable max number of
+    // times we can iterate a single loop when transforming
+    // memory allocations
+    ///////////////////////////////////////////////    
+    constexpr u32 MEMORY_MAX_LOOP_ITERATIONS = (
+        (0xFFFFFF - sizeof(allocator_base_t)) / 
+        (sizeof(allocation_t) + SLD_MEMORY_DEFAULT_ALIGNMENT)
+    );
+
+    //-------------------------------------------------------------------
+    // INLINE
+    //-------------------------------------------------------------------
+
+    SLD_INLINE bool
+    allocator_validate(
+        allocator_base_t* const allocator) {
+
+        bool is_valid = (allocator != NULL);
+        if (is_valid) {
+
+            is_valid &= (allocator->allocation_list.free != NULL || allocator->allocation_list.used != NULL);
+            is_valid &= (allocator->size        != 0);
+            is_valid &= (allocator->granularity != 0);
+            is_valid &= (allocator->granularity < allocator->size);
+        }
+        return(is_valid);
+    }
+
+    SLD_INLINE u32
+    allocator_allocation_size_total(
+        allocator_base_t* allocator,
+        const u32         size_requested) {
+
+        const u32 aligned    = size_align_pow_2(size_requested, allocator->granularity);
+        const u32 size_total = aligned + sizeof(allocation_t);
+        return(size_total);
+    } 
+
+    SLD_INLINE u32
+    allocator_allocation_size_minimum(
+        allocator_base_t* allocator) {
+
+        bool      is_valid = (allocator != NULL) && (allocator->granularity != 0);
+        const u32 size_min = (is_valid == true)
+            ? sizeof(allocation_t) + allocator->granularity
+            : 0;
+
+        return(size_min);
+    }
+
+    SLD_INLINE u32
+    allocator_max_possible_allocations(
+        allocator_base_t* allocator) {
+
+        const u32 min_alloc_size  = allocator_allocation_size_minimum(allocator);
+        const u32 max_alloc_count = allocator != NULL ? allocator->size / min_alloc_size : 0;
+
+        return(
+            (max_alloc_count < MEMORY_MAX_LOOP_ITERATIONS) 
+                ? max_alloc_count
+                : MEMORY_MAX_LOOP_ITERATIONS
+        );
+    }
+
+    SLD_INLINE bool
+    allocation_validate(
+        allocation_t* const allocation) {
         
+        bool is_valid = true;
+        is_valid &= (allocation != NULL);
+        is_valid &= allocator_validate(allocation->alctr); 
+        if (is_valid) {
+            
+            const allocator_base_t* alctr       = allocation->alctr;
+            const addr              alctr_start = (addr)alctr;
+            const addr              alctr_end   = alctr_start + alctr->size;
+            const addr              alloc_start = (addr)allocation;
+            const u32               alloc_mod   = (allocation->size % alctr->granularity); 
 
-    public:
+            is_valid &= (alloc_mod          == 0);          // the size should be aligned to the granularity
+            is_valid &= (allocation->size   != 0);          // the allocation size shouldn't be 0
+            is_valid &= (allocation->offset != 0);          // the allocation offset shouldn't be 0
+            is_valid &= (allocation->size   < alctr->size); // the allocation shouldn't exceed the allocator size
+            is_valid &= (alloc_start        > alctr_start); // the allocation should be after the allocator start            
+            is_valid &= (alloc_start        < alctr_end);   // the allocation should be before the allocator end         
+        }
+        return(is_valid);
+    }
 
 
-        virtual t* alloc() = 0;
+    SLD_INLINE void*
+    allocation_get_memory(allocation_t* const allocation) { 
+
+        void* memory = (allocation != NULL)
+            ? (void*)(((addr)allocation) + sizeof(allocation_t))
+            : NULL;
+        return(memory);
+    }
+
+    SLD_INLINE allocation_t*
+    allocation_from_memory(void* const memory) {
+
+        if (!memory) return(NULL);
+
+        allocation_t* alloc = (allocation_t*)(((addr)memory) - sizeof(allocation_t));
+
+        const bool is_valid = allocation_validate(alloc);
+        return(is_valid ? alloc : NULL);
     };
+
+    SLD_INLINE u32
+    allocation_size_total(
+        allocation_t* const allocation) {
+
+        const u32 size_total = (allocation != NULL)
+            ? sizeof(allocation_t) + allocation->size
+            : 0;
+
+        return(size_total);
+    }
+
 };
 
 #endif //SLD_MEMORY_HPP
