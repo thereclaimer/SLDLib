@@ -3,153 +3,139 @@
 #include "sld-xml-internal.cpp"
 
 namespace sld {
-    
 
     SLD_API bool
     xml_attrib_set_val_utf8(
-        const xml_hnd_node_t      h_node,
-        const xml_utf8_t*         name,
-        const xml_attrib_value_t& value) {
+        xml_attrib_t* const attrib,
+        const xml_utf8_t*   name,
+        const xml_utf8_t*   value) {
 
-        xml_node_t* node = xml_memory_get_ptr_node(h_node);
-        assert(node);
+        bool can_set = true;
+        can_set &= (attrib != NULL);
+        can_set &= (name   != NULL);
+        can_set &= (value  != NULL);
+        assert(can_set);
 
-        pugi::xml_attribute attrib = node->pugi.attribute(name);
-        if (attrib == NULL) {
-            attrib = node->pugi.append_attribute(name);
-            assert(attrib);
-        }
-
-        bool is_set = attrib.set_value(value.as_utf8);
+        const bool is_set = attrib->set_value(value);
         return(is_set);
     }
 
     SLD_API bool
     xml_attrib_set_val_u32(
-        const xml_hnd_node_t          h_node,
-        const xml_utf8_t*             name,
-        const xml_attrib_value_t& value) {
+        xml_attrib_t* const attrib,
+        const xml_utf8_t*   name,
+        const u32           value) {
 
-        xml_node_t* node = xml_memory_get_ptr_node(h_node);
-        assert(node);
+        bool can_set = true;
+        can_set &= (attrib != NULL);
+        can_set &= (name   != NULL);
+        can_set &= (value  != NULL);
+        assert(can_set);
 
-        pugi::xml_attribute attrib = node->pugi.attribute(name);
-        if (attrib == NULL) {
-            attrib = node->pugi.append_attribute(name);
-            assert(attrib);
-        }
-
-        bool is_set = attrib.set_value(value.as_u32);
+        const bool is_set = attrib->set_value(value);
         return(is_set);
     }
 
     SLD_API bool
     xml_attrib_set_val_u64(
-        const xml_hnd_node_t          h_node,
-        const xml_utf8_t*             name,
-        const xml_attrib_value_t& value) {
+        xml_attrib_t* const attrib,
+        const xml_utf8_t*   name,
+        const u64           value) {
 
-        xml_node_t* node = xml_memory_get_ptr_node(h_node);
-        assert(node);
+        bool can_set = true;
+        can_set &= (attrib != NULL);
+        can_set &= (name   != NULL);
+        can_set &= (value  != NULL);
+        assert(can_set);
 
-        pugi::xml_attribute attrib = node->pugi.attribute(name);
-        if (attrib == NULL) {
-            attrib = node->pugi.append_attribute(name);
-            assert(attrib);
-        }
-
-        bool is_set = attrib.set_value(value.as_u64);
+        const bool is_set = attrib->set_value(value);
         return(is_set);
     }
 
     SLD_API bool
     xml_attrib_set_val_f32(
-        const xml_hnd_node_t          h_node,
-        const xml_utf8_t*             name,
-        const xml_attrib_value_t& value) {
+        xml_attrib_t* const attrib,
+        const xml_utf8_t*   name,
+        const f32           value) {
 
-        xml_node_t* node = xml_memory_get_ptr_node(h_node);
-        assert(node);
+        bool can_set = true;
+        can_set &= (attrib != NULL);
+        can_set &= (name   != NULL);
+        can_set &= (value  != NULL);
+        assert(can_set);
 
-        pugi::xml_attribute attrib = node->pugi.attribute(name);
-        if (attrib == NULL) {
-            attrib = node->pugi.append_attribute(name);
-            assert(attrib);
-        }
-
-        bool is_set = attrib.set_value(value.as_f32);
+        const bool is_set = attrib->set_value(value);
         return(is_set);
     }
 
     SLD_API bool
     xml_attrib_get_val_utf8(
-        const xml_hnd_node_t    h_node,
-        const xml_utf8_t*       name,
-        xml_attrib_value_t& value) {
+        xml_attrib_t* const attrib,
+        const xml_utf8_t*   name,
+        xml_utf8_t*&        value) {
 
-        xml_node_t* node = xml_memory_get_ptr_node(h_node);
-        assert(node);
+        bool can_get = true;
+        can_get &= (attrib != NULL);
+        can_get &= (name   != NULL);
+        assert(can_get);
 
-        pugi::xml_attribute attrib = node->pugi.attribute(name);
-        if (attrib == NULL) {
-            return(false);
-        }
-
-        value.as_utf8 = (xml_utf8_t*)attrib.as_string();
-        return(true);
+        constexpr c8 invalid = 0;
+        value = (xml_utf8_t*)attrib->as_string(&invalid);
+        const bool did_get = (value[0] != invalid); 
+        return(did_get);
     }
 
     SLD_API bool
     xml_attrib_get_val_u32(
-        const xml_hnd_node_t    h_node,
-        const xml_utf8_t*       name,
-        xml_attrib_value_t& value) {
+        xml_attrib_t* const attrib,
+        const xml_utf8_t*   name,
+        u32&                value) {
 
-        xml_node_t* node = xml_memory_get_ptr_node(h_node);
-        assert(node);
+        bool can_get = true;
+        can_get &= (attrib != NULL);
+        can_get &= (name   != NULL);
+        assert(can_get);
 
-        pugi::xml_attribute attrib = node->pugi.attribute(name);
-        if (attrib == NULL) {
-            return(false);
-        }
+        constexpr u32 invalid = 0xFFFFFFFF;
+        value = attrib->as_uint(invalid);
 
-        value.as_u32 = attrib.as_uint();
-        return(true);
+        const bool did_get = (value != invalid); 
+        return(did_get);
     }
 
     SLD_API bool
     xml_attrib_get_val_u64(
-        const xml_hnd_node_t    h_node,
-        const xml_utf8_t*       name,
-        xml_attrib_value_t& value) {
+        xml_attrib_t* const attrib,
+        const xml_utf8_t*   name,
+        u64&                value) {
 
-        xml_node_t* node = xml_memory_get_ptr_node(h_node);
-        assert(node);
+        bool can_get = true;
+        can_get &= (attrib != NULL);
+        can_get &= (name   != NULL);
+        assert(can_get);
 
-        pugi::xml_attribute attrib = node->pugi.attribute(name);
-        if (attrib == NULL) {
-            return(false);
-        }
+        constexpr u64 invalid = 0xFFFFFFFFFFFFFFFF;
+        value = attrib->as_ullong(invalid);
 
-        value.as_u64 = attrib.as_ullong();
-        return(true);
+        const bool did_get = (value != invalid); 
+        return(did_get);
     }
 
     SLD_API bool
     xml_attrib_get_val_f32(
-        const xml_hnd_node_t    h_node,
-        const xml_utf8_t*       name,
-        xml_attrib_value_t& value) {
+        xml_attrib_t* const attrib,
+        const xml_utf8_t*   name,
+        f32&                value) {
 
-        xml_node_t* node = xml_memory_get_ptr_node(h_node);
-        assert(node);
+        bool can_get = true;
+        can_get &= (attrib != NULL);
+        can_get &= (name   != NULL);
+        assert(can_get);
 
-        pugi::xml_attribute attrib = node->pugi.attribute(name);
-        if (attrib == NULL) {
-            return(false);
-        }
+        constexpr f32 invalid = (f32)(0xFFFFFFFF);
+        value = attrib->as_float(invalid);
 
-        value.as_f32 = attrib.as_float();
-        return(true);
+        const bool did_get = (value != invalid); 
+        return(did_get);
     }
 };

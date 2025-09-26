@@ -3,45 +3,23 @@
 #include <pugixml.hpp>
 #include "sld-xml.hpp"
 #include "sld-buffer.hpp"
-#include "sld-allocator.hpp"
+#include "sld-memory.hpp"
+#include "sld-stack.hpp"
 
 namespace sld {
     
-    struct xml_doc_t;
-    struct xml_node_t;
-    struct xml_attrib_t;
-    struct xml_memory_t;
-    struct xml_writer_t;
 
-    constexpr u64 _xml_mem_granularity = sizeof(pugi::xml_document);
+    SLD_FUNC void* xml_parser_alloc (size_t size);
+    SLD_FUNC void  xml_parser_free  (void*  ptr);
 
-    SLD_FUNC xml_doc_t*             xml_memory_alloc_doc      (void);
-    SLD_FUNC xml_node_t*            xml_memory_alloc_node     (void);
-    SLD_FUNC xml_node_t*            xml_memory_alloc_node     (void);
-    SLD_FUNC void                   xml_memory_free_doc       (xml_doc_t*             doc);
-    SLD_FUNC void                   xml_memory_reset_doc      (xml_doc_t*             doc);
-    SLD_FUNC void*                  xml_memory_alloc          (size_t                 size);
-    SLD_FUNC void                   xml_memory_free           (void*                  ptr);
-    SLD_FUNC const xml_hnd_doc_t    xml_memory_get_hnd_doc    (const xml_doc_t*       ptr);
-    SLD_FUNC const xml_hnd_node_t   xml_memory_get_hnd_node   (const xml_node_t*      ptr);
-    SLD_FUNC xml_doc_t*             xml_memory_get_ptr_doc    (const xml_hnd_doc_t    hnd);
-    SLD_FUNC xml_node_t*            xml_memory_get_ptr_node   (const xml_hnd_node_t   hnd);
+    struct xml_stack_t  : stack_t { };
+    struct xml_doc_t    : pugi::xml_document  { };     
+    struct xml_node_t   : pugi::xml_node      { };      
+    struct xml_attrib_t : pugi::xml_attribute { };      
+    struct xml_doc_writer_t;
 
-    struct xml_doc_t {
-        pugi::xml_document pugi;
-        xml_doc_t*         next;
-        xml_node_t*        nodes;
-    };     
-    struct xml_node_t {
-        pugi::xml_node pugi;
-        xml_node_t*    next;
-        xml_doc_t*     doc;
-    };      
-
-    struct xml_memory_t {
-        heap_alctr_t* alctr;
-        xml_doc_t*    docs;
-    } static _xml_mem;
+    constexpr u64 XML_PARSER_GRANULARITY = size_kilobytes(32);
+    constexpr u32 XML_STACK_MIN_SIZE     = sizeof(xml_stack_t) + sizeof(xml_doc_t);
 
     struct xml_writer_t : pugi::xml_writer {
 
@@ -91,6 +69,10 @@ namespace sld {
             // copy the buffer
             (void)buffer_copy(buffer, (byte*)data, size);
         }
+    };
+
+    struct xml_parser_t {
+        block_allocator_t* alctr;
     };
 
 };

@@ -2,10 +2,6 @@
 
 #include "sld-heap.hpp"
 
-#include "sld-allocator-block.cpp"
-#include "sld-allocator-heap.cpp"
-#include "sld-allocator-stack.cpp"
-
 #include "sld-core.cpp"
 #include "sld-core-heap.cpp"
 
@@ -21,8 +17,9 @@
 #include "sld-memory-arena.cpp"
 #include "sld-memory-stack.cpp"
 
-#include "sld-xml-memory.cpp"
-#include "sld-xml-attrib.cpp"
-#include "sld-xml-doc.cpp"
+#include "sld-xml-stack.cpp"
 #include "sld-xml-internal.cpp"
+#include "sld-xml-doc.cpp"
+#include "sld-xml-parser.cpp"
 #include "sld-xml-node.cpp"
+#include "sld-xml-attrib.cpp"

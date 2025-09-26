@@ -24,7 +24,7 @@ namespace sld {
         is_valid &= (block_size  != 0);
         is_valid &= (block_size  <  total_size);
         is_valid &= (block_count != 0);
-        if (!is_valid) return(NULL);
+        assert(is_valid);
 
         // cast pointers 
         const addr         block_mem_start   = ((addr)memory) + size_struct_alctr;
@@ -61,76 +61,137 @@ namespace sld {
         return(block_allocator);
     }
 
-    SLD_API block_allocator_t*
-    block_allocator_arena_init(
-        arena_t* const arena,
-        const u32      total_size,
-        const u32      block_size) {
-
-        // check args
-        bool is_valid = true;
-        is_valid &= (arena      != nullptr);
-        is_valid &= (total_size != 0);
-        is_valid &= (block_size != 0);        
-        is_valid &= (block_size <  total_size);        
-        if (!is_valid) return(nullptr);
-
-        // allocate arena memory
-        constexpr u32   alignment = sizeof(allocation_t);
-        const     void* memory    = arena_push_bytes(arena,  total_size, alignment);
-        if (!memory) return(nullptr);
-
-        // initialize the allocator
-        block_allocator_t* allocator = block_allocator_memory_init (memory, total_size, block_size);        
-        
-        // if that failed, assert that we can free
-        // the memory we just allocated
-        if (!allocator) {
-            const bool did_free = arena_pull_bytes(arena, total_size, alignment); 
-            assert(did_free);
-        } 
-        return(allocator);
-    }
-
     SLD_API void*
     block_allocator_alloc_abs(
-        block_allocator_t* const allocator) {
+        block_allocator_t* const allocator,
+        const u32                size,
+        const u32                alignment) {
 
-        allocation_t* block  = allocator_reuse_next_free_allocation (allocator);
-        void*         memory = allocation_get_memory                (block);
+        // validate the allocator
+        const bool is_valid = block_allocator_validate(allocator);
+        assert(is_valid);
+
+        // make sure our blocks are big enough
+        const u32 size_aligned = size_align(size, alignment);
+        assert(size_aligned <= allocator->granularity);
+
+        // get the next free allocation
+        allocation_t* alloc = allocator->allocation_list.free;
+        allocation_t* used  = allocator->allocation_list.used;         
+        if (!alloc) return(NULL);
+
+        // add the allocation to the used list
+        alloc->prev                     = NULL;
+        alloc->next                     = used;
+        if (used) used->prev            = alloc;
+        allocator->allocation_list.used = alloc;        
+
+        // return the memory
+        void* memory = allocation_get_memory(alloc);
         return(memory); 
     }
 
     SLD_API u32
     block_allocator_alloc_rel(
-        block_allocator_t* const allocator) {
+        block_allocator_t* const allocator,
+        const u32                size,
+        const u32                alignment) {
 
-        allocation_t* block  = allocator_reuse_next_free_allocation (allocator);
-        return(block != NULL ? block->offset : 0);
+        // validate the allocator
+        const bool is_valid = block_allocator_validate(allocator);
+        assert(is_valid);
+
+        // make sure our blocks are big enough
+        const u32 size_aligned = size_align(size, alignment);
+        assert(size_aligned <= allocator->granularity);
+
+        // get the next free allocation
+        allocation_t* alloc = allocator->allocation_list.free;
+        allocation_t* used  = allocator->allocation_list.used;         
+        if (!alloc) return(NULL);
+
+        // add the allocation to the used list
+        // and return the offset
+        alloc->prev                     = NULL;
+        alloc->next                     = used;
+        if (used) used->prev            = alloc;
+        allocator->allocation_list.used = alloc;        
+        return(alloc->offset);        
     }
 
     SLD_API bool
     block_allocator_free_abs(
         block_allocator_t* const allocator,
-        void* const              block) {
+        void* const              memory) {
 
-        constexpr bool do_not_consolidate = false;
+        // validate the allocator
+        const bool is_valid = block_allocator_validate(allocator);
+        assert(is_valid);
 
-        allocation_t* allocation = allocation_from_memory(block);
+        allocation_t* alloc = allocation_from_memory(memory);
+        allocation_t* free  = allocator->allocation_list.free; 
 
-        const bool result = (allocation != NULL)
-            ? allocator_free_allocation(allocator, allocation, do_not_consolidate)
-            : false;
+        const bool did_free = (alloc != NULL) && (alloc->alctr == allocator);
+        if (did_free) {
 
-        return(result);
+            alloc->prev                     = NULL;
+            alloc->next                     = free;
+            if (free) free->prev            = alloc;
+            allocator->allocation_list.free = alloc;
+        }
+        return(did_free);
     }
 
     SLD_API bool
     block_allocator_free_rel(
         block_allocator_t* const allocator,
-        const u32                block_number) {
+        const u32                offset) {
 
-        constexpr bool do_not_consolidate = false;
+        // validate the allocator
+        const bool is_valid = block_allocator_validate(allocator);
+        assert(is_valid);
 
+        allocation_t* alloc = allocation_from_offset(allocator, offset);
+        allocation_t* free  = allocator->allocation_list.free; 
+        if (!alloc) return(false);
+
+        alloc->prev                     = NULL;
+        alloc->next                     = free;
+        if (free) free->prev            = alloc;
+        allocator->allocation_list.free = alloc;
+        return(true);
+    }
+
+    SLD_API bool
+    block_allocator_validate(
+        block_allocator_t* const allocator) {
+
+        bool is_valid = (allocator != NULL);
+        if (is_valid) {
+            is_valid &= (allocator->block_count != 0);
+            is_valid &= allocator_validate(allocator); 
+        }
+        return(is_valid);
+    }
+
+    SLD_API bool
+    block_allocator_reset(
+        block_allocator_t* const allocator) {
+
+        // validate the allocator
+        const bool is_valid = block_allocator_validate(allocator);
+        assert(is_valid);
+
+        allocation_t* free = allocator->allocation_list.free;
+        allocation_t* used = allocator->allocation_list.used;
+
+        if (free) free->prev = used;
+        if (used) {
+            used->next = free;
+            allocator->allocation_list.free = used;
+        }
+        allocator->allocation_list.used = NULL;
+        
+        return(true);
     }
 };

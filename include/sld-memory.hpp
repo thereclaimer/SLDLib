@@ -29,7 +29,6 @@ namespace sld {
 
     struct block_allocator_t;
     struct stack_allocator_t;
-    struct heap_allocator_t;
 
     //-------------------------------------------------------------------
     // API
@@ -59,7 +58,6 @@ namespace sld {
     SLD_API byte*               arena_push_bytes              (arena_t*       arena, const u64 size, const u64 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
     SLD_API block_allocator_t*  arena_push_block_allocator    (arena_t*       arena, const u32 size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
     SLD_API stack_allocator_t*  arena_push_stack_allocator    (arena_t*       arena, const u32 size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    SLD_API heap_allocator_t*   arena_push_heap_allocator     (arena_t*       arena, const u32 size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
     SLD_API bool                arena_pull_bytes              (arena_t*       arena, const u64 size, const u64 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
     
     SLD_API bool                arena_reset                   (arena_t*       arena);
@@ -69,28 +67,21 @@ namespace sld {
     SLD_API u64                 arena_size_free               (arena_t*       arena);
     SLD_API u64                 arena_size_used               (arena_t*       arena);
 
-    SLD_API block_allocator_t*  block_allocator_memory_init          (const void*              memory, const u32 total_size, const u32 block_size);
-    SLD_API void*               block_allocator_alloc_abs            (block_allocator_t* const allocator);
-    SLD_API u32                 block_allocator_alloc_rel            (block_allocator_t* const allocator);
-    SLD_API bool                block_allocator_free_abs             (block_allocator_t* const allocator, void* const block);
-    SLD_API bool                block_allocator_free_rel             (block_allocator_t* const allocator, const u32   block_number);
+    SLD_API block_allocator_t*  block_allocator_init          (const void*              memory,    const u32   size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API void*               block_allocator_alloc_abs     (block_allocator_t* const allocator, const u32   size, const u32 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API u32                 block_allocator_alloc_rel     (block_allocator_t* const allocator, const u32   size, const u32 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API bool                block_allocator_free_abs      (block_allocator_t* const allocator, void* const memory);
+    SLD_API bool                block_allocator_free_rel      (block_allocator_t* const allocator, const u32   offset);
+    SLD_API bool                block_allocator_validate      (block_allocator_t* const allocator);
+    SLD_API bool                block_allocator_reset         (block_allocator_t* const allocator);
 
-    SLD_API stack_allocator_t*  stack_allocator_memory_init          (const void*               memory,    const u32   size, const u32   granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    SLD_API void*               stack_allocator_alloc_abs            (stack_allocator_t*  const allocator, const u32   size);
-    SLD_API u32                 stack_allocator_alloc_rel            (stack_allocator_t*  const allocator, const u32   size);
-    SLD_API bool                stack_allocator_free_abs             (stack_allocator_t*  const allocator, void* const memory);
-    SLD_API bool                stack_allocator_free_rel             (stack_allocator_t*  const allocator, const u32   offset);
-
-    SLD_API heap_allocator_t*   heap_allocator_memory_init           (const void*               memory,    const u32   size, const u32   granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    SLD_API void*               heap_allocator_alloc_abs             (heap_allocator_t*   const allocator, const u32   size);
-    SLD_API u32                 heap_allocator_alloc_rel             (heap_allocator_t*   const allocator, const u32   size);
-    SLD_API bool                heap_allocator_free_abs              (heap_allocator_t*   const allocator, void* const memory);
-    SLD_API bool                heap_allocator_free_rel              (heap_allocator_t*   const allocator, const u32   offset);
-
-    SLD_API allocation_t*       allocator_reuse_next_free_allocation (allocator_base_t* const allocator);
-    SLD_API bool                allocator_free_allocation_ordered    (allocator_base_t* const allocator, allocation_t* allocation);
-    SLD_API bool                allocator_free_allocation_unordered  (allocator_base_t* const allocator, allocation_t* allocation);
-
+    SLD_API stack_allocator_t*  stack_allocator_init          (const void*               memory,    const u32   size, const u32   granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API bool                stack_allocator_validate      (stack_allocator_t*  const allocator);
+    SLD_API void*               stack_allocator_alloc_abs     (stack_allocator_t*  const allocator, const u32   size);
+    SLD_API u32                 stack_allocator_alloc_rel     (stack_allocator_t*  const allocator, const u32   size);
+    SLD_API bool                stack_allocator_free_abs      (stack_allocator_t*  const allocator, void* const memory);
+    SLD_API bool                stack_allocator_free_rel      (stack_allocator_t*  const allocator, const u32   offset);
+    
     //-------------------------------------------------------------------
     // ENUMS
     //-------------------------------------------------------------------
@@ -147,7 +138,7 @@ namespace sld {
         allocation_t*     next;
         allocation_t*     prev;
         u32               size;
-        u32               offset;       
+        u32               offset;
     };
 
     struct allocator_base_t {
@@ -164,12 +155,10 @@ namespace sld {
     };
 
     struct stack_allocator_t : allocator_base_t {
-        u32 position;
+        stack_t       stack;
+        allocation_t* head_used;
+        allocation_t* head_free;
     };
-
-    struct heap_allocator_t : allocator_base_t {
-    };
-
 
     ///////////////////////////////////////////////    
     // REASONING:
@@ -208,7 +197,7 @@ namespace sld {
     }
 
     SLD_INLINE u32
-    allocator_allocation_size_total(
+    allocator_aligned_allocation_size(
         allocator_base_t* allocator,
         const u32         size_requested) {
 
@@ -218,7 +207,7 @@ namespace sld {
     } 
 
     SLD_INLINE u32
-    allocator_allocation_size_minimum(
+    allocator_minimum_allocation_size(
         allocator_base_t* allocator) {
 
         bool      is_valid = (allocator != NULL) && (allocator->granularity != 0);
@@ -233,7 +222,7 @@ namespace sld {
     allocator_max_possible_allocations(
         allocator_base_t* allocator) {
 
-        const u32 min_alloc_size  = allocator_allocation_size_minimum(allocator);
+        const u32 min_alloc_size  = allocator_minimum_allocation_size(allocator);
         const u32 max_alloc_count = allocator != NULL ? allocator->size / min_alloc_size : 0;
 
         return(
@@ -270,7 +259,8 @@ namespace sld {
 
 
     SLD_INLINE void*
-    allocation_get_memory(allocation_t* const allocation) { 
+    allocation_get_memory(
+        allocation_t* const allocation) { 
 
         void* memory = (allocation != NULL)
             ? (void*)(((addr)allocation) + sizeof(allocation_t))
@@ -289,6 +279,23 @@ namespace sld {
         return(is_valid ? alloc : NULL);
     };
 
+    SLD_INLINE allocation_t*
+    allocation_from_offset(
+        allocator_base_t* const allocator,
+        const u32               offset) {
+
+        bool is_valid = true;
+        is_valid &= (allocator != NULL);
+        is_valid &= (offset    != 0);
+        if (!is_valid) return(NULL);
+
+        const addr addr_allocator  = (addr)allocator;
+        const addr addr_allocation = (addr_allocator + offset);
+        allocation_t* allocation   = (allocation_t*)addr_allocation; 
+
+        return(allocation->alctr == allocator ? allocation : NULL);
+    }
+
     SLD_INLINE u32
     allocation_size_total(
         allocation_t* const allocation) {
@@ -298,6 +305,18 @@ namespace sld {
             : 0;
 
         return(size_total);
+    }
+
+    SLD_INLINE addr
+    allocation_get_ending_address(
+        allocation_t* const allocation) {
+
+        constexpr u32 struct_size = sizeof(allocation_t); 
+        const addr    alloc_start = (addr)allocation;
+        const addr    alloc_end   = (alloc_start + struct_size + allocation->size); 
+
+        return(alloc_end);
+
     }
 
 };

@@ -6,7 +6,7 @@
 #include "sld-memory-arena.cpp"
 #include "sld-memory-stack.cpp"
 #include "sld-memory-block-allocator.cpp"
-#include "sld-memory-allocator-base.cpp"
+#include "sld-memory-stack-allocator.cpp"
 
 namespace sld {
 
