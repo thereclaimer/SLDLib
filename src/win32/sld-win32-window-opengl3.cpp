@@ -4,6 +4,7 @@
 #include "sld-os.hpp"
 #include "sld-win32-window.cpp"
 #include "sld-win32-imgui.cpp"
+#include "sld-win32-opengl3.cpp"
 
 namespace sld {
 
@@ -51,6 +52,10 @@ namespace sld {
             window_class->hInstance,
             NULL
         );
+
+        const HDC   device_context = GetDC((HWND)window_handle.val);
+        const HGLRC gl_context     = win32_opengl_init(device_context);
+        const bool  imgui_is_init  = win32_imgui_init_opengl3((HWND)window_handle.val);
 
         // return the error code
         error = (window_handle.val == INVALID_HANDLE_VALUE)
