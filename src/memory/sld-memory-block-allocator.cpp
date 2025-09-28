@@ -5,7 +5,7 @@
 namespace sld {
 
     SLD_API block_allocator_t*
-    block_allocator_memory_init(
+    block_allocator_init(
         const void* memory,
         const u32   total_size,
         const u32   block_size) {

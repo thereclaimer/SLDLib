@@ -13,15 +13,6 @@ namespace sld {
     struct xml_node_t;
     struct xml_attrib_t;
 
-    struct xml_attrib_value_t {
-        union {
-            xml_utf8_t* as_utf8;
-            u32         as_u32;
-            u64         as_u64;
-            f32         as_f32;
-        };
-    };
-
     struct xml_doc_t;
     struct xml_node_t;
     struct xml_attrib_t;
@@ -34,9 +25,9 @@ namespace sld {
     SLD_API xml_stack_t*  xml_stack_init                (const void* memory, const u32 size); 
     SLD_API bool          xml_stack_validate            (xml_stack_t* const stack); 
     SLD_API void          xml_stack_reset               (xml_stack_t* const stack); 
-    SLD_API xml_doc_t*    xml_stack_push_doc            (xml_stack_t* const stack, const u32 count = 1);
-    SLD_API xml_node_t*   xml_stack_push_node           (xml_stack_t* const stack, const u32 count = 1);
-    SLD_API xml_attrib_t* xml_stack_push_attrib         (xml_stack_t* const stack, const u32 count = 1);
+    SLD_API xml_doc_t*    xml_stack_push_doc            (xml_stack_t* const stack);
+    SLD_API xml_node_t*   xml_stack_push_node           (xml_stack_t* const stack);
+    SLD_API xml_attrib_t* xml_stack_push_attrib         (xml_stack_t* const stack);
     SLD_API u32           xml_stack_size_total          (xml_stack_t* const stack);
     SLD_API u32           xml_stack_size_used           (xml_stack_t* const stack);
 
@@ -59,13 +50,12 @@ namespace sld {
     SLD_API bool          xml_node_get_attrib           (xml_node_t*   const node,   const xml_utf8_t* name, xml_attrib_t* attrib);
     SLD_API bool          xml_node_add_attrib           (xml_node_t*   const node,   const xml_utf8_t* name, xml_attrib_t* attrib);
     
-    SLD_API bool          xml_attrib_set_val_utf8       (xml_attrib_t* const attrib, const xml_utf8_t* name, const xml_utf8_t* value);
-    SLD_API bool          xml_attrib_set_val_u32        (xml_attrib_t* const attrib, const xml_utf8_t* name, const u32         value);
-    SLD_API bool          xml_attrib_set_val_u64        (xml_attrib_t* const attrib, const xml_utf8_t* name, const u64         value);
-    SLD_API bool          xml_attrib_set_val_f32        (xml_attrib_t* const attrib, const xml_utf8_t* name, const f32         value);
-    SLD_API bool          xml_attrib_get_val_utf8       (xml_attrib_t* const attrib, const xml_utf8_t* name, xml_utf8_t*&      value);
-    SLD_API bool          xml_attrib_get_val_u32        (xml_attrib_t* const attrib, const xml_utf8_t* name, const u32&        value);
-    SLD_API bool          xml_attrib_get_val_u64        (xml_attrib_t* const attrib, const xml_utf8_t* name, const u64&        value);
-    SLD_API bool          xml_attrib_get_val_f32        (xml_attrib_t* const attrib, const xml_utf8_t* name, const f32&        value);
-
+    SLD_API bool          xml_attrib_set_val_utf8       (xml_attrib_t* const attrib, const xml_utf8_t* value);
+    SLD_API bool          xml_attrib_set_val_u32        (xml_attrib_t* const attrib, const u32         value);
+    SLD_API bool          xml_attrib_set_val_u64        (xml_attrib_t* const attrib, const u64         value);
+    SLD_API bool          xml_attrib_set_val_f32        (xml_attrib_t* const attrib, const f32         value);
+    SLD_API bool          xml_attrib_get_val_utf8       (xml_attrib_t* const attrib, xml_utf8_t*&      value);
+    SLD_API bool          xml_attrib_get_val_u32        (xml_attrib_t* const attrib, const u32&        value);
+    SLD_API bool          xml_attrib_get_val_u64        (xml_attrib_t* const attrib, const u64&        value);
+    SLD_API bool          xml_attrib_get_val_f32        (xml_attrib_t* const attrib, const f32&        value);
 };

@@ -53,88 +53,44 @@ namespace sld {
 
     SLD_API xml_doc_t*
     xml_stack_push_doc(
-        xml_stack_t* const stack,
-        const u32          count) {
+        xml_stack_t* const stack) {
 
         bool can_push = true;
         can_push &= xml_stack_validate(stack);
-        can_push &= (count != 0);
         assert(can_push);
 
-        const u32  doc_size  = count * sizeof(xml_doc_t);
-        xml_doc_t* doc_ptr   = (xml_doc_t*)stack_push(stack, doc_size);
-        const addr doc_start = (addr)doc_ptr;
-        assert(doc_start != 0);      
-
-        for (
-            u32 doc_index = 0;
-            doc_index < count;
-            ++doc_index) {
-
-            const u32  doc_offset = doc_index * sizeof(xml_doc_t);
-            void*      doc_mem    = (void*)((addr)doc_start + doc_offset);
-            xml_doc_t* doc        = new (doc_mem) xml_doc_t();
-            assert(doc);
-        }
-
+        constexpr u32  doc_size  = sizeof(xml_doc_t);
+        xml_doc_t*     doc_ptr   = (xml_doc_t*)stack_push(stack, doc_size);
+        assert(doc_ptr);
         return(doc_ptr);
     }
 
     SLD_API xml_node_t*
     xml_stack_push_node(
-        xml_stack_t* const stack,
-        const u32          count) {
+        xml_stack_t* const stack) {
 
         bool can_push = true;
         can_push &= xml_stack_validate(stack);
-        can_push &= (count != 0);
         assert(can_push);
 
-        const u32   node_size  = count * sizeof(xml_node_t);
-        xml_node_t* node_ptr   = (xml_node_t*)stack_push(stack, node_size);
-        const addr  node_start = (addr)node_ptr;
-        assert(node_start != 0);      
-
-        for (
-            u32 node_index = 0;
-            node_index < count;
-            ++node_index) {
-
-            const u32   node_offset = node_index * sizeof(xml_node_t);
-            void*       node_mem    = (void*)((addr)node_start + node_offset);
-            xml_node_t* node        = new (node_mem) xml_node_t();
-            assert(node);
-        }
+        constexpr u32 node_size = sizeof(xml_node_t);
+        xml_node_t*   node_ptr  = (xml_node_t*)stack_push(stack, node_size);
+        assert(node_ptr != 0);      
 
         return(node_ptr);
     }
 
     SLD_API xml_attrib_t*
     xml_stack_push_attrib(
-        xml_stack_t* const stack,
-        const u32          count) {
+        xml_stack_t* const stack) {
 
         bool can_push = true;
         can_push &= xml_stack_validate(stack);
-        can_push &= (count != 0);
         assert(can_push);
 
-        const u32     attrib_size  = count * sizeof(xml_attrib_t);
+        constexpr u32 attrib_size  = sizeof(xml_attrib_t);
         xml_attrib_t* attrib_ptr   = (xml_attrib_t*)stack_push(stack, attrib_size);
-        const addr    attrib_start = (addr)attrib_ptr;
-        assert(attrib_start != 0);      
-
-        for (
-            u32 attrib_index = 0;
-            attrib_index < count;
-            ++attrib_index) {
-
-            const u32     attrib_offset = attrib_index * sizeof(xml_attrib_t);
-            void*         attrib_mem    = (void*)((addr)attrib_start + attrib_offset);
-            xml_attrib_t* attrib        = new (attrib_mem) xml_attrib_t();
-            assert(attrib);
-        }
-
+        assert(attrib_ptr);
         return(attrib_ptr);
     }
 

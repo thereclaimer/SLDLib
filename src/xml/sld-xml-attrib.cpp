@@ -7,12 +7,10 @@ namespace sld {
     SLD_API bool
     xml_attrib_set_val_utf8(
         xml_attrib_t* const attrib,
-        const xml_utf8_t*   name,
         const xml_utf8_t*   value) {
 
         bool can_set = true;
         can_set &= (attrib != NULL);
-        can_set &= (name   != NULL);
         can_set &= (value  != NULL);
         assert(can_set);
 
@@ -23,12 +21,10 @@ namespace sld {
     SLD_API bool
     xml_attrib_set_val_u32(
         xml_attrib_t* const attrib,
-        const xml_utf8_t*   name,
         const u32           value) {
 
         bool can_set = true;
         can_set &= (attrib != NULL);
-        can_set &= (name   != NULL);
         can_set &= (value  != NULL);
         assert(can_set);
 
@@ -39,12 +35,10 @@ namespace sld {
     SLD_API bool
     xml_attrib_set_val_u64(
         xml_attrib_t* const attrib,
-        const xml_utf8_t*   name,
         const u64           value) {
 
         bool can_set = true;
         can_set &= (attrib != NULL);
-        can_set &= (name   != NULL);
         can_set &= (value  != NULL);
         assert(can_set);
 
@@ -55,12 +49,10 @@ namespace sld {
     SLD_API bool
     xml_attrib_set_val_f32(
         xml_attrib_t* const attrib,
-        const xml_utf8_t*   name,
         const f32           value) {
 
         bool can_set = true;
         can_set &= (attrib != NULL);
-        can_set &= (name   != NULL);
         can_set &= (value  != NULL);
         assert(can_set);
 
@@ -71,12 +63,10 @@ namespace sld {
     SLD_API bool
     xml_attrib_get_val_utf8(
         xml_attrib_t* const attrib,
-        const xml_utf8_t*   name,
         xml_utf8_t*&        value) {
 
         bool can_get = true;
         can_get &= (attrib != NULL);
-        can_get &= (name   != NULL);
         assert(can_get);
 
         constexpr c8 invalid = 0;
@@ -88,12 +78,10 @@ namespace sld {
     SLD_API bool
     xml_attrib_get_val_u32(
         xml_attrib_t* const attrib,
-        const xml_utf8_t*   name,
         u32&                value) {
 
         bool can_get = true;
         can_get &= (attrib != NULL);
-        can_get &= (name   != NULL);
         assert(can_get);
 
         constexpr u32 invalid = 0xFFFFFFFF;
@@ -106,12 +94,10 @@ namespace sld {
     SLD_API bool
     xml_attrib_get_val_u64(
         xml_attrib_t* const attrib,
-        const xml_utf8_t*   name,
         u64&                value) {
 
         bool can_get = true;
         can_get &= (attrib != NULL);
-        can_get &= (name   != NULL);
         assert(can_get);
 
         constexpr u64 invalid = 0xFFFFFFFFFFFFFFFF;
@@ -124,12 +110,10 @@ namespace sld {
     SLD_API bool
     xml_attrib_get_val_f32(
         xml_attrib_t* const attrib,
-        const xml_utf8_t*   name,
         f32&                value) {
 
         bool can_get = true;
         can_get &= (attrib != NULL);
-        can_get &= (name   != NULL);
         assert(can_get);
 
         constexpr f32 invalid = (f32)(0xFFFFFFFF);
