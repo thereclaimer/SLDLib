@@ -353,8 +353,8 @@ namespace sld {
     };
 
     enum os_window_error_e {
-        os_window_error_e_success                =  1,
-        os_window_error_e_unknown                = 1,
+        os_window_error_e_success                = 1,
+        os_window_error_e_unknown                = -1,
         os_window_error_e_resource_not_found     = -2,
         os_window_error_e_access_denied          = -3,
         os_window_error_e_system_out_of_memory   = -4,

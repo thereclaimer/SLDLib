@@ -108,10 +108,11 @@ namespace sld {
             window_class.lpszClassName = "SLD Win32 Opengl3 Window";
             window_class.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 
+
             const DWORD result = RegisterClass(&window_class);
-            window_class_ptr   = (result == ERROR_SUCCESS)
-                ? &window_class 
-                : NULL;                
+            window_class_ptr   = (result == 0)
+                ? NULL 
+                : &window_class;                
             }
 
         return(window_class_ptr);
