@@ -207,12 +207,8 @@ namespace sld {
             }
 
             // handle the message
-            const bool result = (bool)TranslateMessage (&msg_peek_args.message);
-            if (!result) {
-                error = win32_window_error_get_last();
-                break;
-            }
-            (void)DispatchMessage(&msg_peek_args.message);
+            (void)TranslateMessage (&msg_peek_args.message);
+            (void)DispatchMessage  (&msg_peek_args.message);
         }
 
         return(error);

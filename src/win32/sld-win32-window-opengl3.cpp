@@ -73,7 +73,7 @@ namespace sld {
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        static const os_window_error_t error = win32_window_error_success();
+        const os_window_error_t error = win32_window_process_events(window_handle, update); 
         return(error);
     }
     
