@@ -4,7 +4,6 @@
 #include "sld-memory-internal.cpp"
 #include "sld-memory-reservation.cpp"
 #include "sld-memory-arena.cpp"
-#include "sld-memory-stack.cpp"
 #include "sld-memory-block-allocator.cpp"
 #include "sld-memory-stack-allocator.cpp"
 
@@ -15,9 +14,7 @@ namespace sld {
         byte*     start,
         const u64 size) {
 
-        if (start == NULL || size == 0) {
-            return;
-        }
+        if (start == NULL || size == 0) return;
 
         for (
             u64 index = 0;

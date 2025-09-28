@@ -28,59 +28,34 @@ namespace sld {
     arena_commit(
         reservation_t* reservation) {
 
-        static arena_list_t& arena_list = global_stack_get_arena_list();
-        arena_t* arena = NULL;
         const bool is_valid = reservation_validate(reservation);
-        if (!is_valid) return(arena);
+        if (!is_valid) return(NULL);
 
-        // attempt to re-commit a decommitted or released
-        // arena 
-        bool is_recommit = false;
-        arena = reservation_remove_next_decommitted_arena(reservation);
-        if (arena == NULL) {
-            arena = arena_list_remove_next_released(arena_list);
-        } else {
-            is_recommit = true;
-        }       
-
-        // if none are available, allocate a new one
-        if (arena == NULL) {
-            static const u32 push_size = sizeof(arena_t);
-            arena = (arena_t*)global_stack_push_bytes(push_size);
-        }
-
-        // we should have one at this point
-        if (arena == NULL) {
-            return(arena);
-        }
+        // attempt to re-commit a decommitted arena 
+        arena_t*   arena       = reservation_remove_next_decommitted_arena(reservation);
+        const bool is_recommit = (arena != NULL);
 
         // if this isn't a re-commit, we need to calculate the 
         // new address
-        //
-        // otherwise, we will reuse the address in the stack
         const u64 commit_offset = reservation_size_committed(reservation);
         void*     commit_start  = (is_recommit)
             ? (void*)arena->start
             : (void*)(reservation->start + commit_offset);
 
         // attempt to commit memory
-        const void* commit_result = os_memory_commit(commit_start, reservation->size.arena);
-        if (commit_result != commit_start) {
+        arena = (arena_t*)os_memory_commit(commit_start, reservation->size.arena);
+        if ((void*)arena == commit_start ) {
 
-            // if that failed, put the arena back on the stack as released
-            arena_list_insert_released(arena_list, arena);
-            arena->last_error.val = memory_error_e_os_failed_to_commit;
-            return(arena);
+            constexpr u32 arena_struct_size = sizeof(arena_t);
+            // initialize the arena and add to the reservation
+            arena->start          = (addr)arena             + arena_struct_size;
+            arena->size           = reservation->size.arena - arena_struct_size;
+            arena->position       = 0;
+            arena->save           = 0;
+            arena->reservation    = reservation;
+            arena->last_error.val = memory_error_e_success;
+            reservation_insert_committed_arena(reservation, arena);
         }
-
-        // initialize the arena and add to the reservation
-        arena->start          = (addr)commit_result;
-        arena->size           = reservation->size.arena;
-        arena->position       = 0;
-        arena->save           = 0;
-        arena->reservation    = reservation;
-        arena->last_error.val = memory_error_e_success;
-        reservation_insert_committed_arena(reservation, arena);
         return(arena);
     }
 
@@ -97,7 +72,7 @@ namespace sld {
 
         // attempt to decommit the memory
         const bool is_decommitted = os_memory_decommit(
-            (void*)arena->start,
+            (void*)arena,
             arena->size
         );
         if (!is_decommitted) {

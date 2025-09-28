@@ -38,14 +38,7 @@ namespace sld {
     SLD_API byte*               memory_advance                (const byte* start,     const u64 size,      const u64 stride, u64& offset);
     SLD_API void                memory_copy                   (byte*       start_dst, byte*     start_src, const u64 size);
 
-    SLD_API byte*               global_stack_push_bytes       (const u64 size, const u64 alignment = 0);
-    SLD_API memory_error_t      global_stack_last_error       (void);
-    SLD_API u64                 global_stack_size_total       (void);
-    SLD_API u64                 global_stack_size_used        (void);
-    SLD_API u64                 global_stack_size_free        (void);
-    SLD_API addr                global_stack_start            (void);
-
-    SLD_API reservation_t*      reservation_acquire           (const u64 size_min_reservation = 0, const u64 size_min_arena = 0);
+    SLD_API bool                reservation_acquire           (reservation_t* reservation, const u64 size_min_reservation, const u64 size_min_arena = 0);
     SLD_API bool                reservation_validate          (reservation_t* reservation);
     SLD_API bool                reservation_release           (reservation_t* reservation);
     SLD_API bool                reservation_reset             (reservation_t* reservation);
@@ -59,7 +52,6 @@ namespace sld {
     SLD_API block_allocator_t*  arena_push_block_allocator    (arena_t*       arena, const u32 size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
     SLD_API stack_allocator_t*  arena_push_stack_allocator    (arena_t*       arena, const u32 size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
     SLD_API bool                arena_pull_bytes              (arena_t*       arena, const u64 size, const u64 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    
     SLD_API bool                arena_reset                   (arena_t*       arena);
     SLD_API bool                arena_roll_back               (arena_t*       arena);
     SLD_API bool                arena_save_position           (arena_t*       arena);
@@ -121,15 +113,13 @@ namespace sld {
             arena_t* committed;
             arena_t* decommitted;
         } arena_list;
-        reservation_t* next;
-        reservation_t* prev;
         memory_error_t last_error;
     }; 
 
     struct arena_t : stack_t {
+        reservation_t* reservation;
         arena_t*       next;
         arena_t*       prev;
-        reservation_t* reservation;
         memory_error_t last_error;
     };
 
