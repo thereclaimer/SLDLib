@@ -23,8 +23,8 @@ namespace sld {
     bool cstr_reset    (cstr_t&       str);
     bool cstr_zero     (cstr_t&       str);
     u32  cstr_length   (cstr_t&       str);
-    u32  cstr_copy     (cstr_t&       str, const cchar* src_chars, const u32 src_length);
-    u32  cstr_append   (cstr_t&       str, const cchar* src_chars, const u32 src_length);
+    u32  cstr_copy     (cstr_t&       str_dst, const cstr_t& str_src);
+    u32  cstr_append   (cstr_t&       str_dst, const cstr_t& str_src);
 
     //-------------------------------------------------------------------
     // STRING 16 | W-STRING | UNICODE | UTF-16

@@ -9,7 +9,8 @@
 #include "sld-hash128.cpp"
 
 #include "sld-win32.cpp"
-#include "sld-string.cpp"
+#include "sld-string-cstr.cpp"
+#include "sld-string-wstr.cpp"
 #include "sld-os.cpp"
 
 #include "sld-memory.cpp"
