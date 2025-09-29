@@ -9,6 +9,7 @@
 #include "sld-win32-window-opengl3.cpp"
 #include "sld-win32-window.cpp"
 #include "sld-win32-thread.cpp"
+#include "sld-win32-monitor.cpp"
 
 namespace sld {
 
@@ -27,9 +28,8 @@ namespace sld {
     // monitors
     //----------------
 
-    // os_monitor_count_f               os_monitor_count               = win32_monitor_count;
-    // os_monitor_screen_size_f         os_monitor_screen_size         = win32_monitor_screen_size;
-    // os_monitor_info_f                os_monitor_info                = win32_monitor_info;
+    os_monitor_working_area_f os_monitor_working_area = win32_monitor_working_area; 
+    os_monitor_info_f         os_monitor_info         = win32_monitor_info;
 
     //----------------
     // window

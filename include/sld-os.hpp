@@ -66,24 +66,33 @@ namespace sld {
     // MONITORS
     //-------------------------------------------------------------------
 
-    struct os_monitor_screen_size_t;
+    struct os_monitor_handle_t : os_handle_t { };
     struct os_monitor_info_t;
+    struct os_monitor_working_area_t;
+    
+    using os_monitor_working_area_f = void (*) (os_monitor_working_area_t& monitor_working_area);
+    using os_monitor_info_f         = void (*) (os_monitor_info_t*        monitor_info);
 
-    using os_monitor_count_f       = const u32 (*) (void);
-    using os_monitor_screen_size_f = void      (*) (os_monitor_screen_size_t& monitor_screen_size);
-    using os_monitor_info_f        = bool      (*) (os_monitor_info_t&        monitor_info);
+    struct os_monitor_working_area_t {
+        u32 monitor_count;
+        u32 virtual_pixel_width;
+        u32 virtual_pixel_height;
+    };
 
     struct os_monitor_screen_size_t {
         u32 pixel_width;
         u32 pixel_height;
     };
 
+    constexpr u32 OS_MONITOR_NAME_WIDTH = 32;
     struct os_monitor_info_t {
-        u32 index;
-        u32 pixel_width;
-        u32 pixel_height;
-        u32 position_x;
-        u32 position_y;
+        os_monitor_handle_t handle;
+        u32                 index;
+        u32                 pixel_width;
+        u32                 pixel_height;
+        u32                 position_x;
+        u32                 position_y;
+        cchar               name_cstr[OS_MONITOR_NAME_WIDTH];
     };
 
     //-------------------------------------------------------------------
@@ -554,8 +563,7 @@ namespace sld {
     SLD_OS_API os_system_sleep_f                os_system_sleep;
     SLD_OS_API os_system_debug_print_f          os_system_debug_print;
 
-    SLD_OS_API os_monitor_count_f               os_monitor_count;
-    SLD_OS_API os_monitor_screen_size_f         os_monitor_screen_size;
+    SLD_OS_API os_monitor_working_area_f        os_monitor_working_area;
     SLD_OS_API os_monitor_info_f                os_monitor_info;
 
     SLD_OS_API os_window_create_f               os_window_create; 

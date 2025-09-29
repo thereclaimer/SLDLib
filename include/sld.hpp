@@ -58,6 +58,8 @@ namespace sld {
     typedef char      c8;
     typedef char16_t  c16;
     typedef char32_t  c32;
+    typedef c8        cchar;
+    typedef c16       wchar;
 
     // memory
     typedef uint8_t  byte;

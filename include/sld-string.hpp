@@ -9,8 +9,7 @@ namespace sld {
     // TYPES
     //-------------------------------------------------------------------
 
-    typedef c8  cchar;
-    typedef c16 wchar;
+
 
     struct cstr_t { cchar* chars; u64 size; };
     struct wstr_t { wchar* chars; u64 size; };

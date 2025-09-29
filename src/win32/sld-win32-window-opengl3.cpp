@@ -84,8 +84,8 @@ namespace sld {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     
-        HDC device_context = GetDC((HWND)window_handle.val);
-        const bool result  = SwapBuffers(device_context);
+        HDC device_context = GetDC       ((HWND)window_handle.val);
+        const bool result  = SwapBuffers (device_context);
 
         const os_window_error_t error = (result == true)
             ? win32_window_error_success()
@@ -112,7 +112,6 @@ namespace sld {
             window_class.hInstance     = GetModuleHandle(NULL);  
             window_class.lpszClassName = "SLD Win32 Opengl3 Window";
             window_class.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
-
 
             const DWORD result = RegisterClass(&window_class);
             window_class_ptr   = (result == 0)
