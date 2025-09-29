@@ -84,13 +84,13 @@ namespace sld {
     SLD_OS_API_FUNC const os_window_error_t
     win32_window_get_position(
         const os_window_handle_t handle,
-        os_window_position_t&    position) {
+        os_window_pos_t&    position) {
 
         RECT window_rect;
 
         const bool result = GetWindowRect((HWND)handle.val, &window_rect);
-        position.screen_x = window_rect.left;
-        position.screen_y = window_rect.top;
+        position.x = window_rect.left;
+        position.y = window_rect.top;
 
         const os_window_error_t error = (result == true) 
             ? win32_window_error_success  ()

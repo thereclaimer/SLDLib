@@ -27,7 +27,7 @@ namespace sld {
         os_window_handle_t&         window_handle,
         const c8*                   title,
         const os_window_size_t&     size,
-        const os_window_position_t& position) {
+        const os_window_pos_t& position) {
 
         os_window_error_t error = { os_window_error_e_success };
 
@@ -43,8 +43,8 @@ namespace sld {
             window_class->lpszClassName,
             title,
             WS_OVERLAPPEDWINDOW,
-            position.screen_x,
-            position.screen_y,
+            position.x,
+            position.y,
             size.width,
             size.height,
             NULL,
@@ -62,6 +62,41 @@ namespace sld {
             ? win32_window_error_get_last ()
             : win32_window_error_success  ();
         return(error);
+    }
+
+    SLD_OS_API_FUNC const os_window_error_t 
+    win32_window_opengl3_set_viewport(
+        const os_window_handle_t window_handle,
+        const os_window_size_t&  size,
+        const os_window_pos_t&   position) {
+
+        glViewport(
+            position.x,
+            position.y,
+            size.width,
+            size.height);
+
+        const os_window_error_t result = { os_window_error_e_success };
+        return(result);
+    }
+
+    SLD_OS_API_FUNC const os_window_error_t 
+    win32_window_opengl3_set_clear_color(
+        const os_window_handle_t window_handle,
+        const os_window_color_t& color) {
+
+        color_f128_t normalized;
+        color_u32_normalize(color, normalized);
+
+        glClearColor(
+            normalized.r,
+            normalized.g,
+            normalized.b,
+            normalized.a
+        );
+
+        const os_window_error_t result = { os_window_error_e_success };
+        return(result);
     }
 
     SLD_OS_API_FUNC const os_window_error_t
@@ -90,6 +125,8 @@ namespace sld {
         const os_window_error_t error = (result == true)
             ? win32_window_error_success()
             : win32_window_error_get_last();
+
+        glClear(GL_COLOR_BUFFER_BIT);
 
         return(error);
     }

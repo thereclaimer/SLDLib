@@ -3,6 +3,8 @@
 
 #include "sld.hpp"
 #include "sld-buffer.hpp"
+#include "sld-geometry.hpp"
+#include "sld-graphics.hpp"
 
 /**********************************************************************************/
 /* OS                                                                             */
@@ -20,7 +22,6 @@
 #ifndef    SLD_OS_GRAPHICS_CONTEXT_TYPE
 #   define SLD_OS_GRAPHICS_CONTEXT_TYPE        SLD_OS_GRAPHICS_CONTEXT_OPENGL
 #endif
-
 
 namespace sld {
 
@@ -317,32 +318,26 @@ namespace sld {
     struct os_window_handle_t      : os_handle_t { };
     struct os_window_error_t       : os_error_t  { };
     struct os_window_event_flags_t : os_flags_t  { }; 
-
-    struct os_window_size_t;
-    struct os_window_position_t;
     struct os_window_update_t;
 
-    using os_window_create_f         = const os_window_error_t (*) (os_window_handle_t&      window_handle, const c8* title, const os_window_size_t& size, const os_window_position_t& position);
-    using os_window_destroy_f        = const os_window_error_t (*) (const os_window_handle_t window_handle);
-    using os_window_update_f         = const os_window_error_t (*) (const os_window_handle_t window_handle, os_window_update_t&   update);
-    using os_window_swap_buffers_f   = const os_window_error_t (*) (const os_window_handle_t window_handle);
-    using os_window_show_f           = const os_window_error_t (*) (const os_window_handle_t window_handle);
-    using os_window_get_size_f       = const os_window_error_t (*) (const os_window_handle_t window_handle, os_window_size_t&     size);
-    using os_window_get_position_f   = const os_window_error_t (*) (const os_window_handle_t window_handle, os_window_position_t& position);
+
+    typedef  dims_u32_size_t os_window_size_t;
+    typedef  dims_u32_pos_t  os_window_pos_t ;
+    typedef  color_u32_t     os_window_color_t;
+
+    using os_window_create_f          = const os_window_error_t (*) (os_window_handle_t&      window_handle, const c8* title, const os_window_size_t& size, const os_window_pos_t& position);
+    using os_window_set_viewport_f    = const os_window_error_t (*) (const os_window_handle_t window_handle, const os_window_size_t& size, const os_window_pos_t& position); 
+    using os_window_update_f          = const os_window_error_t (*) (const os_window_handle_t window_handle, os_window_update_t&           update);
+    using os_window_get_size_f        = const os_window_error_t (*) (const os_window_handle_t window_handle, os_window_size_t&             size);
+    using os_window_get_position_f    = const os_window_error_t (*) (const os_window_handle_t window_handle, os_window_pos_t&              position);
+    using os_window_set_clear_color_f = const os_window_error_t (*) (const os_window_handle_t window_handle, const os_window_color_t&      color);
+    using os_window_destroy_f         = const os_window_error_t (*) (const os_window_handle_t window_handle);
+    using os_window_swap_buffers_f    = const os_window_error_t (*) (const os_window_handle_t window_handle);
+    using os_window_show_f            = const os_window_error_t (*) (const os_window_handle_t window_handle);
 
     struct os_window_update_t {
         os_input_t              input;
         os_window_event_flags_t events;
-    };
-
-    struct os_window_size_t {
-        u32 width;
-        u32 height;
-    };
-
-    struct os_window_position_t {
-        u32 screen_x;
-        u32 screen_y;
     };
 
     enum os_window_event_flag_e {
@@ -578,6 +573,8 @@ namespace sld {
     SLD_OS_API os_window_show_f                 os_window_show; 
     SLD_OS_API os_window_get_size_f             os_window_get_size; 
     SLD_OS_API os_window_get_position_f         os_window_get_position; 
+    SLD_OS_API os_window_set_viewport_f         os_window_set_viewport;  
+    SLD_OS_API os_window_set_clear_color_f      os_window_set_clear_color;  
 
     SLD_OS_API os_memory_reserve_f              os_memory_reserve;
     SLD_OS_API os_memory_release_f              os_memory_release;
