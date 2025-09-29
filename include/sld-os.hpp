@@ -70,11 +70,13 @@ namespace sld {
     struct os_monitor_info_t;
     struct os_monitor_working_area_t;
     
-    using os_monitor_working_area_f = void (*) (os_monitor_working_area_t& monitor_working_area);
-    using os_monitor_info_f         = void (*) (os_monitor_info_t*        monitor_info);
+    using os_monitor_count_f        = u32                 (*) (void);
+    using os_monitor_working_area_f = void                (*) (os_monitor_working_area_t& monitor_working_area);
+    using os_monitor_info_f         = void                (*) (os_monitor_info_t*         monitor_info);
+    using os_monitor_primary_f      = os_monitor_handle_t (*) (void);
+    using os_monitor_from_point_f   = os_monitor_handle_t (*) (const u32 x, const u32 y);
 
     struct os_monitor_working_area_t {
-        u32 monitor_count;
         u32 virtual_pixel_width;
         u32 virtual_pixel_height;
     };
@@ -563,8 +565,11 @@ namespace sld {
     SLD_OS_API os_system_sleep_f                os_system_sleep;
     SLD_OS_API os_system_debug_print_f          os_system_debug_print;
 
+    SLD_OS_API os_monitor_count_f               os_monitor_count;
     SLD_OS_API os_monitor_working_area_f        os_monitor_working_area;
     SLD_OS_API os_monitor_info_f                os_monitor_info;
+    SLD_OS_API os_monitor_primary_f             os_monitor_primary;
+    SLD_OS_API os_monitor_from_point_f          os_monitor_from_point; 
 
     SLD_OS_API os_window_create_f               os_window_create; 
     SLD_OS_API os_window_update_f               os_window_update; 

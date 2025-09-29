@@ -51,7 +51,7 @@ namespace sld {
             monitor_info.index        = enumerator->index;
             monitor_info.pixel_width  = (win32_monitor_info.rcMonitor.right  - win32_monitor_info.rcMonitor.left); 
             monitor_info.pixel_height = (win32_monitor_info.rcMonitor.bottom - win32_monitor_info.rcMonitor.top); 
-            monitor_info.position_x   = win32_monitor_info.rcMonitor.right;  
+            monitor_info.position_x   = win32_monitor_info.rcMonitor.left;  
             monitor_info.position_y   = win32_monitor_info.rcMonitor.top;
 
             win32_monitor_name.chars = win32_monitor_info.szDevice;
@@ -65,11 +65,18 @@ namespace sld {
         return(should_enumerate);
     }
 
+    static u32
+    win32_monitor_count(
+        void) {
+
+        const u32 count = GetSystemMetrics(SM_CMONITORS);
+        return(count);
+    }
+
     static void
     win32_monitor_working_area(
         os_monitor_working_area_t& monitor_working_area) {
 
-        monitor_working_area.monitor_count        = GetSystemMetrics(SM_CMONITORS);
         monitor_working_area.virtual_pixel_width  = GetSystemMetrics(SM_CXVIRTUALSCREEN);
         monitor_working_area.virtual_pixel_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
     }
@@ -92,5 +99,30 @@ namespace sld {
             (LPARAM)&enumerator
         );
 
+    }
+
+    static os_monitor_handle_t
+    win32_monitor_primary(
+        void) {
+
+        POINT    origin  = { 0, 0 };
+        HMONITOR primary = MonitorFromPoint(origin, MONITOR_DEFAULTTOPRIMARY);
+
+        os_monitor_handle_t os_handle = { primary };
+        return(os_handle);
+    }
+
+    static os_monitor_handle_t
+    win32_monitor_from_point(
+        const u32 x,
+        const u32 y) {
+
+        LONG     long_x  = *(LONG*)&x;
+        LONG     long_y  = *(LONG*)&y;
+        POINT    point   = { long_x, long_y };
+        HMONITOR monitor = MonitorFromPoint(point, MONITOR_DEFAULTTOPRIMARY);
+
+        os_monitor_handle_t os_handle = { monitor };
+        return(os_handle);
     }
 };
