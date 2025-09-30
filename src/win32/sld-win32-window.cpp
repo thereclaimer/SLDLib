@@ -154,56 +154,69 @@ namespace sld {
         msg_peek_args.filter_max    = 0;
         msg_peek_args.window_handle = (HWND)handle.val;
 
+        // catch-all to ensure this isn't an infinite loop
+        u32           message_index      = 0;
+        constexpr u32 message_count_max  = 256; 
+
         for (
             bool has_message = win32_window_peek_message(msg_peek_args);
-            has_message == true;
-            has_message = win32_window_peek_message(msg_peek_args)) {
+                (has_message == true) && (message_index < message_count_max);
+                 has_message = win32_window_peek_message(msg_peek_args)) {
 
-            // toggle os event flags
-            switch (msg_peek_args.message.message) {
-                
-                case WM_KEYDOWN:
-                case WM_SYSKEYDOWN: {
+            // update message index
+            ++message_index;
 
-                    update.events.val |= os_window_event_e_key_down; 
+            // check window-specific events
+            if (msg_peek_args.message.hwnd == handle.val) {
+
+                switch (msg_peek_args.message.message) {
                     
-                    const os_input_keycode_t keycode = win32_input_translate_keycode(
-                        msg_peek_args.message.wParam,
-                        msg_peek_args.message.lParam);
+                    case WM_KEYDOWN:
+                    case WM_SYSKEYDOWN: {
 
-                    os_input_keyboard_add_key_down(update.input.keyboard, keycode);
+                        update.events.val |= os_window_event_e_key_down; 
+                        
+                        const os_input_keycode_t keycode = win32_input_translate_keycode(
+                            msg_peek_args.message.wParam,
+                            msg_peek_args.message.lParam);
 
-                } break;
+                        os_input_keyboard_add_key_down(update.input.keyboard, keycode);
 
-                case WM_KEYUP:
-                case WM_SYSKEYUP: {
-                
-                    update.events.val |= os_window_event_e_key_up;
+                    } break;
+
+                    case WM_KEYUP:
+                    case WM_SYSKEYUP: {
                     
-                    const os_input_keycode_t keycode = win32_input_translate_keycode(
-                        msg_peek_args.message.wParam,
-                        msg_peek_args.message.lParam);
+                        update.events.val |= os_window_event_e_key_up;
+                        
+                        const os_input_keycode_t keycode = win32_input_translate_keycode(
+                            msg_peek_args.message.wParam,
+                            msg_peek_args.message.lParam);
 
-                    os_input_keyboard_add_key_up(update.input.keyboard, keycode);
+                        os_input_keyboard_add_key_up(update.input.keyboard, keycode);
 
-                } break;
+                    } break;
 
-                case WM_QUIT:
-                case WM_CLOSE: {
-                    update.events.val |= os_window_event_e_quit;
-                } break;
+                    case WM_MOVE:          { update.events.val |= os_window_event_e_moved;                 } break;
+                    case WM_SIZE:          { update.events.val |= os_window_event_e_resized;               } break;
+                    case WM_MOUSEMOVE:     { update.events.val |= os_window_event_e_mouse_move;            } break;
+                    case WM_LBUTTONDOWN:   { update.events.val |= os_window_event_e_mouse_left_down;       } break;
+                    case WM_LBUTTONUP:     { update.events.val |= os_window_event_e_mouse_left_up;         } break;
+                    case WM_LBUTTONDBLCLK: { update.events.val |= os_window_event_e_mouse_left_dbl_click;  } break;
+                    case WM_RBUTTONDOWN:   { update.events.val |= os_window_event_e_mouse_right_down;      } break;
+                    case WM_RBUTTONUP:     { update.events.val |= os_window_event_e_mouse_right_up;        } break;
+                    case WM_RBUTTONDBLCLK: { update.events.val |= os_window_event_e_mouse_right_dbl_click; } break;
+                    default: break;
+                }
+            }
 
-                case WM_DESTROY:       { update.events.val |= os_window_event_e_destroyed;             break; }
-                case WM_MOVE:          { update.events.val |= os_window_event_e_moved;                 break; }
-                case WM_SIZE:          { update.events.val |= os_window_event_e_resized;               break; }
-                case WM_MOUSEMOVE:     { update.events.val |= os_window_event_e_mouse_move;            break; }
-                case WM_LBUTTONDOWN:   { update.events.val |= os_window_event_e_mouse_left_down;       break; }
-                case WM_LBUTTONUP:     { update.events.val |= os_window_event_e_mouse_left_up;         break; }
-                case WM_LBUTTONDBLCLK: { update.events.val |= os_window_event_e_mouse_left_dbl_click;  break; }
-                case WM_RBUTTONDOWN:   { update.events.val |= os_window_event_e_mouse_right_down;      break; }
-                case WM_RBUTTONUP:     { update.events.val |= os_window_event_e_mouse_right_up;        break; }
-                case WM_RBUTTONDBLCLK: { update.events.val |= os_window_event_e_mouse_right_dbl_click; break; }
-                default: break;
+            // check thread-wide events
+            else {
+                switch (msg_peek_args.message.message) {
+              
+                    case (WM_QUIT): { update.events.val |= os_window_event_e_quit; } break; 
+                    default: break;
+                }
             }
 
             // handle the message
@@ -220,7 +233,7 @@ namespace sld {
 
         const bool result = PeekMessage(
             &peek_args.message,
-            peek_args.window_handle,
+            NULL,
             peek_args.filter_min,
             peek_args.filter_min,
             PM_REMOVE
