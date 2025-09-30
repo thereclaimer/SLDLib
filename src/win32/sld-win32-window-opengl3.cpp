@@ -176,12 +176,9 @@ namespace sld {
         if (result) return(true);
 
         switch(message) {
-            case (WM_CLOSE):
-            case (WM_DESTROY): {
-                PostQuitMessage(0);
-            } break;
+            case (WM_CLOSE): { PostQuitMessage(0); } break;
             default: break;
-        };\
+        };
 
         result = DefWindowProc(
             handle,
