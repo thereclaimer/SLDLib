@@ -11,7 +11,6 @@
 #include "sld-win32.cpp"
 #include "sld-string-cstr.cpp"
 #include "sld-string-wstr.cpp"
-#include "sld-os.cpp"
 
 #include "sld-memory.cpp"
 #include "sld-memory-reservation.cpp"
@@ -23,3 +22,6 @@
 #include "sld-xml-parser.cpp"
 #include "sld-xml-node.cpp"
 #include "sld-xml-attrib.cpp"
+
+#include "sld-os.cpp"
+#include "sld-os-input-queue.cpp"

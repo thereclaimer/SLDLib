@@ -34,9 +34,9 @@ namespace sld {
     // API
     //-------------------------------------------------------------------
 
-    SLD_API void                memory_zero                   (byte*       start,     const u64 size);
-    SLD_API byte*               memory_advance                (const byte* start,     const u64 size,      const u64 stride, u64& offset);
-    SLD_API void                memory_copy                   (byte*       start_dst, byte*     start_src, const u64 size);
+    SLD_API void                memory_zero                   (byte*       start,     const u64   size);
+    SLD_API byte*               memory_advance                (const byte* start,     const u64   size,      const u64 stride, u64& offset);
+    SLD_API void                memory_copy                   (byte*       start_dst, const byte* start_src, const u64 size);
 
     SLD_API bool                reservation_acquire           (reservation_t* reservation, const u64 size_min_reservation, const u64 size_min_arena = 0);
     SLD_API bool                reservation_validate          (reservation_t* reservation);

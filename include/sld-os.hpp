@@ -5,6 +5,7 @@
 #include "sld-buffer.hpp"
 #include "sld-geometry.hpp"
 #include "sld-graphics.hpp"
+#include "sld-queue.hpp"
 
 /**********************************************************************************/
 /* OS                                                                             */
@@ -122,6 +123,7 @@ namespace sld {
         os_input_keyboard_t* keyboard;
         os_input_gamepad_t*  gamepad;    
     };
+
 
     struct os_input_mouse_t {
         f32 x;
@@ -310,14 +312,29 @@ namespace sld {
         os_input_gamepad_button_flag_e_bpad_left    = bit_value(12),
         os_input_gamepad_button_flag_e_bpad_right   = bit_value(13)
     };
+    struct os_input_queue_keyboard_t        : queue_t { };
+    struct os_input_queue_mouse_t           : queue_t { };
+    struct os_input_queue_gamepad_digital_t : queue_t { };
+    struct os_input_queue_gamepad_analog_t  : queue_t { };
+    struct os_input_queue_t {
+        os_input_queue_keyboard_t* keyboard_key_up;
+        os_input_queue_keyboard_t* keyboard_key_down;
+        os_input_queue_mouse_t*    mouse;
+    };
+
+    SLD_API bool                os_input_queue_push_key_up   (os_input_queue_t* const input_queue, const os_input_keycode_t* keycode);
+    SLD_API bool                os_input_queue_push_key_down (os_input_queue_t* const input_queue, const os_input_keycode_t* keycode);
+    SLD_API os_input_keycode_t* os_input_queue_pop_key_up    (os_input_queue_t* const input_queue);
+    SLD_API os_input_keycode_t* os_input_queue_pop_key_down  (os_input_queue_t* const input_queue);
 
     //-------------------------------------------------------------------
     // WINDOW
     //-------------------------------------------------------------------
 
-    struct os_window_handle_t      : os_handle_t { };
-    struct os_window_error_t       : os_error_t  { };
-    struct os_window_event_flags_t : os_flags_t  { }; 
+    struct os_window_handle_t               : os_handle_t { };
+    struct os_window_error_t                : os_error_t  { };
+    struct os_window_event_flags_t          : os_flags_t  { }; 
+
     struct os_window_update_t;
 
 
