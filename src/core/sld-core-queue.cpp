@@ -5,8 +5,55 @@
 
 namespace sld {
 
-    constexpr s32 QUEUE_START_HEAD = 0xFFFFFFFF;
-    constexpr s32 QUEUE_START_TAIL = 0;
+    SLD_API queue_t*
+    queue_init_from_arena(
+        arena_t* const arena,
+        const u32      size,
+        const u32      stride) {
+
+        const u32 stride_pow_2 = size_round_up_pow2(stride);
+        const u32 size_total   = sizeof(queue_t) + size_align(size, stride_pow_2);
+        
+        bool can_init = true;
+        can_init &= arena_validate(arena);
+        can_init &= (size_total   >= QUEUE_MIN_SIZE);
+        can_init &= (stride_pow_2 != 0);        
+        can_init &= (stride_pow_2 < size_total);
+        assert(can_init);        
+
+        void*       memory     = arena_push_bytes       (arena,  size_total, stride_pow_2);
+        queue_t*    queue      = queue_init_from_memory (memory, size_total, stride_pow_2); 
+        const bool  is_valid   = queue_validate         (queue);
+        assert(is_valid);
+        
+        return(queue);
+    }
+
+    SLD_API queue_t*
+    queue_init_from_memory(
+        void* const memory,
+        const u32   size,
+        const u32   stride) {
+
+        bool can_init = true;
+        can_init &= (memory != NULL);
+        can_init &= (size   >= QUEUE_MIN_SIZE);
+        can_init &= (stride != 0); 
+        can_init &= (stride <  size);
+        assert(can_init);
+
+        queue_t* queue = (queue_t*)memory;
+        queue->start   = ((addr)memory) + sizeof(queue_t); 
+        queue->head    = QUEUE_START_HEAD; 
+        queue->tail    = QUEUE_START_TAIL; 
+        queue->size    = size - sizeof(queue_t); 
+        queue->stride  = stride; 
+
+        const bool is_valid = queue_validate(queue);
+        assert(is_valid);
+
+        return(queue);
+    }
 
     SLD_API bool
     queue_validate(

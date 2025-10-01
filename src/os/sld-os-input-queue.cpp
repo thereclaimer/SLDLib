@@ -16,39 +16,39 @@ namespace sld {
 
     SLD_API bool
     os_input_queue_push_key_up(
-        os_input_queue_t*   const input_queue,
-        os_input_keycode_t*       keycode) {
+        os_input_queue_t&        input_queue,
+        const os_input_keycode_t keycode) {
 
-        assert(input_queue != NULL && input_queue->keyboard_key_up != NULL);
-        const bool did_add = os_input_queue_keyboard_push(input_queue->keyboard_key_up, keycode);
+        assert(input_queue.keyboard_key_up != NULL);
+        const bool did_add = os_input_queue_keyboard_push(input_queue.keyboard_key_up, &keycode);
         return(did_add);
     }
 
     SLD_API bool
     os_input_queue_push_key_down(
-        os_input_queue_t* const   input_queue,
-        const os_input_keycode_t* keycode) {
+        os_input_queue_t&  input_queue,
+        os_input_keycode_t keycode) {
 
-        assert(input_queue != NULL && input_queue->keyboard_key_down != NULL);
-        const bool did_add = os_input_queue_keyboard_push(input_queue->keyboard_key_down, keycode);
+        assert(input_queue.keyboard_key_down != NULL);
+        const bool did_add = os_input_queue_keyboard_push(input_queue.keyboard_key_down, &keycode);
         return(did_add);
     }
 
-    SLD_API os_input_keycode_t*
+    SLD_API os_input_keycode_t
     os_input_queue_pop_key_up(
-        os_input_queue_t* const input_queue) {
+        os_input_queue_t& input_queue) {
 
-        assert(input_queue != NULL && input_queue->keyboard_key_up != NULL);
-        os_input_keycode_t* keycode = os_input_queue_keyboard_pop(input_queue->keyboard_key_up);
-        return(keycode);
+        assert(input_queue.keyboard_key_up != NULL);
+        os_input_keycode_t* keycode = os_input_queue_keyboard_pop(input_queue.keyboard_key_up);
+        return(*keycode);
     }
 
-    SLD_API os_input_keycode_t*
+    SLD_API os_input_keycode_t
     os_input_queue_pop_key_down(
-        os_input_queue_t* const input_queue) {
+        os_input_queue_t& input_queue) {
 
-        assert(input_queue && input_queue->keyboard_key_down);
-        os_input_keycode_t* keycode = os_input_queue_keyboard_pop(input_queue->keyboard_key_down);
-        return(keycode);
+        assert(input_queue.keyboard_key_down);
+        os_input_keycode_t* keycode = os_input_queue_keyboard_pop(input_queue.keyboard_key_down);
+        return(*keycode);
     }
 };

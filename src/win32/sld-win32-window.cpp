@@ -145,7 +145,6 @@ namespace sld {
 
         os_window_error_t error = win32_window_error_success();
 
-        os_input_keyboard_reset(update.input.keyboard);
 
         update.events.val = os_window_event_e_none;
 
@@ -180,7 +179,6 @@ namespace sld {
                             msg_peek_args.message.wParam,
                             msg_peek_args.message.lParam);
 
-                        os_input_keyboard_add_key_down(update.input.keyboard, keycode);
 
                     } break;
 
@@ -193,7 +191,6 @@ namespace sld {
                             msg_peek_args.message.wParam,
                             msg_peek_args.message.lParam);
 
-                        os_input_keyboard_add_key_up(update.input.keyboard, keycode);
 
                     } break;
 
