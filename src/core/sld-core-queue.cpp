@@ -11,8 +11,10 @@ namespace sld {
         const u32      size,
         const u32      stride) {
 
-        const u32 stride_pow_2 = size_round_up_pow2(stride);
-        const u32 size_total   = sizeof(queue_t) + size_align(size, stride_pow_2);
+        const u32 size_struct  = sizeof(queue_t);
+        const u32 stride_pow_2 = size_round_up_pow2 (stride);
+        const u32 size_data    = size_align_pow_2   (size, stride_pow_2);
+        const u32 size_total   = size_struct + size_data; 
         
         bool can_init = true;
         can_init &= arena_validate(arena);
@@ -42,11 +44,13 @@ namespace sld {
         can_init &= (stride <  size);
         assert(can_init);
 
+        const u32 struct_size = sizeof(queue_t);
+
         queue_t* queue = (queue_t*)memory;
-        queue->start   = ((addr)memory) + sizeof(queue_t); 
+        queue->start   = ((addr)memory) + struct_size; 
         queue->head    = QUEUE_START_HEAD; 
         queue->tail    = QUEUE_START_TAIL; 
-        queue->size    = size - sizeof(queue_t); 
+        queue->size    = size - struct_size; 
         queue->stride  = stride; 
 
         const bool is_valid = queue_validate(queue);
@@ -66,6 +70,8 @@ namespace sld {
             is_valid &= (queue->size   != 0);
             is_valid &= (queue->stride != 0);
             is_valid &= (queue->stride <= queue->size);
+            is_valid &= (queue->head   != queue->tail);
+            is_valid &= (queue->tail   == 0) ? (queue->head == QUEUE_START_HEAD) : (queue->head < queue->tail); 
 
             // the head should be no greater than the size, or equal to the start
             is_valid &= ((queue->head <= queue->size) || queue->head == QUEUE_START_HEAD);
@@ -105,11 +111,9 @@ namespace sld {
         const bool is_valid = queue_validate(queue);
         assert(is_valid);
 
-        const u32 space_remaining = (queue->size - queue->tail); 
+        const u32  next_tail = (queue->tail + queue->stride) % queue->size;
+        const bool is_full   = (next_tail == queue->head);
 
-        bool is_full = false;
-        is_full |= (queue->tail     == queue->size);
-        is_full |= (space_remaining <  queue->stride);
         return(is_full);
     }
 
@@ -137,49 +141,38 @@ namespace sld {
     SLD_API bool
     queue_push(
         queue_t* const queue,
-        const void*    data,
-        const u32      count) {
+        const void*    data) {
 
         bool is_valid = queue_validate(queue);
         assert(is_valid);
 
-        const u32  space_remaining = queue_space_remaining(queue);
-        const u32  space_needed    = (count * queue->stride); 
-
         bool can_push = true;        
-        can_push &= (space_needed <= space_remaining);
+        can_push &= !queue_is_full(queue); 
         can_push &= (data  != NULL);
-        can_push &= (count != 0);
 
         if (can_push) {
-
-            // update the tail
-            const u32 new_tail = (queue->tail + space_needed) % queue->size;
-            queue->tail = new_tail;
 
             // copy the data
             byte*       dst = (byte*)(queue->start + queue->tail);
             const byte* src = (byte*)data;
-            memory_copy(dst, src, space_needed);
+            memory_copy(dst, src, queue->stride);
 
+            // update the head and tail
+            queue->tail = (queue->tail + queue->stride) % queue->size;
+            if (queue->head == QUEUE_START_HEAD) queue->head = 0;
+            assert(queue->head != queue->tail);
         }
         return(can_push);
     }
 
     SLD_API void*
     queue_pop(
-        queue_t* const queue,
-        const u32      count) {
+        queue_t* const queue) {
 
         bool is_valid = queue_validate(queue);
         assert(is_valid);
 
-        const u32  space_used   = queue_space_used(queue);
-        const u32  space_needed = (count * queue->stride); 
-
-        bool can_pop = true;
-        can_pop &= (count        != 0);
-        can_pop &= (space_needed <= space_used);
+        const bool can_pop = !queue_is_empty(queue);
         if (!can_pop) return(NULL);
         
         void* data = (void*)(queue->start + queue->head);
@@ -188,6 +181,11 @@ namespace sld {
             ? (queue->tail - queue->stride)
             : (queue->head + queue->stride) % queue->size;
         queue->head = new_head;
+
+        if (queue->head == queue->tail) {
+            queue->head = QUEUE_START_HEAD;
+            queue->tail = QUEUE_START_TAIL;
+        } 
 
         return(data);
     }
@@ -213,6 +211,23 @@ namespace sld {
 
         void* data = (void*)(queue->start + queue_offset);
         return(data);
+    }
+
+    SLD_API u32
+    queue_count(
+        queue_t* const queue) {
+
+        const bool is_valid = queue_validate(queue);
+        assert(is_valid);
+
+        if (queue->head == QUEUE_START_HEAD) return(0);
+
+        const u32 space_used = (queue->head < queue->tail)
+            ? (queue->tail - queue->head)
+            : (queue->head - queue->tail);
+
+        const u32 count = (space_used / queue->stride);
+        return(count);
     }
 
 };

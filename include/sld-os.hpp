@@ -324,10 +324,13 @@ namespace sld {
         os_input_queue_mouse_t*    mouse;
     };
 
-    SLD_API bool               os_input_queue_push_key_up   (os_input_queue_t& input_queue, const os_input_keycode_t keycode);
-    SLD_API bool               os_input_queue_push_key_down (os_input_queue_t& input_queue, const os_input_keycode_t keycode);
-    SLD_API os_input_keycode_t os_input_queue_pop_key_up    (os_input_queue_t& input_queue);
-    SLD_API os_input_keycode_t os_input_queue_pop_key_down  (os_input_queue_t& input_queue);
+    SLD_API void               os_input_queue_reset          (os_input_queue_t& input_queue);
+    SLD_API bool               os_input_queue_key_up_push    (os_input_queue_t& input_queue, const os_input_keycode_t keycode);
+    SLD_API os_input_keycode_t os_input_queue_key_up_pop     (os_input_queue_t& input_queue);
+    SLD_API u32                os_input_queue_key_up_count   (os_input_queue_t& input_queue);
+    SLD_API bool               os_input_queue_key_down_push  (os_input_queue_t& input_queue, const os_input_keycode_t keycode);
+    SLD_API os_input_keycode_t os_input_queue_key_down_pop   (os_input_queue_t& input_queue);
+    SLD_API u32                os_input_queue_key_down_count (os_input_queue_t& input_queue);
 
     //-------------------------------------------------------------------
     // WINDOW

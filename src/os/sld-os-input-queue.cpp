@@ -2,53 +2,76 @@
 
 #include "sld-os.hpp"
 
-#define os_input_queue_keyboard_reset(queue)                               queue_reset           (queue)
-#define os_input_queue_keyboard_is_empty(queue)                            queue_is_empty        (queue)
-#define os_input_queue_keyboard_is_full(queue)                             queue_is_full         (queue)
-#define os_input_queue_keyboard_space_remaining(queue)                     queue_space_remaining (queue)
-#define os_input_queue_keyboard_space_used(queue)                          queue_space_used      (queue)
-#define os_input_queue_keyboard_count(queue)                               queue_count           (queue)
-#define os_input_queue_keyboard_push(queue, keycode)                       queue_push            (queue, (void*)keycode, 1)      
-#define os_input_queue_keyboard_pop(queue)           (os_input_keycode_t*) queue_pop             (queue, 1)
-#define os_input_queue_keyboard_peek(queue)          (os_input_keycode_t*) queue_peek            (queue, 1)
 
 namespace sld {
 
+    SLD_API void
+    os_input_queue_reset(
+        os_input_queue_t& input_queue) {
+
+        bool is_valid = true;
+        is_valid &= (input_queue.keyboard_key_up   != NULL);
+        is_valid &= (input_queue.keyboard_key_down != NULL);
+        assert(is_valid);
+
+        queue_reset(input_queue.keyboard_key_up);
+        queue_reset(input_queue.keyboard_key_down);
+    }
+
+
     SLD_API bool
-    os_input_queue_push_key_up(
+    os_input_queue_key_up_push(
         os_input_queue_t&        input_queue,
         const os_input_keycode_t keycode) {
 
         assert(input_queue.keyboard_key_up != NULL);
-        const bool did_add = os_input_queue_keyboard_push(input_queue.keyboard_key_up, &keycode);
+        const bool did_add = queue_push(input_queue.keyboard_key_up, &keycode);
         return(did_add);
     }
 
+    SLD_API os_input_keycode_t
+    os_input_queue_key_up_pop(
+        os_input_queue_t& input_queue) {
+
+        assert(input_queue.keyboard_key_up != NULL);
+        os_input_keycode_t* keycode = (os_input_keycode_t*)queue_pop(input_queue.keyboard_key_up);
+        return(*keycode);
+    }
+
+    SLD_API u32
+    os_input_queue_key_up_count(
+        os_input_queue_t& input_queue) {
+
+        assert(input_queue.keyboard_key_up != NULL);
+        const u32 count = queue_count(input_queue.keyboard_key_up);
+        return(count);
+    }
+
     SLD_API bool
-    os_input_queue_push_key_down(
+    os_input_queue_key_down_push(
         os_input_queue_t&  input_queue,
         os_input_keycode_t keycode) {
 
         assert(input_queue.keyboard_key_down != NULL);
-        const bool did_add = os_input_queue_keyboard_push(input_queue.keyboard_key_down, &keycode);
+        const bool did_add = queue_push(input_queue.keyboard_key_down, &keycode);
         return(did_add);
     }
 
     SLD_API os_input_keycode_t
-    os_input_queue_pop_key_up(
-        os_input_queue_t& input_queue) {
-
-        assert(input_queue.keyboard_key_up != NULL);
-        os_input_keycode_t* keycode = os_input_queue_keyboard_pop(input_queue.keyboard_key_up);
-        return(*keycode);
-    }
-
-    SLD_API os_input_keycode_t
-    os_input_queue_pop_key_down(
+    os_input_queue_key_down_pop(
         os_input_queue_t& input_queue) {
 
         assert(input_queue.keyboard_key_down);
-        os_input_keycode_t* keycode = os_input_queue_keyboard_pop(input_queue.keyboard_key_down);
+        os_input_keycode_t* keycode = (os_input_keycode_t*)queue_pop(input_queue.keyboard_key_down);
         return(*keycode);
+    }
+
+    SLD_API u32
+    os_input_queue_key_down_count(
+        os_input_queue_t& input_queue) {
+
+        assert(input_queue.keyboard_key_down != NULL);
+        const u32 count = queue_count(input_queue.keyboard_key_down);
+        return(count);
     }
 };

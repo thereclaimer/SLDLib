@@ -179,6 +179,7 @@ namespace sld {
                             msg_peek_args.message.wParam,
                             msg_peek_args.message.lParam);
 
+                        const bool did_push = os_input_queue_key_down_push(update.input_queue, keycode);
 
                     } break;
 
@@ -191,6 +192,7 @@ namespace sld {
                             msg_peek_args.message.wParam,
                             msg_peek_args.message.lParam);
 
+                        const bool did_push = os_input_queue_key_up_push(update.input_queue, keycode);
 
                     } break;
 
