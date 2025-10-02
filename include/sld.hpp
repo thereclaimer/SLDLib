@@ -126,14 +126,16 @@ namespace sld {
     // BITWISE UTILITIES
     //-------------------------------------------------------------------
     
-    SLD_UTILITY const u32 bit_value        (const u32 bit)                       { return (1 << bit);           }
-    SLD_UTILITY bool      bit_test         (const u32 bit, const u32 value)      { return ((value >> bit) & 1); }
-    SLD_UTILITY void      bit_set_high     (const u32 bit, u32&      value)      { value |=  (1 << bit);        }
-    SLD_UTILITY void      bit_set_low      (const u32 bit, u32&      value)      { value &= ~(1 << bit);        }
-    SLD_UTILITY void      bit_toggle       (const u32 bit, u32&      value)      { value ^=  (1 << bit);        }
+    SLD_UTILITY const u32 bit_value        (const u32 bit)                                      { return (1 << bit);                                            }
+    SLD_UTILITY bool      bit_test         (const u32 bit, const u32 value)                     { return ((value >> bit) & 1);                                  }
+    SLD_UTILITY void      bit_set_high     (const u32 bit, u32&      value)                     { value |=  (1 << bit);                                         }
+    SLD_UTILITY void      bit_set_low      (const u32 bit, u32&      value)                     { value &= ~(1 << bit);                                         }
+    SLD_UTILITY void      bit_toggle       (const u32 bit, u32&      value)                     { value ^=  (1 << bit);                                         }
+    SLD_UTILITY void      bit_set          (const u32 bit, u32&      value, const bool state)   { value = (state) ? (value | (1 << bit)) : value & ~(1 << bit); }
 
-
+    SLD_UTILITY bool      bit_mask_test   (const u32 value, const u32 mask)                   { return((value & mask) > 0);                         }
+    SLD_UTILITY void      bit_mask_and    (u32& value,      const u32 mask)                   { (value |=  mask);                                   }
+    SLD_UTILITY void      bit_mask_or     (u32& value,      const u32 mask)                   { (value &= ~mask);                                   }
 };
-
 
 #endif //SLD_HPP
