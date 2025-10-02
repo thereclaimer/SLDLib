@@ -16,6 +16,8 @@
 #include "sld-memory-reservation.cpp"
 #include "sld-memory-arena.cpp"
 
+#include "sld-input-keyboard.cpp"
+
 #include "sld-xml-stack.cpp"
 #include "sld-xml-internal.cpp"
 #include "sld-xml-doc.cpp"

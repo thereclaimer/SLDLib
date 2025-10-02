@@ -6,6 +6,7 @@
 #include "sld-geometry.hpp"
 #include "sld-graphics.hpp"
 #include "sld-queue.hpp"
+#include "sld-input.hpp"
 
 /**********************************************************************************/
 /* OS                                                                             */
@@ -342,7 +343,6 @@ namespace sld {
 
     struct os_window_update_t;
 
-
     typedef  dims_u32_size_t os_window_size_t;
     typedef  dims_u32_pos_t  os_window_pos_t ;
     typedef  color_u32_t     os_window_color_t;
@@ -358,7 +358,7 @@ namespace sld {
     using os_window_show_f            = const os_window_error_t (*) (const os_window_handle_t window_handle);
 
     struct os_window_update_t {
-        os_input_queue_t        input_queue;
+        input_keyboard_t*       keyboard;
         os_window_event_flags_t events;
     };
 

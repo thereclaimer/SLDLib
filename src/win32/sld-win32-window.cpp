@@ -175,11 +175,11 @@ namespace sld {
 
                         update.events.val |= os_window_event_e_key_down; 
                         
-                        const os_input_keycode_t keycode = win32_input_translate_keycode(
+                        const input_keycode_t keycode = win32_input_translate_keycode(
                             msg_peek_args.message.wParam,
                             msg_peek_args.message.lParam);
 
-                        const bool did_push = os_input_queue_key_down_push(update.input_queue, keycode);
+                        input_keyboard_add_key_down(update.keyboard, keycode);
 
                     } break;
 
@@ -188,11 +188,11 @@ namespace sld {
                     
                         update.events.val |= os_window_event_e_key_up;
                         
-                        const os_input_keycode_t keycode = win32_input_translate_keycode(
+                        const input_keycode_t keycode = win32_input_translate_keycode(
                             msg_peek_args.message.wParam,
                             msg_peek_args.message.lParam);
 
-                        const bool did_push = os_input_queue_key_up_push(update.input_queue, keycode);
+                        input_keyboard_add_key_up(update.keyboard, keycode);
 
                     } break;
 
