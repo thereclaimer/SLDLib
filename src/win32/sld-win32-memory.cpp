@@ -84,4 +84,22 @@ namespace sld {
         const u64 size_aligned = size_align_pow_2(size, sys_info.dwAllocationGranularity);
         return(size_aligned);
     }
+
+    SLD_OS_API_FUNC bool
+    win32_memory_is_reserved(
+        void* start) {
+
+        if (!start) return(false);
+
+        MEMORY_BASIC_INFORMATION memory_info;
+        const SIZE_T result = VirtualQuery(
+            start,
+            &memory_info,
+            sizeof(memory_info)
+        );
+
+        const bool is_reserved = (memory_info.State == MEM_RESERVE);
+        return(is_reserved); 
+    }
+
 };

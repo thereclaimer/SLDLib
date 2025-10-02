@@ -109,10 +109,7 @@ namespace sld {
             u64 reserved;
             u64 arena;
         } size;
-        struct {
-            arena_t* committed;
-            arena_t* decommitted;
-        } arena_list;
+        arena_t*       arenas;
         memory_error_t last_error;
     }; 
 

@@ -408,6 +408,7 @@ namespace sld {
     using os_memory_decommit_f             = bool  (*) (void* start, const u64 size);
     using os_memory_align_to_page_f        = u64   (*) (const u64 size);
     using os_memory_align_to_granularity_f = u64   (*) (const u64 size);
+    using os_memory_is_reserved_f          = bool  (*) (void* start);
 
     //-------------------------------------------------------------------
     // FILES
@@ -604,6 +605,7 @@ namespace sld {
     SLD_OS_API os_memory_decommit_f             os_memory_decommit;
     SLD_OS_API os_memory_align_to_page_f        os_memory_align_to_page;
     SLD_OS_API os_memory_align_to_granularity_f os_memory_align_to_granularity;
+    SLD_OS_API os_memory_is_reserved_f          os_memory_is_reserved;
 
     SLD_OS_API os_file_open_f                   os_file_open;
     SLD_OS_API os_file_size_f                   os_file_size;

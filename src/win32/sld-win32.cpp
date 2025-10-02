@@ -58,7 +58,8 @@ namespace sld {
     os_memory_decommit_f             os_memory_decommit             = win32_memory_decommit;
     os_memory_align_to_page_f        os_memory_align_to_page        = win32_memory_align_to_page;
     os_memory_align_to_granularity_f os_memory_align_to_granularity = win32_memory_align_to_granularity;
-
+    os_memory_is_reserved_f          os_memory_is_reserved          = win32_memory_is_reserved;
+    
     //----------------
     // files
     //----------------

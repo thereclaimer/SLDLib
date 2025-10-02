@@ -31,30 +31,43 @@ namespace sld {
         const bool is_valid = reservation_validate(reservation);
         if (!is_valid) return(NULL);
 
-        // attempt to re-commit a decommitted arena 
-        arena_t*   arena       = reservation_remove_next_decommitted_arena(reservation);
-        const bool is_recommit = (arena != NULL);
+        // find the next free arena
+        const u32 arena_count_max = (reservation->size.reserved / reservation->size.arena);
+        void*     commit_start    = NULL;
+        for (
+            u32 arena_index = 0;
+            arena_index < arena_count_max;
+            ++arena_index) {
 
-        // if this isn't a re-commit, we need to calculate the 
-        // new address
-        const u64 commit_offset = reservation_size_committed(reservation);
-        void*     commit_start  = (is_recommit)
-            ? (void*)arena->start
-            : (void*)(reservation->start + commit_offset);
+            const u32  arena_offset  = (arena_index * reservation->size.arena);
+            void*      arena_tmp     = (void*)(reservation->start + arena_offset); 
+            const bool arena_is_free = os_memory_is_reserved(arena_tmp);
+            
+            if (arena_is_free) {
+                commit_start = arena_tmp;
+                break;
+            } 
+        }
 
         // attempt to commit memory
-        arena = (arena_t*)os_memory_commit(commit_start, reservation->size.arena);
+        arena_t* arena = (arena_t*)os_memory_commit(commit_start, reservation->size.arena);
         if ((void*)arena == commit_start ) {
 
             constexpr u32 arena_struct_size = sizeof(arena_t);
-            // initialize the arena and add to the reservation
+
+            // initialize the arena
             arena->start          = (addr)arena             + arena_struct_size;
             arena->size           = reservation->size.arena - arena_struct_size;
             arena->position       = 0;
             arena->save           = 0;
             arena->reservation    = reservation;
             arena->last_error.val = memory_error_e_success;
-            reservation_insert_committed_arena(reservation, arena);
+
+            // add the arena to the reservation
+            arena_t* next = reservation->arenas;
+            if (next) next->prev = arena;
+            arena->next = next;
+            reservation->arenas = arena;
         }
         return(arena);
     }
@@ -70,6 +83,11 @@ namespace sld {
             return(is_valid);
         }
 
+        reservation_t* reservation = arena->reservation;
+        const bool     is_first    = (arena == reservation->arenas); 
+        arena_t*       next        = arena->next;
+        arena_t*       prev        = arena->prev;
+
         // attempt to decommit the memory
         const bool is_decommitted = os_memory_decommit(
             (void*)arena,
@@ -80,9 +98,10 @@ namespace sld {
             return(is_decommitted);
         }
 
-        // add the arena to the reservation's decommitted list
-        reservation_remove_committed_arena(arena->reservation, arena);
-        arena->last_error.val = memory_error_e_success;
+        // remove the arena from the list
+        if (next)     next->prev          = prev;
+        if (prev)     prev->next          = next;
+        if (is_first) reservation->arenas = next;
         return(is_decommitted);
     }
 
@@ -269,45 +288,4 @@ namespace sld {
         arena->next          = next;
         arena_list.released  = arena;
     }
-
-    SLD_FUNC void
-    arena_list_insert_all_released(
-        arena_list_t&  arena_list,
-        reservation_t* reservation) {
-
-        // the released arena list will start with committed arenas
-        arena_t* released = reservation->arena_list.committed;
-
-        // add the decommited arenas to the tail of the released list
-        if (released != NULL) {
-
-            // get the last committed arena
-            arena_t* last_released = NULL;
-            for (
-                arena_t* last_released = reservation->arena_list.committed;
-                (last_released != NULL) && (last_released->next != NULL);
-                last_released = last_released->next
-            );
-
-            arena_t* first_decommitted = reservation->arena_list.decommitted; 
-            last_released->next = first_decommitted;
-            if (first_decommitted) {
-                first_decommitted->prev = last_released;
-            }
-        }
-        else {
-            released = reservation->arena_list.decommitted;
-        }
-
-        // add the released arenas back to the stack
-        arena_t* next = arena_list.released;
-        if (next) next->prev = released;
-        released->next       = next;
-        arena_list.released  = released;
-
-        // null the reservation arenas
-        reservation->arena_list.committed   = NULL;
-        reservation->arena_list.decommitted = NULL;
-    }
-
 };

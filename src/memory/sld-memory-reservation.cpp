@@ -46,13 +46,11 @@ namespace sld {
 
         // initialize the reservation 
         // and add it to the list
-        reservation->start                  = reservation_start;
-        reservation->size.reserved          = size_reservation;
-        reservation->size.arena             = size_arena; 
-        reservation->last_error.val         = memory_error_e_success;
-        reservation->arena_list.committed   = NULL;
-        reservation->arena_list.decommitted = NULL;
-
+        reservation->start          = reservation_start;
+        reservation->size.reserved  = size_reservation;
+        reservation->size.arena     = size_arena; 
+        reservation->last_error.val = memory_error_e_success;
+        reservation->arenas         = NULL;
         return(reservation);
     }
     
@@ -73,11 +71,10 @@ namespace sld {
             return(is_released);
         }
 
-        reservation->arena_list.committed   = NULL;
-        reservation->arena_list.decommitted = NULL;
-        reservation->size.reserved          = 0;
-        reservation->size.arena             = 0;
-        reservation->last_error.val         = memory_error_e_success;
+        reservation->arenas         = NULL;
+        reservation->size.reserved  = 0;
+        reservation->size.arena     = 0;
+        reservation->last_error.val = memory_error_e_success;
         return(is_released);
     }
 
@@ -91,7 +88,7 @@ namespace sld {
             bool is_decommitted = true;
 
             for (
-                arena_t* arena = reservation->arena_list.committed;
+                arena_t* arena = reservation->arenas;
                 arena != NULL;
                 arena = arena->next) {
 
@@ -103,8 +100,7 @@ namespace sld {
                 : memory_error_e_success;
         } 
 
-        reservation->arena_list.committed   = NULL;
-        reservation->arena_list.decommitted = NULL;
+        reservation->arenas = NULL;
 
         const bool result = is_valid && (reservation->last_error.val == memory_error_e_success);
 
@@ -123,7 +119,7 @@ namespace sld {
             reservation->last_error.val = memory_error_e_success;
             const u64 arena_size = reservation->size.arena; 
             for (
-                arena_t* arena = reservation->arena_list.committed;
+                arena_t* arena = reservation->arenas;
                 arena != NULL;
                 arena = arena->next) {
                 
@@ -144,17 +140,8 @@ namespace sld {
         
         if (is_valid) {
 
-            reservation->last_error.val = memory_error_e_success;
-            const u64 arena_size = reservation->size.arena; 
-            for (
-                arena_t* arena = reservation->arena_list.committed;
-                arena != NULL;
-                arena = arena->next) {
-                
-                size_committed += arena_size;
-            }
-
-            size_decommitted = (reservation->size.reserved - size_committed);
+            const u32 size_committed = reservation_size_committed(reservation);
+            size_decommitted         = (reservation->size.reserved - size_committed);
         } 
 
         return(size_decommitted);
@@ -163,54 +150,4 @@ namespace sld {
     //-------------------------------------------------------------------
     // INTERNAL
     //-------------------------------------------------------------------
-
-    SLD_FUNC arena_t*
-    reservation_remove_next_decommitted_arena(
-        reservation_t* reservation) {
-        
-        arena_t* arena = reservation->arena_list.decommitted;
-        if (arena != NULL) {
-            arena_t* next = arena->next;
-            next->prev = NULL;
-            reservation->arena_list.decommitted = next;            
-            arena->next = NULL;
-            arena->prev = NULL;
-        }
-        return(arena);
-    }
-
-    SLD_FUNC void
-    reservation_remove_committed_arena(
-        reservation_t* reservation,
-        arena_t*       arena) {
-
-        if (reservation->arena_list.committed == arena) {
-            reservation->arena_list.committed = arena->next;
-        }
-
-        if (arena->prev != NULL) arena->prev = arena->next;
-        if (arena->next != NULL) arena->next = arena->prev;
-    }
-
-    SLD_FUNC void
-    reservation_insert_committed_arena(
-        reservation_t* reservation,
-        arena_t*       arena) {
-
-        arena_t* next = reservation->arena_list.committed;
-        if (next != NULL) next->prev = arena;
-        arena->prev = NULL;
-        reservation->arena_list.committed = arena;        
-    }
-
-    SLD_FUNC void
-    reservation_insert_decommitted_arena(
-        reservation_t* reservation,
-        arena_t*       arena) {
-
-        arena_t* next = reservation->arena_list.decommitted;
-        if (next != NULL) next->prev = arena;
-        arena->next = next;
-        reservation->arena_list.decommitted = arena;
-    }
 };
