@@ -14,7 +14,7 @@
 #include <GL/glext.h>
 
 #define SLD_INLINE   static inline
-#define SLD_FUNC static
+#define SLD_FUNC     static
 #define SLD_API
 #define SLD_UTILITY  static constexpr
 
