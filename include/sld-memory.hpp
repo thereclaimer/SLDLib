@@ -38,7 +38,7 @@ namespace sld {
     SLD_API byte*               memory_advance                (const byte* start,     const u64   size,      const u64 stride, u64& offset);
     SLD_API void                memory_copy                   (byte*       start_dst, const byte* start_src, const u64 size);
 
-    SLD_API bool                reservation_acquire           (reservation_t* reservation, const u64 size_min_reservation, const u64 size_min_arena = 0);
+    SLD_API bool                reservation_acquire           (reservation_t* reservation, const u64 size_min_reservation, const u64 size_min_arena = 0, const u64 size_arena_header = 0);
     SLD_API bool                reservation_validate          (reservation_t* reservation);
     SLD_API bool                reservation_release           (reservation_t* reservation);
     SLD_API bool                reservation_reset             (reservation_t* reservation);
@@ -107,7 +107,8 @@ namespace sld {
         addr start;
         struct {
             u64 reserved;
-            u64 arena;
+            u64 arena_memory;
+            u64 arena_header;
         } size;
         arena_t*       arenas;
         memory_error_t last_error;

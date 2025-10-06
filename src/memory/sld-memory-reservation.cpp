@@ -16,7 +16,7 @@ namespace sld {
         if (!is_valid) {
             is_valid &= (reservation->start         != NULL);
             is_valid &= (reservation->size.reserved != 0);
-            is_valid &= (reservation->size.arena    != 0);
+            is_valid &= (reservation->size.arena_memory    != 0);
 
             reservation->last_error.val = (is_valid) 
                 ? memory_error_e_success
@@ -30,7 +30,8 @@ namespace sld {
     reservation_acquire(
         reservation_t* reservation,
         const u64      size_min_reservation,
-        const u64      size_min_arena) {
+        const u64      size_min_arena,
+        const u64      size_arena_header) {
         
         bool can_reserve = true;
         can_reserve &= (reservation          != NULL);
@@ -39,18 +40,20 @@ namespace sld {
         if (!can_reserve) return(false);
 
         // align and reserve memory
-        const u64 size_reservation  =       os_memory_align_to_granularity (size_min_reservation);  
-        const u64 size_arena        =       os_memory_align_to_page        (size_min_arena);  
-        addr      reservation_start = (addr)os_memory_reserve              (NULL,size_reservation);
+        const u64 size_header       = sld::size_round_up_pow2        (size_arena_header); 
+        const u64 size_reservation  = os_memory_align_to_granularity (size_min_reservation);  
+        const u64 size_arena        = os_memory_align_to_page        (size_min_arena + size_arena_header);  
+        addr      reservation_start = (addr)os_memory_reserve        (NULL,size_reservation);
         if (reservation_start == 0) return(false);
 
         // initialize the reservation 
         // and add it to the list
-        reservation->start          = reservation_start;
-        reservation->size.reserved  = size_reservation;
-        reservation->size.arena     = size_arena; 
-        reservation->last_error.val = memory_error_e_success;
-        reservation->arenas         = NULL;
+        reservation->start             = reservation_start;
+        reservation->size.reserved     = size_reservation;
+        reservation->size.arena_memory = size_arena; 
+        reservation->size.arena_header = size_header; 
+        reservation->last_error.val    = memory_error_e_success;
+        reservation->arenas            = NULL;
         return(reservation);
     }
     
@@ -73,7 +76,7 @@ namespace sld {
 
         reservation->arenas         = NULL;
         reservation->size.reserved  = 0;
-        reservation->size.arena     = 0;
+        reservation->size.arena_memory     = 0;
         reservation->last_error.val = memory_error_e_success;
         return(is_released);
     }
@@ -117,7 +120,7 @@ namespace sld {
         if (is_valid) {
 
             reservation->last_error.val = memory_error_e_success;
-            const u64 arena_size = reservation->size.arena; 
+            const u64 arena_size = reservation->size.arena_memory; 
             for (
                 arena_t* arena = reservation->arenas;
                 arena != NULL;
