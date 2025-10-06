@@ -32,14 +32,14 @@ namespace sld {
         if (!is_valid) return(NULL);
 
         // find the next free arena
-        const u32 arena_count_max = (reservation->size.reserved / reservation->size.arena);
+        const u32 arena_count_max = (reservation->size.reserved / reservation->size.arena_memory);
         void*     commit_start    = NULL;
         for (
             u32 arena_index = 0;
             arena_index < arena_count_max;
             ++arena_index) {
 
-            const u32  arena_offset  = (arena_index * reservation->size.arena);
+            const u32  arena_offset  = (arena_index * reservation->size.arena_memory);
             void*      arena_tmp     = (void*)(reservation->start + arena_offset); 
             const bool arena_is_free = os_memory_is_reserved(arena_tmp);
             
@@ -50,14 +50,15 @@ namespace sld {
         }
 
         // attempt to commit memory
-        arena_t* arena = (arena_t*)os_memory_commit(commit_start, reservation->size.arena);
+        arena_t* arena = (arena_t*)os_memory_commit(commit_start, reservation->size.arena_memory);
         if ((void*)arena == commit_start ) {
 
-            constexpr u32 arena_struct_size = sizeof(arena_t);
+            constexpr u32 arena_struct_size  = sizeof(arena_t);
+            const u32     arena_start_offset = (arena_struct_size + reservation->size.arena_header);
 
             // initialize the arena
-            arena->start          = (addr)arena             + arena_struct_size;
-            arena->size           = reservation->size.arena - arena_struct_size;
+            arena->start          = (addr)arena                    + arena_start_offset;
+            arena->size           = reservation->size.arena_memory - arena_start_offset;
             arena->position       = 0;
             arena->save           = 0;
             arena->reservation    = reservation;
