@@ -81,7 +81,7 @@ namespace FileDialog {
 
 			ImGui::SetNextWindowSize(ImVec2(740.0f, 410.0f));
 			const char* window_title = (type == FileDialogType::OpenFile ? "Select a file" : "Select a folder");
-			ImGui::Begin(window_title, nullptr, ImGuiWindowFlags_NoResize);
+			ImGui::Begin(window_title, nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking);
 
 			std::vector<std::filesystem::directory_entry> files;
 			std::vector<std::filesystem::directory_entry> folders;

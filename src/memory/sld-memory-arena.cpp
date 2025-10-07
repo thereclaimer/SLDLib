@@ -134,24 +134,6 @@ namespace sld {
         return(bytes);
     }
 
-    SLD_API block_allocator_t*
-    arena_push_block_allocator(
-        arena_t*  arena,
-        const u32 size,
-        const u32 granularity) {
-
-        // calculate the push size
-        constexpr u32 size_struct       = sizeof(block_allocator_t);
-        const     u32 size_gran_aligned = size_round_up_pow2(granularity);
-        const     u32 size_mem_aligned  = size_align_pow_2  (size, granularity);
-        const     u32 size_push         = size_struct + size_mem_aligned;
-
-        // initialize allocator
-        const void*        memory    = arena_push_bytes     (arena,  size_push, size_gran_aligned);
-        block_allocator_t* allocator = block_allocator_init (memory, size_push, size_gran_aligned);
-        return(allocator);
-    }
-
     SLD_API stack_allocator_t*
     arena_push_stack_allocator(
         arena_t*  arena,

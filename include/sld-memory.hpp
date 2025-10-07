@@ -9,7 +9,7 @@
 #endif 
 #ifndef    SLD_MEMORY_DEFAULT_ALIGNMENT
 #   define SLD_MEMORY_DEFAULT_ALIGNMENT 4
-#endif 
+#endif
 
 namespace sld {
 
@@ -29,6 +29,7 @@ namespace sld {
 
     struct block_allocator_t;
     struct stack_allocator_t;
+    struct block_arena_allocator_t;
 
     //-------------------------------------------------------------------
     // API
@@ -45,19 +46,19 @@ namespace sld {
     SLD_API u64                 reservation_size_committed    (reservation_t* reservation);
     SLD_API u64                 reservation_size_decommitted  (reservation_t* reservation);
 
-    SLD_API arena_t*            arena_commit                  (reservation_t* reservation);
-    SLD_API bool                arena_validate                (arena_t*       arena);
-    SLD_API bool                arena_decommit                (arena_t*       arena);
-    SLD_API byte*               arena_push_bytes              (arena_t*       arena, const u64 size, const u64 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    SLD_API block_allocator_t*  arena_push_block_allocator    (arena_t*       arena, const u32 size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    SLD_API stack_allocator_t*  arena_push_stack_allocator    (arena_t*       arena, const u32 size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    SLD_API bool                arena_pull_bytes              (arena_t*       arena, const u64 size, const u64 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    SLD_API bool                arena_reset                   (arena_t*       arena);
-    SLD_API bool                arena_roll_back               (arena_t*       arena);
-    SLD_API bool                arena_save_position           (arena_t*       arena);
-    SLD_API u64                 arena_size_total              (arena_t*       arena);
-    SLD_API u64                 arena_size_free               (arena_t*       arena);
-    SLD_API u64                 arena_size_used               (arena_t*       arena);
+    SLD_API arena_t*                 arena_commit                  (reservation_t* reservation);
+    SLD_API bool                     arena_validate                (arena_t*       arena);
+    SLD_API bool                     arena_decommit                (arena_t*       arena);
+    SLD_API byte*                    arena_push_bytes              (arena_t*       arena, const u64 size, const u64 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API block_allocator_t*       arena_push_block_allocator    (arena_t*       arena, const u32 size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API stack_allocator_t*       arena_push_stack_allocator    (arena_t*       arena, const u32 size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API bool                     arena_pull_bytes              (arena_t*       arena, const u64 size, const u64 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API bool                     arena_reset                   (arena_t*       arena);
+    SLD_API bool                     arena_roll_back               (arena_t*       arena);
+    SLD_API bool                     arena_save_position           (arena_t*       arena);
+    SLD_API u64                      arena_size_total              (arena_t*       arena);
+    SLD_API u64                      arena_size_free               (arena_t*       arena);
+    SLD_API u64                      arena_size_used               (arena_t*       arena);
 
     SLD_API block_allocator_t*  block_allocator_init          (const void*              memory,    const u32   size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
     SLD_API void*               block_allocator_alloc_abs     (block_allocator_t* const allocator, const u32   size, const u32 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
