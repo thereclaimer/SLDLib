@@ -85,10 +85,9 @@ namespace sld {
         return(count < capacity);
     }
 
-    template<typename t>
-    SLD_INLINE u32
-    array_list_get_index_of(
-        const t* element) {
+    SLD_ARRAY_LIST_IMPL_INLINE
+    get_index_of_element(
+        const t* element) -> u32 {
 
         assert_valid();
 
@@ -102,40 +101,25 @@ namespace sld {
         return(does_exist ? index : ARRAY_LIST_INDEX_INVALID);
     }
 
-    template<typename t>
-    SLD_INLINE t*
-    array_list_get_first_element(
-        array_list_t<t>* const array_list) {
+    SLD_ARRAY_LIST_IMPL_CONSTEXPR
+    get_first_element(
+        void) -> t* {
 
         array_list_assert_valid(array_list);
-
         return(array_list->start);
     }
 
-    template<typename t>
-    SLD_INLINE t*
-    array_list_get_last_element(
-        array_list_t<t>* const array_list) {
+    SLD_ARRAY_LIST_IMPL_CONSTEXPR
+    get_last_element(
+        void) -> t* {
 
-        array_list_assert_valid(array_list);
-
-        if (array_list_is_empty(array_list)) {
-            return(NULL);
-        }
-
-        const u32  index     = (array_list->count  - 1);
-        const u32  offset    = (array_list->stride * index); 
-        const addr last_addr = (array_list->start  + offset);
-        void*      last_ptr  = (void*)last_addr; 
-
-        return(last_ptr);
+        assert_valid();
+        return(&start[count - 1]);
     }
 
-    template<typename t>
-    SLD_INLINE bool
-    array_list_add(
-        array_list_t<t>* const array_list,
-        const void*         element) {
+    SLD_ARRAY_LIST_IMPL_INLINE
+    add_element(
+        const t* element) -> bool {
 
         array_list_assert_valid(array_list);
         
@@ -144,87 +128,69 @@ namespace sld {
         can_add &= array_list_is_not_full(array_list);
         if(!can_add) return(false);
 
-
-
-
+        return(false);
     }
 
-    template<typename t>
-    SLD_INLINE bool
-    array_list_insert_at(
-        array_list_t<t>* const array_list,
-        const void*         element,
-        const u32           index) {
+    SLD_ARRAY_LIST_IMPL_INLINE 
+    insert_element_at(
+        const t*  element,
+        const u32 index) -> bool {
 
-        array_list_assert_valid(array_list);
+        assert_valid();
 
         bool can_insert = true;
         can_insert &= (element != NULL);
-        can_insert &= (index   <  array_list->count);
-        can_insert &= (index   <  array_list->count);
-        can_insert &= array_list_is_not_full(array_list);
+        can_insert &= (index   <  count);
+        can_insert &= (index   <  count);
+        can_insert &= is_not_full();
         if (!can_insert) return(false);
-
-        // there should always be an element here at this point to move
-        void* existing_element = array_list_get_element(array_list, index);
-        assert(existing_element);
 
 
         return(true);
-   }
-
-    template<typename t>    
-    SLD_INLINE bool
-    array_list_remove_at(
-        array_list_t<t>* const array_list,
-        const u32              index) {
-
     }
 
-    SLD_INLINE void*
-    array_list_get_element(
-        const u32 index) {
+    SLD_ARRAY_LIST_IMPL_INLINE 
+    remove_element_at(
+        const u32 index) -> bool {
+
+        return(false);
+    }
+
+    SLD_ARRAY_LIST_IMPL_CONSTEXPR 
+    get_element_at(
+        const u32 index) -> t* {
 
         array_list_assert_valid(array_list);
 
-        bool can_get = (index < array_list->count);
+        bool can_get = (index < count);
         if (!can_get) return(NULL);
 
-        const u32  offset       = (array_list->stride * index);
-        const addr element_addr = (array_list->start  + offset);
-        void*      element_ptr  = (void*)element_addr;
+
 
         return(element_ptr); 
     }
 
-    SLD_INLINE void*
-    array_list_next(
-        array_list_t<t>* const array_list,
-        const void*         current) {
+    SLD_ARRAY_LIST_IMPL_CONSTEXPR 
+    get_next_element(
+        const t* current) -> t* {
 
-        array_list_assert_valid(array_list);
+        assert_valid();
         
-        const addr  current_addr  = (addr)current;
-        const void* last_ptr      = array_list_last(array_list); 
-        const addr  last_addr     = (addr)last_ptr;
-        const u32   current_index = array_list_index_of(array_list, current); 
-        const u32   next_index    = (current_index == ARRAY_LIST_INDEX_INVALID)
-            ? ARRAY_LIST_INDEX_INVALID 
-            : (current_index + 1); 
-
-        bool can_get = true;
-        can_get &= (current_addr  >= array_list->start);
-        can_get &= (current_addr  <= last_addr);
-        can_get &= (current_index <  array_list->count);
-        can_get &= (next_index    <  array_list->count);
-        if (!can_get) return(NULL);
-        
-        // we've done so much validation at this point,
-        // this should never be null
-        void* next_ptr = array_list_get_element(array_list, next_index);
-        assert(next_ptr);
-        return(next_ptr);
     }
+
+    SLD_ARRAY_LIST_IMPL_CONSTEXPR
+    get_size_of_element(
+        void) -> u32 {
+
+        return(sizeof(t));
+    }
+
+    SLD_ARRAY_LIST_IMPL_INLINE
+    operator[] (
+        u32 index) -> t& {
+
+    }
+
 };
 
 #undef SLD_ARRAY_LIST_IMPL_INLINE

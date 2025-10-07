@@ -54,21 +54,25 @@ namespace sld {
         u32  capacity;
         u32  count;
 
-        inline static array_list_t<t>* init_from_memory  (const void* memory, const u32 size);
-        inline bool                    init_from_array   (t* const    array,  const u32 count);
-        inline u32                     get_index_of      (const t*    element);
-        inline bool                    add_element       (const t*    element);
-        inline bool                    insert_at         (const t*    element, const u32 index);
-        inline bool                    remove_at         (const u32   index);
-        inline constexpr void          assert_valid      (void);
-        inline constexpr bool          is_valid          (void);
-        inline constexpr bool          is_empty          (void); 
-        inline constexpr bool          is_full           (void);
-        inline constexpr bool          is_not_full       (void);
-        inline constexpr t*            get_first_element (void);
-        inline constexpr t*            get_last_element  (void);
-        inline constexpr t*            get_element_at    (const u32 index);
-        inline constexpr t*            get_next_element  (const t*  current);
+        inline static array_list_t<t>* init_from_memory     (const void* memory, const u32 size);
+        inline bool                    init_from_array      (t* const    array,  const u32 count);
+        inline u32                     get_index_of_element (const t*    element);
+        inline bool                    add_element          (const t*    element);
+        inline bool                    insert_element_at    (const t*    element, const u32 index);
+        inline bool                    remove_element_at    (const u32   index);
+        inline constexpr void          assert_valid         (void);
+        inline constexpr bool          is_valid             (void);
+        inline constexpr bool          is_empty             (void); 
+        inline constexpr bool          is_full              (void);
+        inline constexpr bool          is_not_full          (void);
+        inline constexpr u32           get_size_of_element  (void);
+        inline constexpr t*            get_first_element    (void);
+        inline constexpr t*            get_last_element     (void);
+        inline constexpr t*            get_element_at       (const u32 index);
+        inline constexpr t*            get_next_element     (const t*  current);
+
+        inline t&       operator[] (u32 index);
+        inline const t& operator[] (u32 index) const;
     };
 
     using array_list_u8_t    = array_list_t<u8>;
