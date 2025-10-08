@@ -189,11 +189,8 @@ namespace sld {
     operator[] (
         u32 index) -> t& {
 
+        
     }
-
 };
 
-#undef SLD_ARRAY_LIST_IMPL_INLINE
-#undef SLD_ARRAY_LIST_IMPL_STATIC
-#undef SLD_ARRAY_LIST_IMPL_CONSTEXPR
 #endif //SLD_ARRAY_HPP

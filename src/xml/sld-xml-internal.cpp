@@ -2,7 +2,7 @@
 
 #include <pugixml.hpp>
 #include "sld-xml.hpp"
-#include "sld-buffer.hpp"
+#include "sld-collections.hpp"
 #include "sld-memory.hpp"
 #include "sld-stack.hpp"
 
@@ -23,7 +23,7 @@ namespace sld {
 
     struct xml_writer_t : pugi::xml_writer {
 
-        buffer_t buffer;
+        data_buffer_t buffer;
 
         xml_writer_t() {
             buffer.data   = NULL;
@@ -67,7 +67,7 @@ namespace sld {
             if (!can_write) return;
 
             // copy the buffer
-            (void)buffer_copy(buffer, (byte*)data, size);
+            (void)buffer.copy((byte*)data, size);
         }
     };
 

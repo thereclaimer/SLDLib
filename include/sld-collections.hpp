@@ -15,31 +15,31 @@ namespace sld {
     //-------------------------------------------------------------------
 
     template<typename t> struct array_list_t;
-    template<typename t> struct buffer_t_;
+    template<typename t> struct buffer_t;
 
     //-------------------------------------------------------------------
     // BUFFER
     //-------------------------------------------------------------------
 
     template<typename t>
-    struct buffer_t_ {
+    struct buffer_t {
 
         t*  data;
         u32 size;
         u32 length;
 
         inline static void    init_from_memory (const void* memory, const u32 size);
-        inline void           init_from_buffer (const t*    buffer, const u32 size);
+        inline void           init_from_data   (const t*    buffer, const u32 size, const u32 length = 0);
         inline constexpr bool is_valid         (void);
         inline constexpr void assert_valid     (void);
         inline constexpr void reset            (void);
         inline constexpr void zero             (void);
-        inline t*             index            (const u32   index);
-        inline u32            append           (const byte* src_data, const u32 src_length);
-        inline u32            copy             (const byte* src_data, const u32 src_length);        
+        inline t*             index            (const u32 index);
+        inline u32            append           (const t*  src_data, const u32 src_length);
+        inline u32            copy             (const t*  src_data, const u32 src_length);        
     };
 
-    using buffer_byte_t = buffer_t_<byte>;
+    using data_buffer_t = buffer_t<byte>;
 
     //-------------------------------------------------------------------
     // ARRAY LIST
@@ -90,6 +90,7 @@ namespace sld {
 };
 
 #include "sld-array-list.inl"
+#include "sld-buffer.inl"
 
 
 #endif  //SLD_COLLECTIONS_HPP

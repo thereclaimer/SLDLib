@@ -2,7 +2,7 @@
 #pragma once
 
 #include "sld.hpp"
-#include "sld-buffer.hpp"
+#include "sld-collections.hpp"
 #include "sld-memory.hpp"
 
 namespace sld {
@@ -33,8 +33,8 @@ namespace sld {
 
     SLD_API void          xml_doc_reset                 (xml_doc_t*   const doc);
     SLD_API u32           xml_doc_buffer_length         (xml_doc_t*   const doc);
-    SLD_API bool          xml_doc_buffer_read           (xml_doc_t*   const doc,  const buffer_t&   buffer);
-    SLD_API bool          xml_doc_buffer_write          (xml_doc_t*   const doc,  buffer_t&         buffer);
+    SLD_API bool          xml_doc_buffer_read           (xml_doc_t*   const doc,  const data_buffer_t* buffer);
+    SLD_API bool          xml_doc_buffer_write          (xml_doc_t*   const doc,  data_buffer_t*       buffer);
     SLD_API u32           xml_doc_get_child_node_count  (xml_doc_t*   const doc,  const xml_utf8_t* name);
     SLD_API bool          xml_doc_get_child_node        (xml_doc_t*   const doc,  const xml_utf8_t* name, xml_node_t* node);
     SLD_API bool          xml_doc_add_child_node        (xml_doc_t*   const doc,  const xml_utf8_t* name, xml_node_t* node);

@@ -13,17 +13,17 @@ namespace sld {
 
     SLD_API bool
     xml_doc_buffer_read(
-        xml_doc_t* const doc,
-        const buffer_t&  buffer) {
+        xml_doc_t* const     doc,
+        const data_buffer_t* buffer) {
 
         const u64 buffer_length = xml_doc_buffer_length(doc);
 
         assert(doc);
-        assert(buffer.data != NULL && buffer.size != 0);
+
 
         const pugi::xml_parse_result result = doc->load_buffer(
-            (void*)buffer.data,
-            buffer.size
+            (void*)buffer->data,
+            buffer->size
         );
 
         const bool did_read = (result.status == pugi::xml_parse_status::status_ok);
@@ -33,18 +33,22 @@ namespace sld {
     SLD_API bool
     xml_doc_buffer_write(
         xml_doc_t* const doc,
-        buffer_t&        buffer) {
+        data_buffer_t*   buffer) {
 
         assert(doc);
-        assert(buffer.data != NULL && buffer.size != 0);
 
         xml_writer_t writer;
-        writer.buffer = buffer;
+        writer.buffer.data   = buffer->data;
+        writer.buffer.size   = buffer->size;
+        writer.buffer.length = buffer->length;
 
         doc->save(writer);
 
-        buffer = writer.buffer;
-        const bool did_write = (buffer.length != 0);
+        buffer->data   = writer.buffer.data;
+        buffer->size   = writer.buffer.size;
+        buffer->length = writer.buffer.length;
+
+        const bool did_write = (buffer->length != 0);
         return(did_write);
     }
     
