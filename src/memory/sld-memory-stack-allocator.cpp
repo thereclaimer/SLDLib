@@ -31,7 +31,7 @@ namespace sld {
         allocator->allocation_list.free = NULL;
         allocator->size                 = size_stack;
         allocator->granularity          = granularity_pow_2;
-        allocator->stack.start          = start_stack;        
+        allocator->stack.start          = (byte*)start_stack;        
         allocator->stack.size           = size_stack;
         allocator->stack.position       = 0;
         allocator->stack.save           = 0;
@@ -48,7 +48,7 @@ namespace sld {
             is_valid &= (allocator->size        != 0);
             is_valid &= (allocator->granularity != 0);
             is_valid &= (allocator->granularity <  allocator->size);
-            is_valid &= stack_validate(&allocator->stack);
+            is_valid &= allocator->stack.is_valid();
         }
         return(is_valid);
     }
@@ -68,8 +68,8 @@ namespace sld {
         if (size_alloc == 0) return(NULL);
 
         // allocate memory
-        allocation_t* used       = allocator->head_used; 
-        allocation_t* allocation = (allocation_t*)stack_push(&allocator->stack, size_alloc);
+        allocation_t* used       = allocator->head_used;
+        allocation_t* allocation = (allocation_t*)allocator->stack.push(size_alloc);
         if (!allocation) return(NULL);
 
         // initialize the allocation
@@ -111,7 +111,7 @@ namespace sld {
 
         // allocate memory
         allocation_t* used       = allocator->head_used; 
-        allocation_t* allocation = (allocation_t*)stack_push(&allocator->stack, size_alloc);
+        allocation_t* allocation = (allocation_t*)allocator->stack.push(size_alloc);
         if (!allocation) return(NULL);
 
         // initialize the allocation

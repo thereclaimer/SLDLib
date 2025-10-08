@@ -1,7 +1,6 @@
 #pragma once
 
 #include "sld-memory.hpp"
-#include "sld-memory-internal.cpp"
 #include "sld-memory-reservation.cpp"
 #include "sld-memory-arena.cpp"
 #include "sld-memory-block-allocator.cpp"

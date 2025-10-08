@@ -2,7 +2,7 @@
 #define SLD_OS_HPP
 
 #include "sld.hpp"
-#include "sld-collections.hpp"
+#include "sld-buffer.hpp"
 #include "sld-geometry.hpp"
 #include "sld-graphics.hpp"
 #include "sld-queue.hpp"

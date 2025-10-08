@@ -3,16 +3,55 @@
 
 #include "sld.hpp"
 
-#define SLD_ARRAY_LIST_IMPL_INLINE    SLD_COLLECTION_IMPL_INLINE    (array_list_t)
-#define SLD_ARRAY_LIST_IMPL_STATIC    SLD_COLLECTION_IMPL_STATIC    (array_list_t)
-#define SLD_ARRAY_LIST_IMPL_CONSTEXPR SLD_COLLECTION_IMPL_CONSTEXPR (array_list_t)
+#define SLD_ARRAY_LIST_IMPL_INLINE    template<typename t> inline           array_list_t collection<t>::
+#define SLD_ARRAY_LIST_IMPL_STATIC    template<typename t> inline static    array_list_t collection<t>::
+#define SLD_ARRAY_LIST_IMPL_CONSTEXPR template<typename t> inline constexpr array_list_t collection<t>::
 
 namespace sld {
 
-    SLD_ARRAY_LIST_IMPL_STATIC 
-    init_from_memory(
+    //-------------------------------------------------------------------
+    // ARRAY LIST
+    //-------------------------------------------------------------------
+
+    constexpr u32 ARRAY_LIST_INDEX_INVALID = 0xFFFFFFFF;
+
+    template<typename t>
+    struct array_list_t {
+
+        t*   start;
+        u32  capacity;
+        u32  count;
+
+        inline static array_list_t<t>* init_from_memory     (const void* memory, const u32 size);
+        inline bool                    init_from_array      (t* const    array,  const u32 count);
+        inline u32                     get_index_of_element (const t*    element);
+        inline bool                    add_element          (const t*    element);
+        inline bool                    insert_element_at    (const t*    element, const u32 index);
+        inline bool                    remove_element_at    (const u32   index);
+        inline constexpr void          assert_valid         (void);
+        inline constexpr bool          is_valid             (void);
+        inline constexpr bool          is_empty             (void); 
+        inline constexpr bool          is_full              (void);
+        inline constexpr bool          is_not_full          (void);
+        inline constexpr u32           get_size_of_element  (void);
+        inline constexpr t*            get_first_element    (void);
+        inline constexpr t*            get_last_element     (void);
+        inline constexpr t*            get_element_at       (const u32 index);
+        inline constexpr t*            get_next_element     (const t*  current);
+
+        inline t&       operator[] (u32 index);
+        inline const t& operator[] (u32 index) const;
+    };
+
+    //-------------------------------------------------------------------
+    // INLINE METHODS
+    //-------------------------------------------------------------------
+
+    template<typename t>
+    inline array_list_t<t>* 
+    array_list_init_from_memory(
         const void* memory,
-        const u32   size) -> array_list_t<t>* {
+        const u32   size) {
 
         array_list_t<t>* array_list = (array_list_t<t>*)memory;
         if (array_list) {
@@ -192,5 +231,9 @@ namespace sld {
         
     }
 };
+
+#undef SLD_ARRAY_LIST_IMPL_INLINE
+#undef SLD_ARRAY_LIST_IMPL_STATIC
+#undef SLD_ARRAY_LIST_IMPL_CONSTEXPR
 
 #endif //SLD_ARRAY_HPP

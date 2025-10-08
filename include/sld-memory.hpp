@@ -115,7 +115,7 @@ namespace sld {
         memory_error_t last_error;
     }; 
 
-    struct arena_t : stack_t {
+    struct arena_t : data_stack_t {
         reservation_t* reservation;
         arena_t*       next;
         arena_t*       prev;
@@ -144,7 +144,7 @@ namespace sld {
     };
 
     struct stack_allocator_t : allocator_base_t {
-        stack_t       stack;
+        data_stack_t  stack;
         allocation_t* head_used;
         allocation_t* head_free;
     };

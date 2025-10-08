@@ -2,8 +2,8 @@
 #pragma once
 
 #include "sld.hpp"
-#include "sld-collections.hpp"
 #include "sld-memory.hpp"
+#include "sld-buffer.hpp"
 
 namespace sld {
 

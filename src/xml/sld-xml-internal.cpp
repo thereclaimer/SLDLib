@@ -2,9 +2,9 @@
 
 #include <pugixml.hpp>
 #include "sld-xml.hpp"
-#include "sld-collections.hpp"
-#include "sld-memory.hpp"
+#include "sld-buffer.hpp"
 #include "sld-stack.hpp"
+#include "sld-memory.hpp"
 
 namespace sld {
     
@@ -12,7 +12,7 @@ namespace sld {
     SLD_FUNC void* xml_parser_alloc (size_t size);
     SLD_FUNC void  xml_parser_free  (void*  ptr);
 
-    struct xml_stack_t  : stack_t { };
+    struct xml_stack_t  : data_stack_t { };
     struct xml_doc_t    : pugi::xml_document  { };     
     struct xml_node_t   : pugi::xml_node      { };      
     struct xml_attrib_t : pugi::xml_attribute { };      

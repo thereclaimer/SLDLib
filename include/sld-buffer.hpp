@@ -3,16 +3,48 @@
 
 #include "sld.hpp"
 
-#define SLD_BUFFER_IMPL_INLINE    SLD_COLLECTION_IMPL_INLINE    (buffer_t)
-#define SLD_BUFFER_IMPL_STATIC    SLD_COLLECTION_IMPL_STATIC    (buffer_t)
-#define SLD_BUFFER_IMPL_CONSTEXPR SLD_COLLECTION_IMPL_CONSTEXPR (buffer_t)
+#define SLD_BUFFER_IMPL_INLINE    template<typename t> inline           auto buffer_t<t>::
+#define SLD_BUFFER_IMPL_STATIC    template<typename t> inline static    auto buffer_t<t>::
+#define SLD_BUFFER_IMPL_CONSTEXPR template<typename t> inline constexpr auto buffer_t<t>::
 
 namespace sld {
 
-    SLD_BUFFER_IMPL_STATIC
-    init_from_memory(
+
+    //-------------------------------------------------------------------
+    // BUFFER
+    //-------------------------------------------------------------------
+
+    template<typename t>
+    struct buffer_t {
+
+        t*  data;
+        u32 size;
+        u32 length;
+
+        inline void           init_from_data   (const t*    buffer, const u32 size, const u32 length = 0);
+        inline constexpr bool is_valid         (void);
+        inline constexpr void assert_valid     (void);
+        inline constexpr void reset            (void);
+        inline constexpr void zero             (void);
+        inline t*             index            (const u32 index);
+        inline u32            append           (const t*  src_data, const u32 src_length);
+        inline u32            copy             (const t*  src_data, const u32 src_length);  
+
+        inline t&       operator[] (u32 index);
+        inline const t& operator[] (u32 index) const;      
+    };
+
+    using data_buffer_t = buffer_t<byte>;
+
+    //-------------------------------------------------------------------
+    // INLINE METHODS
+    //-------------------------------------------------------------------
+
+    template<typename t>
+    inline buffer_t<t>*
+    buffer_init_from_memory(
         const void* memory,
-        const u32   size) -> void {
+        const u32   size) {
 
         bool can_init = true;
         can_init &= (memory != NULL);
@@ -28,6 +60,15 @@ namespace sld {
         buffer->length = 0;
         buffer->assert_valid();
 
+        return(buffer);
+    }
+
+    inline data_buffer_t*
+    data_buffer_init_from_memory(
+        const void* memory,
+        const u32   size) {
+
+        data_buffer_t* buffer = buffer_init_from_memory<byte>(memory, size);
         return(buffer);
     }
 

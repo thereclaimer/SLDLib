@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sld-memory-internal.cpp"
+#include "sld-memory.hpp"
 
 namespace sld {
 
@@ -14,7 +14,7 @@ namespace sld {
 
         bool is_valid = (arena != NULL);
         if (is_valid) {
-            is_valid &= stack_validate       ((stack_t*)arena);
+            is_valid &= arena->is_valid(); 
             is_valid &= reservation_validate (arena->reservation);
 
             arena->last_error.val = (is_valid)
@@ -51,13 +51,13 @@ namespace sld {
 
         // attempt to commit memory
         arena_t* arena = (arena_t*)os_memory_commit(commit_start, reservation->size.arena_memory);
-        if ((void*)arena == commit_start ) {
+        if ((void*)arena == commit_start) {
 
             constexpr u32 arena_struct_size  = sizeof(arena_t);
             const u32     arena_start_offset = (arena_struct_size + reservation->size.arena_header);
 
             // initialize the arena
-            arena->start          = (addr)arena                    + arena_start_offset;
+            arena->start          = (byte*)((addr)arena + arena_start_offset);
             arena->size           = reservation->size.arena_memory - arena_start_offset;
             arena->position       = 0;
             arena->save           = 0;
@@ -124,7 +124,7 @@ namespace sld {
             : size_align       (size, alignment);
 
         // do the push
-        bytes = (byte*)stack_push(arena, size_aligned);
+        bytes = arena->push(size_aligned);
         if (bytes == NULL) {
             arena->last_error.val = memory_error_e_arena_not_enough_memory;
             return(bytes);
@@ -168,7 +168,7 @@ namespace sld {
             : size_align       (size, alignment);
 
         // do the pull
-        const bool is_pulled = stack_pull(arena, size_aligned);
+        const bool is_pulled = arena->pull(size_aligned);
         arena->last_error.val = (is_pulled)
             ? memory_error_e_success 
             : memory_error_e_arena_not_enough_memory;
@@ -182,7 +182,9 @@ namespace sld {
         const bool is_valid = arena_validate(arena);
         if (!is_valid) return(is_valid);
 
-        const bool did_reset = stack_reset(arena);
+
+        const bool did_reset = true; 
+        arena->reset();
         return(did_reset);
     }
 
@@ -193,7 +195,8 @@ namespace sld {
         const bool is_valid = arena_validate(arena);
         if (!is_valid) return(is_valid);
 
-        const bool did_reset = stack_reset_to_save(arena);
+        const bool did_reset = true;
+        arena->reset_to_save();
         return(did_reset);        
     }
 
@@ -204,7 +207,8 @@ namespace sld {
         const bool is_valid = arena_validate(arena);
         if (!is_valid) return(is_valid);
 
-        const bool did_save = stack_save(arena);
+        const bool did_save = true;
+        arena->save_position();
         return(did_save);        
     }
 
@@ -239,36 +243,5 @@ namespace sld {
             : 0;
 
         return(size_used);
-    }
-
-    //-------------------------------------------------------------------
-    // INTERNAL
-    //-------------------------------------------------------------------
-
-    SLD_FUNC arena_t*
-    arena_list_remove_next_released(
-        arena_list_t& arena_list) {
-        
-        arena_t* arena = arena_list.released;
-        if (arena != NULL) {
-            arena_t* next = arena->next;
-            next->prev  = NULL;
-            arena->prev = NULL;   
-            arena->next = NULL;
-            arena_list.released = next;
-        }
-        return(arena);
-    }
-
-    SLD_FUNC void
-    arena_list_insert_released(
-        arena_list_t& arena_list,
-        arena_t*      arena) {
-
-        arena_t* next = arena_list.released;
-
-        if (next) next->prev = arena;
-        arena->next          = next;
-        arena_list.released  = arena;
     }
 };

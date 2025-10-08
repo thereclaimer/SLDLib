@@ -20,11 +20,7 @@ namespace sld {
 
         constexpr u32 struct_size = sizeof(xml_stack_t);
 
-        xml_stack_t* stack = (xml_stack_t*)memory;
-        stack->start       = (addr)memory + struct_size;
-        stack->size        = (size - struct_size);
-        stack->position    = 0;
-        stack->save        = 0;
+        xml_stack_t* stack = (xml_stack_t*)data_stack_init_from_memory(memory, size);    
 
         return(stack);
     }
@@ -35,7 +31,7 @@ namespace sld {
 
         bool is_valid = (stack != NULL);
         if (is_valid) {
-            is_valid &= stack_validate(stack);
+            is_valid &= stack->is_valid(); 
             is_valid &= (stack->size >= XML_STACK_MIN_SIZE);
         }
         return(is_valid);
@@ -47,7 +43,7 @@ namespace sld {
 
         bool is_reset = true; 
         is_reset = xml_stack_validate (stack); 
-        is_reset = stack_reset        (stack);
+        stack->reset();
         assert(is_reset);
     }
 
@@ -60,7 +56,7 @@ namespace sld {
         assert(can_push);
 
         constexpr u32  doc_size  = sizeof(xml_doc_t);
-        xml_doc_t*     doc_ptr   = (xml_doc_t*)stack_push(stack, doc_size);
+        xml_doc_t*     doc_ptr   = (xml_doc_t*)stack->push(doc_size);
         assert(doc_ptr);
         return(doc_ptr);
     }
@@ -74,7 +70,7 @@ namespace sld {
         assert(can_push);
 
         constexpr u32 node_size = sizeof(xml_node_t);
-        xml_node_t*   node_ptr  = (xml_node_t*)stack_push(stack, node_size);
+        xml_node_t*   node_ptr  = (xml_node_t*)stack->push(node_size);
         assert(node_ptr != 0);      
 
         return(node_ptr);
@@ -89,7 +85,7 @@ namespace sld {
         assert(can_push);
 
         constexpr u32 attrib_size  = sizeof(xml_attrib_t);
-        xml_attrib_t* attrib_ptr   = (xml_attrib_t*)stack_push(stack, attrib_size);
+        xml_attrib_t* attrib_ptr   = (xml_attrib_t*)stack->push(attrib_size);
         assert(attrib_ptr);
         return(attrib_ptr);
     }

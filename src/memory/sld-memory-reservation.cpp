@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sld-memory-internal.cpp"
+#include "sld-memory.hpp"
 
 namespace sld {
 
