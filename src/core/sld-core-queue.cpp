@@ -17,13 +17,13 @@ namespace sld {
         const u32 size_total   = size_struct + size_data; 
         
         bool can_init = true;
-        can_init &= arena_validate(arena);
+        can_init &= (arena        != NULL);
         can_init &= (size_total   >= QUEUE_MIN_SIZE);
         can_init &= (stride_pow_2 != 0);        
         can_init &= (stride_pow_2 < size_total);
         assert(can_init);        
 
-        void*       memory     = arena_push_bytes       (arena,  size_total, stride_pow_2);
+        void*       memory     = arena->push_bytes      (size_total, stride_pow_2);
         queue_t*    queue      = queue_init_from_memory (memory, size_total, stride_pow_2); 
         const bool  is_valid   = queue_validate         (queue);
         assert(is_valid);

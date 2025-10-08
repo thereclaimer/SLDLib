@@ -9,114 +9,63 @@ namespace sld {
     //-------------------------------------------------------------------
 
     SLD_API bool
-    arena_validate(
-        arena_t* arena) {
+    arena_t::is_valid(
+        void) {
 
-        bool is_valid = (arena != NULL);
-        if (is_valid) {
-            is_valid &= arena->is_valid(); 
-            is_valid &= reservation_validate (arena->reservation);
+        bool is_valid = true;
 
-            arena->last_error.val = (is_valid)
-                ? memory_error_e_success
-                : memory_error_e_invalid_arena;
-        };
+        is_valid &= reservation->is_valid();
+        is_valid &= stack->is_valid();
+
+        last_error.val = (is_valid)
+            ? memory_error_e_success
+            : memory_error_e_invalid_arena;
+        
         return(is_valid);
     }
 
-    SLD_API arena_t*
-    arena_commit(
-        reservation_t* reservation) {
-
-        const bool is_valid = reservation_validate(reservation);
-        if (!is_valid) return(NULL);
-
-        // find the next free arena
-        const u32 arena_count_max = (reservation->size.reserved / reservation->size.arena_memory);
-        void*     commit_start    = NULL;
-        for (
-            u32 arena_index = 0;
-            arena_index < arena_count_max;
-            ++arena_index) {
-
-            const u32  arena_offset  = (arena_index * reservation->size.arena_memory);
-            void*      arena_tmp     = (void*)(reservation->start + arena_offset); 
-            const bool arena_is_free = os_memory_is_reserved(arena_tmp);
-            
-            if (arena_is_free) {
-                commit_start = arena_tmp;
-                break;
-            } 
-        }
-
-        // attempt to commit memory
-        arena_t* arena = (arena_t*)os_memory_commit(commit_start, reservation->size.arena_memory);
-        if ((void*)arena == commit_start) {
-
-            constexpr u32 arena_struct_size  = sizeof(arena_t);
-            const u32     arena_start_offset = (arena_struct_size + reservation->size.arena_header);
-
-            // initialize the arena
-            arena->start          = (byte*)((addr)arena + arena_start_offset);
-            arena->size           = reservation->size.arena_memory - arena_start_offset;
-            arena->position       = 0;
-            arena->save           = 0;
-            arena->reservation    = reservation;
-            arena->last_error.val = memory_error_e_success;
-
-            // add the arena to the reservation
-            arena_t* next = reservation->arenas;
-            if (next) next->prev = arena;
-            arena->next = next;
-            reservation->arenas = arena;
-        }
-        return(arena);
+    SLD_API void
+    arena_t::assert_valid(
+        void) {
+        
+        assert(is_valid());
     }
 
     SLD_API bool
-    arena_decommit(
-        arena_t* arena) {
+    arena_t::decommit(
+        void) {
 
-        // validate the arena
-        const bool is_valid = arena_validate(arena);
-        if (!is_valid) {
-            arena->last_error.val = memory_error_e_invalid_arena;
-            return(is_valid);
-        }
+        assert_valid();
 
-        reservation_t* reservation = arena->reservation;
-        const bool     is_first    = (arena == reservation->arenas); 
-        arena_t*       next        = arena->next;
-        arena_t*       prev        = arena->prev;
-
-        // attempt to decommit the memory
-        const bool is_decommitted = os_memory_decommit(
-            (void*)arena,
-            arena->size
-        );
-        if (!is_decommitted) {
-            arena->last_error.val = memory_error_e_os_failed_to_decommit;
-            return(is_decommitted);
-        }
+        reservation_t* reservation = reservation;
+        const bool     is_first    = (this == reservation->arenas); 
+        arena_t*       next        = next;
+        arena_t*       prev        = prev;
 
         // remove the arena from the list
         if (next)     next->prev          = prev;
         if (prev)     prev->next          = next;
         if (is_first) reservation->arenas = next;
+
+        // attempt to decommit the memory
+        const bool is_decommitted = os_memory_decommit(
+            (void*)this,
+            reservation->size.arena_memory
+        );
+        if (!is_decommitted) {
+            last_error.val = memory_error_e_os_failed_to_decommit;
+            return(is_decommitted);
+        }
+
         return(is_decommitted);
     }
 
     SLD_API byte*
-    arena_push_bytes(
-        arena_t*  arena,
+    arena_t::push_bytes(
         const u64 size,
         const u64 alignment) {
 
-        byte* bytes = NULL;
-
-        // validate the arena
-        const bool is_valid = arena_validate(arena);
-        if (!is_valid) return(bytes);
+        assert_valid();
 
         // align the size
         const u64 size_aligned = size_is_pow_2(alignment)
@@ -124,19 +73,18 @@ namespace sld {
             : size_align       (size, alignment);
 
         // do the push
-        bytes = arena->push(size_aligned);
+        byte* bytes = stack->push(size_aligned);
         if (bytes == NULL) {
-            arena->last_error.val = memory_error_e_arena_not_enough_memory;
+            last_error.val = memory_error_e_arena_not_enough_memory;
             return(bytes);
         }
 
-        arena->last_error.val = memory_error_e_success;
+        last_error.val = memory_error_e_success;
         return(bytes);
     }
 
     SLD_API stack_allocator_t*
-    arena_push_stack_allocator(
-        arena_t*  arena,
+    arena_t::push_stack_allocator(
         const u32 size,
         const u32 granularity) {
 
@@ -147,20 +95,17 @@ namespace sld {
         const     u32 size_push         = size_struct + size_mem_aligned;
 
         // initialize allocator
-        const void*        memory    = arena_push_bytes     (arena,  size_push, size_gran_aligned);
+        const void*        memory    = push_bytes           (size_push, size_gran_aligned);
         stack_allocator_t* allocator = stack_allocator_init (memory, size_push, size_gran_aligned);
         return(allocator);        
     }
 
     SLD_API bool
-    arena_pull_bytes(
-        arena_t*  arena,
+    arena_t::pull_bytes(
         const u64 size,
         const u64 alignment) {
 
-        // validate the arena
-        const bool is_valid = arena_validate(arena);
-        if (!is_valid) return(is_valid);
+        assert_valid();
 
         // align the size
         const u64 size_aligned = size_is_pow_2(alignment)
@@ -168,80 +113,76 @@ namespace sld {
             : size_align       (size, alignment);
 
         // do the pull
-        const bool is_pulled = arena->pull(size_aligned);
-        arena->last_error.val = (is_pulled)
+        const bool is_pulled = stack->pull(size_aligned);
+        last_error.val = (is_pulled)
             ? memory_error_e_success 
             : memory_error_e_arena_not_enough_memory;
         return(is_pulled);
     }
 
-    SLD_API bool
-    arena_reset(
-        arena_t* arena) {
+    SLD_API void
+    arena_t::reset(
+        void) {
 
-        const bool is_valid = arena_validate(arena);
-        if (!is_valid) return(is_valid);
+        assert_valid();
 
-
-        const bool did_reset = true; 
-        arena->reset();
-        return(did_reset);
+        stack->reset();
+        last_error.val = memory_error_e_success;
     }
 
-    SLD_API bool
-    arena_roll_back(
-        arena_t* arena) {
+    SLD_API void
+    arena_t::roll_back(
+        void) {
 
-        const bool is_valid = arena_validate(arena);
-        if (!is_valid) return(is_valid);
+        assert_valid();
 
-        const bool did_reset = true;
-        arena->reset_to_save();
-        return(did_reset);        
+        stack->reset_to_save();
+        last_error.val = memory_error_e_success;
     }
 
-    SLD_API bool
-    arena_save_position(
-        arena_t* arena) {
+    SLD_API void
+    arena_t::save_position(
+        void) {
 
-        const bool is_valid = arena_validate(arena);
-        if (!is_valid) return(is_valid);
-
-        const bool did_save = true;
-        arena->save_position();
-        return(did_save);        
+        assert_valid();
+        stack->reset_to_save();
+        last_error.val = memory_error_e_success;
     }
 
     SLD_API u64
-    arena_size_total(
-        arena_t* arena) {
+    arena_t::size_total(
+        void) {
 
-        const u64 size_total = arena_validate(arena)
-            ? arena->size
-            : 0;
-
-        return(size_total);
+        assert_valid();
+        return(stack->size);
     }
 
     SLD_API u64
-    arena_size_free(
-        arena_t* arena) {
+    arena_t::size_free(
+        void) {
 
-        const u64 size_free = arena_validate(arena)
-            ? (arena->size - arena->position)
-            : 0;
+        assert_valid();
 
+        const u64 size_free = (stack->size - stack->position);
         return(size_free);
     }
 
     SLD_API u64
-    arena_size_used(
-        arena_t* arena) {
+    arena_t::size_used(
+        void) {
 
-        const u64 size_used = arena_validate(arena)
-            ? (arena->position)
-            : 0;
+        assert_valid();
+        return(stack->position);
+    }
 
-        return(size_used);
+    template<typename t> 
+    SLD_API t* 
+    arena_t::push_struct(
+        void) {
+
+        const u32 struct_size = sizeof(t);
+        void*     memory      = arena_t::push_bytes(size);
+
+        t* struct_instance = new (memory) t();        
     }
 };

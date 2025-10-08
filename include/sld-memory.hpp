@@ -39,26 +39,58 @@ namespace sld {
     SLD_API byte*               memory_advance                (const byte* start,     const u64   size,      const u64 stride, u64& offset);
     SLD_API void                memory_copy                   (byte*       start_dst, const byte* start_src, const u64 size);
 
-    SLD_API bool                reservation_acquire           (reservation_t* reservation, const u64 size_min_reservation, const u64 size_min_arena = 0, const u64 size_arena_header = 0);
-    SLD_API bool                reservation_validate          (reservation_t* reservation);
-    SLD_API bool                reservation_release           (reservation_t* reservation);
-    SLD_API bool                reservation_reset             (reservation_t* reservation);
-    SLD_API u64                 reservation_size_committed    (reservation_t* reservation);
-    SLD_API u64                 reservation_size_decommitted  (reservation_t* reservation);
+    //-------------------------------------------------------------------
+    // RESERVATION
+    //-------------------------------------------------------------------
 
-    SLD_API arena_t*                 arena_commit                  (reservation_t* reservation);
-    SLD_API bool                     arena_validate                (arena_t*       arena);
-    SLD_API bool                     arena_decommit                (arena_t*       arena);
-    SLD_API byte*                    arena_push_bytes              (arena_t*       arena, const u64 size, const u64 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    SLD_API block_allocator_t*       arena_push_block_allocator    (arena_t*       arena, const u32 size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    SLD_API stack_allocator_t*       arena_push_stack_allocator    (arena_t*       arena, const u32 size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    SLD_API bool                     arena_pull_bytes              (arena_t*       arena, const u64 size, const u64 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    SLD_API bool                     arena_reset                   (arena_t*       arena);
-    SLD_API bool                     arena_roll_back               (arena_t*       arena);
-    SLD_API bool                     arena_save_position           (arena_t*       arena);
-    SLD_API u64                      arena_size_total              (arena_t*       arena);
-    SLD_API u64                      arena_size_free               (arena_t*       arena);
-    SLD_API u64                      arena_size_used               (arena_t*       arena);
+    struct reservation_t {
+        addr start;
+        struct {
+            u64 reserved;
+            u64 arena_memory;
+            u64 arena_header;
+        } size;
+        arena_t*       arenas;
+        memory_error_t last_error;
+    
+        SLD_API bool     acquire_system_memory (const u64 size_min_reservation, const u64 size_min_arena = 0, const u64 size_arena_header = 0);
+        SLD_API bool     release_system_memory (void);
+        SLD_API bool     is_valid              (void);
+        SLD_API void     assert_valid          (void);
+        SLD_API bool     reset                 (void);
+        SLD_API u64      size_committed        (void);
+        SLD_API u64      size_decommitted      (void);
+        SLD_API arena_t* commit_arena          (void);
+    }; 
+
+    //-------------------------------------------------------------------
+    // ARENA
+    //-------------------------------------------------------------------
+
+    struct arena_t {
+        reservation_t* reservation;
+        arena_t*       next;
+        arena_t*       prev;
+        data_stack_t*  stack;
+        memory_error_t last_error;
+
+        SLD_API bool               is_valid             (void);
+        SLD_API void               assert_valid         (void);
+        SLD_API bool               decommit             (void);
+        SLD_API byte*              push_bytes           (const u64 size, const u64 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
+        SLD_API block_allocator_t* push_block_allocator (const u32 size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
+        SLD_API stack_allocator_t* push_stack_allocator (const u32 size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
+        SLD_API bool               pull_bytes           (const u64 size, const u64 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
+        SLD_API void               reset                (void);
+        SLD_API void               roll_back            (void);
+        SLD_API void               save_position        (void);
+        SLD_API u64                size_total           (void);
+        SLD_API u64                size_free            (void);
+        SLD_API u64                size_used            (void);
+
+        template<typename t>
+        SLD_API t* push_struct(void);
+    };
 
     SLD_API block_allocator_t*  block_allocator_init          (const void*              memory,    const u32   size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
     SLD_API void*               block_allocator_alloc_abs     (block_allocator_t* const allocator, const u32   size, const u32 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
@@ -104,23 +136,9 @@ namespace sld {
         u64  size;
     };
 
-    struct reservation_t {
-        addr start;
-        struct {
-            u64 reserved;
-            u64 arena_memory;
-            u64 arena_header;
-        } size;
-        arena_t*       arenas;
-        memory_error_t last_error;
-    }; 
 
-    struct arena_t : data_stack_t {
-        reservation_t* reservation;
-        arena_t*       next;
-        arena_t*       prev;
-        memory_error_t last_error;
-    };
+
+
 
     struct allocation_t {
         allocator_base_t* alctr;
