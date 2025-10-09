@@ -57,8 +57,6 @@ namespace sld {
         out_color_u32.b = (in_color_f128.b * factor);
         out_color_u32.a = (in_color_f128.a * factor);
     }
-
-
 };
 
 #endif //SLD_GRAPHICS_HPP
