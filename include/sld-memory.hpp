@@ -35,9 +35,9 @@ namespace sld {
     // API
     //-------------------------------------------------------------------
 
-    SLD_API void                memory_zero                   (byte*       start,     const u64   size);
-    SLD_API byte*               memory_advance                (const byte* start,     const u64   size,      const u64 stride, u64& offset);
-    SLD_API void                memory_copy                   (byte*       start_dst, const byte* start_src, const u64 size);
+    SLD_API void  memory_zero                   (byte*       start,     const u64   size);
+    SLD_API byte* memory_advance                (const byte* start,     const u64   size,      const u64 stride, u64& offset);
+    SLD_API void  memory_copy                   (byte*       start_dst, const byte* start_src, const u64 size);
 
     //-------------------------------------------------------------------
     // RESERVATION
@@ -160,10 +160,6 @@ namespace sld {
         addr start;
         u64  size;
     };
-
-
-
-
 
     struct allocation_t {
         allocator_base_t* alctr;

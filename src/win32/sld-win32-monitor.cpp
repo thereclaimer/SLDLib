@@ -53,6 +53,8 @@ namespace sld {
             monitor_info.pixel_height = (win32_monitor_info.rcMonitor.bottom - win32_monitor_info.rcMonitor.top); 
             monitor_info.position_x   = win32_monitor_info.rcMonitor.left;  
             monitor_info.position_y   = win32_monitor_info.rcMonitor.top;
+            
+            sld_monitor_name.chars = monitor_info.name_cstr;
             (void)sld_monitor_name.copy_from(win32_monitor_info.szDevice, name_size);
 
             // update the index

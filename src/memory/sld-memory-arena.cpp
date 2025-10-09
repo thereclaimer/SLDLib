@@ -32,16 +32,15 @@ namespace sld {
 
         assert_valid();
 
-        const bool is_first = (this == reservation->arenas); 
-
-        arena_t* tmp_next = next;
-        arena_t* tmp_prev = prev;
+        reservation_t* res          = this->reservation;
+        const arena_t* first_arena  = res->arenas;
+        const bool     is_first     = (this == first_arena); 
+        arena_t*       tmp_next     = this->next;
+        arena_t*       tmp_prev     = this->prev;
+        void*          arena_memory = (void*)this;
 
         // attempt to decommit the memory
-        const bool is_decommitted = os_memory_decommit(
-            (void*)this,
-            reservation->size.arena_memory
-        );
+        const bool is_decommitted = os_memory_decommit(arena_memory, res->size.arena_memory);
         if (!is_decommitted) {
             last_error.val = memory_error_e_os_failed_to_decommit;
             return(is_decommitted);
@@ -50,7 +49,7 @@ namespace sld {
         // remove the arena from the list
         if (tmp_next) tmp_next->prev      = tmp_prev;
         if (tmp_prev) tmp_prev->next      = tmp_next;
-        if (is_first) reservation->arenas = next;
+        if (is_first) res->arenas         = tmp_next;
         return(is_decommitted);
     }
 
