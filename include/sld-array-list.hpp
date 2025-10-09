@@ -3,9 +3,9 @@
 
 #include "sld.hpp"
 
-#define SLD_ARRAY_LIST_IMPL_INLINE    template<typename t> inline           array_list_t collection<t>::
-#define SLD_ARRAY_LIST_IMPL_STATIC    template<typename t> inline static    array_list_t collection<t>::
-#define SLD_ARRAY_LIST_IMPL_CONSTEXPR template<typename t> inline constexpr array_list_t collection<t>::
+#define SLD_ARRAY_LIST_IMPL_INLINE    template<typename t> inline           auto array_list_t<t>::
+#define SLD_ARRAY_LIST_IMPL_STATIC    template<typename t> inline static    auto array_list_t<t>::
+#define SLD_ARRAY_LIST_IMPL_CONSTEXPR template<typename t> inline constexpr auto array_list_t<t>::
 
 namespace sld {
 

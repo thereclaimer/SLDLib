@@ -74,8 +74,8 @@ namespace sld {
         data_stack_t*  stack;
         memory_error_t last_error;
 
-        SLD_API bool               is_valid             (void);
-        SLD_API void               assert_valid         (void);
+        SLD_API bool               is_valid             (void) const;
+        SLD_API void               assert_valid         (void) const;
         SLD_API bool               decommit             (void);
         SLD_API byte*              push_bytes           (const u64 size, const u64 alignment   = SLD_MEMORY_DEFAULT_ALIGNMENT);
         SLD_API block_allocator_t* push_block_allocator (const u32 size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
@@ -84,12 +84,37 @@ namespace sld {
         SLD_API void               reset                (void);
         SLD_API void               roll_back            (void);
         SLD_API void               save_position        (void);
-        SLD_API u64                size_total           (void);
-        SLD_API u64                size_free            (void);
-        SLD_API u64                size_used            (void);
+        SLD_API u64                size_total           (void) const;
+        SLD_API u64                size_free            (void) const;
+        SLD_API u64                size_used            (void) const;
 
         template<typename t>
-        SLD_API t* push_struct(void);
+        SLD_API inline t* push_struct(const u32 count = 1) {
+
+            assert(count != 0);
+
+            const u32 size_struct = sizeof(t);
+            const u32 size_push   = (size_struct * count); 
+            const void* memory    = arena_t::push_bytes(size_push);
+            const addr  address   = (addr)memory;   
+            u32 offset = 0;
+
+            if (memory != NULL) {
+
+                for (
+                    u32 index = 0;
+                    index < count;
+                    ++index) {
+
+                    void* struct_memory   = (void*)(address + offset);
+                    t*    struct_instance = new (struct_memory) t();        
+                    assert(struct_instance);
+
+                    offset += size_struct;
+                }
+            }
+            return((t*)memory);
+        }
     };
 
     SLD_API block_allocator_t*  block_allocator_init          (const void*              memory,    const u32   size, const u32 granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);

@@ -56,7 +56,7 @@ namespace sld {
 
             win32_monitor_name.chars = win32_monitor_info.szDevice;
             sld_monitor_name.chars   = monitor_info.name_cstr; 
-            (void)cstr_copy(sld_monitor_name, win32_monitor_name);
+            (void)str_copy(&sld_monitor_name, &win32_monitor_name);
 
             // update the index
             ++enumerator->index;

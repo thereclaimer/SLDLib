@@ -35,7 +35,6 @@ namespace sld {
         const u64 size_min_arena,
         const u64 size_arena_header) {
 
-        assert_valid();
         bool can_reserve = true;
         can_reserve &= (size_min_reservation != 0);
         can_reserve &= (size_min_arena       != 0);        

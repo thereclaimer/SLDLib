@@ -10,23 +10,18 @@ namespace sld {
 
     SLD_API bool
     arena_t::is_valid(
-        void) {
+        void) const {
 
         bool is_valid = true;
-
         is_valid &= reservation->is_valid();
         is_valid &= stack->is_valid();
-
-        last_error.val = (is_valid)
-            ? memory_error_e_success
-            : memory_error_e_invalid_arena;
-        
+        is_valid &= last_error.val != memory_error_e_critical;
         return(is_valid);
     }
 
     SLD_API void
     arena_t::assert_valid(
-        void) {
+        void) const {
         
         assert(is_valid());
     }
@@ -37,15 +32,10 @@ namespace sld {
 
         assert_valid();
 
-        reservation_t* reservation = reservation;
-        const bool     is_first    = (this == reservation->arenas); 
-        arena_t*       next        = next;
-        arena_t*       prev        = prev;
+        const bool is_first = (this == reservation->arenas); 
 
-        // remove the arena from the list
-        if (next)     next->prev          = prev;
-        if (prev)     prev->next          = next;
-        if (is_first) reservation->arenas = next;
+        arena_t* tmp_next = next;
+        arena_t* tmp_prev = prev;
 
         // attempt to decommit the memory
         const bool is_decommitted = os_memory_decommit(
@@ -57,6 +47,10 @@ namespace sld {
             return(is_decommitted);
         }
 
+        // remove the arena from the list
+        if (tmp_next) tmp_next->prev      = tmp_prev;
+        if (tmp_prev) tmp_prev->next      = tmp_next;
+        if (is_first) reservation->arenas = next;
         return(is_decommitted);
     }
 
@@ -143,7 +137,7 @@ namespace sld {
     SLD_API void
     arena_t::save_position(
         void) {
-
+ 
         assert_valid();
         stack->reset_to_save();
         last_error.val = memory_error_e_success;
@@ -151,7 +145,7 @@ namespace sld {
 
     SLD_API u64
     arena_t::size_total(
-        void) {
+        void) const {
 
         assert_valid();
         return(stack->size);
@@ -159,7 +153,7 @@ namespace sld {
 
     SLD_API u64
     arena_t::size_free(
-        void) {
+        void) const {
 
         assert_valid();
 
@@ -169,20 +163,9 @@ namespace sld {
 
     SLD_API u64
     arena_t::size_used(
-        void) {
+        void) const {
 
         assert_valid();
         return(stack->position);
-    }
-
-    template<typename t> 
-    SLD_API t* 
-    arena_t::push_struct(
-        void) {
-
-        const u32 struct_size = sizeof(t);
-        void*     memory      = arena_t::push_bytes(size);
-
-        t* struct_instance = new (memory) t();        
     }
 };
