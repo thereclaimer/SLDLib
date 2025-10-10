@@ -154,19 +154,13 @@ namespace sld {
 
         assert_valid();
 
+        bool can_peek = true;
+        can_peek &= (index >  this->head);
+        can_peek &= (index <= this->tail);
+        
+        const t* element = can_peek ? this->array[index] : NULL;
 
-        const bool can_peek = (index > this->head);
-        if (can_peek) {
-
-        }
-        return(can_peek);
-
-
-        const u32 space_to_index = (space_used  - queue->stride);
-        const u32 queue_offset   = (queue->head + space_to_index); 
-
-        void* data = (void*)(queue->start + queue_offset);
-        return(data);
+        return(element);
     }
 
     SLD_QUEUE_IMPL_INLINE
@@ -232,8 +226,6 @@ namespace sld {
         const u32 total_size = sizeof(t) * this->capacity;
         return(total_size);
     }
-
-
 };
 
 

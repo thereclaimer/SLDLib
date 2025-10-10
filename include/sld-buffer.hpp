@@ -3,9 +3,9 @@
 
 #include "sld.hpp"
 
-#define SLD_BUFFER_IMPL_INLINE    template<typename t> inline           auto buffer_t<t>::
-#define SLD_BUFFER_IMPL_STATIC    template<typename t> inline static    auto buffer_t<t>::
-#define SLD_BUFFER_IMPL_CONSTEXPR template<typename t> inline constexpr auto buffer_t<t>::
+#define SLD_BUFFER_IMPL_INLINE    template<typename t> inline           auto buffer_t::
+#define SLD_BUFFER_IMPL_STATIC    template<typename t> inline static    auto buffer_t::
+#define SLD_BUFFER_IMPL_CONSTEXPR template<typename t> inline constexpr auto buffer_t::
 
 namespace sld {
 
@@ -13,34 +13,32 @@ namespace sld {
     // BUFFER
     //-------------------------------------------------------------------
 
-    template<typename t>
     struct buffer_t {
 
-        t*  data;
-        u32 size;
-        u32 length;
+        byte* data;
+        u32   size;
+        u32   length;
 
-        inline void           init_from_data   (const t*    buffer, const u32 size, const u32 length = 0);
-        inline constexpr bool is_valid         (void);
-        inline constexpr void assert_valid     (void);
-        inline constexpr void reset            (void);
-        inline constexpr void zero             (void);
-        inline t*             index            (const u32 index);
-        inline u32            append           (const t*  src_data, const u32 src_length);
-        inline u32            copy             (const t*  src_data, const u32 src_length);  
+        inline void           init_from_data (const byte* buffer, const u32 size, const u32 length = 0);
+        inline constexpr bool is_valid       (void);
+        inline constexpr void assert_valid   (void);
+        inline constexpr void reset          (void);
+        inline constexpr void zero           (void);
+        inline byte_t*        index          (const u32   index);
+        inline u32            append         (const byte* src_data, const u32 src_length);
+        inline u32            copy           (const byte* src_data, const u32 src_length);  
 
-        inline t&       operator[] (u32 index);
-        inline const t& operator[] (u32 index) const;      
+        inline byte_t&     operator[] (u32 index);
+        inline const byte& operator[] (u32 index) const;      
     };
 
-    using data_buffer_t = buffer_t<byte>;
+    using data_buffer_t = buffer_t;
 
     //-------------------------------------------------------------------
     // INLINE METHODS
     //-------------------------------------------------------------------
 
-    template<typename t>
-    inline buffer_t<t>*
+    inline buffer_t*
     buffer_init_from_memory(
         const void* memory,
         const u32   size) {
@@ -50,24 +48,15 @@ namespace sld {
         can_init &= (size   != 0);
         assert(can_init);
 
-        buffer_t<t>* buffer = (buffer_t<t>*)memory;
+        buffer_t* buffer = (buffer_t*)memory;
 
-        constexpr u32 struct_size = sizeof(buffer_t<t>);
+        constexpr u32 struct_size = sizeof(buffer_t);
         
-        buffer->data   = (t*)(((addr)memory) + struct_size);
+        buffer->data   = (byte*)(((addr)memory) + struct_size);
         buffer->size   = (size - struct_size);
         buffer->length = 0;
         buffer->assert_valid();
 
-        return(buffer);
-    }
-
-    inline data_buffer_t*
-    data_buffer_init_from_memory(
-        const void* memory,
-        const u32   size) {
-
-        data_buffer_t* buffer = buffer_init_from_memory<byte>(memory, size);
         return(buffer);
     }
 
@@ -100,9 +89,8 @@ namespace sld {
     }   
 
     SLD_BUFFER_IMPL_CONSTEXPR
-    assert_valid(
-        void) -> void {
-
+    assert_valid(void) -> void {
+        assert(this->is_valid());
     }
 
     SLD_BUFFER_IMPL_CONSTEXPR
@@ -124,7 +112,7 @@ namespace sld {
 
     SLD_BUFFER_IMPL_INLINE    
     append(
-        const t*  src_data,
+        const byte*  src_data,
         const u32 src_length) -> u32 {
 
         assert_valid();
