@@ -2,7 +2,6 @@
 
 #include "sld-heap.hpp"
 
-#include "sld-core.cpp"
 #include "sld-core-heap.cpp"
 
 #include "sld-hash32.cpp"
@@ -24,6 +23,3 @@
 #include "sld-xml-parser.cpp"
 #include "sld-xml-node.cpp"
 #include "sld-xml-attrib.cpp"
-
-#include "sld-os.cpp"
-#include "sld-os-input-queue.cpp"

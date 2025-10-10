@@ -23,7 +23,7 @@ namespace sld {
 
     struct xml_writer_t : pugi::xml_writer {
 
-        data_buffer_t buffer;
+        buffer_t buffer;
 
         xml_writer_t() {
             buffer.data   = NULL;
