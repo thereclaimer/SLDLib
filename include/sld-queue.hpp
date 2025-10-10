@@ -27,21 +27,21 @@ namespace sld {
         u32  tail;
 
     public:
-        SLD_API inline bool     enqueue_element     (const t& element);
-        SLD_API inline bool     dequeue_element     (t&       element);
-        SLD_API inline const t* peek_element        (const u32 index = 0) const;
-        SLD_API inline bool     is_valid            (void) const;
-        SLD_API inline bool     is_empty            (void) const;
-        SLD_API inline void     assert_valid        (void) const;
-        SLD_API inline bool     is_full             (void) const;
-        SLD_API inline void     reset               (void);
-        SLD_API inline u32      get_element_size    (void) const;
-        SLD_API inline u32      get_size_total      (void) const;
-        SLD_API inline u32      get_size_remaining  (void) const;
-        SLD_API inline u32      get_size_used       (void) const;
-        SLD_API inline u32      get_count_total     (void) const;
-        SLD_API inline u32      get_count_remaining (void) const;
-        SLD_API inline u32      get_count_used      (void) const;
+        SLD_API inline bool           enqueue_element     (const t& element);
+        SLD_API inline bool           dequeue_element     (t&       element);
+        SLD_API inline const t*       peek_element        (const u32 index = 0) const;
+        SLD_API inline constexpr bool is_valid            (void) const;
+        SLD_API inline constexpr bool is_empty            (void) const;
+        SLD_API inline constexpr void assert_valid        (void) const;
+        SLD_API inline constexpr bool is_full             (void) const;
+        SLD_API inline constexpr void reset               (void);
+        SLD_API inline constexpr u32  get_element_size    (void) const;
+        SLD_API inline constexpr u32  get_size_total      (void) const;
+        SLD_API inline constexpr u32  get_size_remaining  (void) const;
+        SLD_API inline constexpr u32  get_size_used       (void) const;
+        SLD_API inline constexpr u32  get_count_total     (void) const;
+        SLD_API inline constexpr u32  get_count_remaining (void) const;
+        SLD_API inline constexpr u32  get_count_used      (void) const;
     };
 
     template<typename t> SLD_API inline queue_t<t>* queue_init_from_arena  (arena_t* const arena,  const u32 capacity);
@@ -163,7 +163,7 @@ namespace sld {
         return(element);
     }
 
-    SLD_QUEUE_IMPL_INLINE
+    SLD_QUEUE_IMPL_CONSTEXPR
     is_valid(void) const -> bool {
 
         bool is_valid = true;
@@ -182,12 +182,12 @@ namespace sld {
         return(is_valid);
     }
 
-    SLD_QUEUE_IMPL_INLINE
+    SLD_QUEUE_IMPL_CONSTEXPR
     assert_valid(void) const -> void {
         assert(this->is_valid);
     }
 
-    SLD_QUEUE_IMPL_INLINE
+    SLD_QUEUE_IMPL_CONSTEXPR
     reset(void) -> void {
 
         this->assert_valid();
@@ -195,21 +195,21 @@ namespace sld {
         this->tail = QUEUE_START_TAIL;
     }
 
-    SLD_QUEUE_IMPL_INLINE
+    SLD_QUEUE_IMPL_CONSTEXPR
     get_element_size (void) const -> u32 {
 
         assert_valid();
         return(sizeof(t));
     }
 
-    SLD_QUEUE_IMPL_INLINE
+    SLD_QUEUE_IMPL_CONSTEXPR
     is_empty(void) const -> bool {
 
         this->assert_valid();
         return(this->head == QUEUE_START_HEAD);
     }
 
-    SLD_QUEUE_IMPL_INLINE
+    SLD_QUEUE_IMPL_CONSTEXPR
     is_full(void) const -> bool {
 
         this->assert_valid();
@@ -219,13 +219,47 @@ namespace sld {
         return(is_full);
     }
     
-    SLD_QUEUE_IMPL_INLINE
+    SLD_QUEUE_IMPL_CONSTEXPR
     get_size_total (void) const -> u32 {
         assert_valid();
         
         const u32 total_size = sizeof(t) * this->capacity;
         return(total_size);
     }
+
+    SLD_QUEUE_IMPL_CONSTEXPR
+    get_size_remaining(void) const -> u32 {
+    
+        constexpr u32 size_element   = sizeof(t);
+        const     u32 size_remaining = this->  
+
+        return(0);
+    }
+
+    SLD_QUEUE_IMPL_CONSTEXPR
+    get_size_used(void) const -> u32 {
+    
+        return(0);
+    }
+
+    SLD_QUEUE_IMPL_CONSTEXPR
+    get_count_total(void) const -> u32 {
+    
+        return(0);
+    }
+
+    SLD_QUEUE_IMPL_CONSTEXPR
+    get_count_remaining(void) const -> u32 {
+    
+        return(0);
+    }
+
+    SLD_QUEUE_IMPL_CONSTEXPR
+    get_count_used(void) const -> u32 {
+    
+        return(0);
+    }
+
 };
 
 

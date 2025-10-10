@@ -314,25 +314,6 @@ namespace sld {
         os_input_gamepad_button_flag_e_bpad_right   = bit_value(13)
     };
 
-    struct os_input_queue_keyboard_t        : queue_t { };
-    struct os_input_queue_mouse_t           : queue_t { };
-    struct os_input_queue_gamepad_digital_t : queue_t { };
-    struct os_input_queue_gamepad_analog_t  : queue_t { };
-    
-    struct os_input_queue_t {
-        os_input_queue_keyboard_t* keyboard_key_up;
-        os_input_queue_keyboard_t* keyboard_key_down;
-        os_input_queue_mouse_t*    mouse;
-    };
-
-    SLD_API void               os_input_queue_reset          (os_input_queue_t& input_queue);
-    SLD_API bool               os_input_queue_key_up_push    (os_input_queue_t& input_queue, const os_input_keycode_t keycode);
-    SLD_API os_input_keycode_t os_input_queue_key_up_pop     (os_input_queue_t& input_queue);
-    SLD_API u32                os_input_queue_key_up_count   (os_input_queue_t& input_queue);
-    SLD_API bool               os_input_queue_key_down_push  (os_input_queue_t& input_queue, const os_input_keycode_t keycode);
-    SLD_API os_input_keycode_t os_input_queue_key_down_pop   (os_input_queue_t& input_queue);
-    SLD_API u32                os_input_queue_key_down_count (os_input_queue_t& input_queue);
-
     //-------------------------------------------------------------------
     // WINDOW
     //-------------------------------------------------------------------
@@ -436,7 +417,7 @@ namespace sld {
     using os_file_read_async_f     = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_async_context_t& context);    
     using os_file_write_async_f    = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_async_context_t& context);    
 
-    struct os_file_buffer_t : data_buffer_t {
+    struct os_file_buffer_t : buffer_t {
         u64 cursor;
         u64 transferred;
     };

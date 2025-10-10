@@ -20,13 +20,13 @@ namespace sld {
         u32 position;
         u32 save;
     
-        inline constexpr bool        is_valid         (void);
-        inline constexpr void        assert_valid     (void);
-        inline constexpr void        reset            (void);
-        inline constexpr void        reset_to_save    (void);
-        inline constexpr void        save_position    (void);
-        inline t*                    push             (const u32 count);
-        inline bool                  pull             (const u32 count);
+        inline constexpr bool is_valid      (void);
+        inline constexpr void assert_valid  (void);
+        inline constexpr void reset         (void);
+        inline constexpr void reset_to_save (void);
+        inline constexpr void save_position (void);
+        inline t*             push          (const u32 count);
+        inline bool           pull          (const u32 count);
     };
 
     using data_stack_t = stack_t<byte>;
