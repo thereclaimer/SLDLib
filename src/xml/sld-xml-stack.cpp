@@ -20,7 +20,10 @@ namespace sld {
 
         constexpr u32 struct_size = sizeof(xml_stack_t);
 
-        xml_stack_t* stack = (xml_stack_t*)data_stack_init_from_memory(memory, size);    
+        xml_stack_t* stack      = (xml_stack_t*)memory;
+        byte*        stack_data = (byte*)((addr)memory + struct_size);
+        u32          stack_size = size - struct_size;
+        stack->init_from_data(stack_data, stack_size);
 
         return(stack);
     }
@@ -29,11 +32,7 @@ namespace sld {
     xml_stack_validate(
         xml_stack_t* const stack) {
 
-        bool is_valid = (stack != NULL);
-        if (is_valid) {
-            is_valid &= stack->is_valid(); 
-            is_valid &= (stack->size >= XML_STACK_MIN_SIZE);
-        }
+        bool is_valid = (stack != NULL && stack->is_valid());
         return(is_valid);
     }
 
@@ -41,10 +40,7 @@ namespace sld {
     xml_stack_reset(
         xml_stack_t* const stack) {
 
-        bool is_reset = true; 
-        is_reset = xml_stack_validate (stack); 
         stack->reset();
-        assert(is_reset);
     }
 
     SLD_API xml_doc_t*

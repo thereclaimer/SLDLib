@@ -19,7 +19,6 @@ namespace sld {
         u32   size;
         u32   length;
 
-        inline void           init_from_data (const byte* buffer, const u32 size, const u32 length = 0);
         inline constexpr bool is_valid       (void);
         inline constexpr void assert_valid   (void);
         inline constexpr void reset          (void);
@@ -56,23 +55,6 @@ namespace sld {
         buffer->assert_valid();
 
         return(buffer);
-    }
-
-    SLD_BUFFER_IMPL_INLINE
-    init_from_data(
-        const byte* data,
-        const u32   size,
-        const u32   length) -> void {
-
-        bool can_init = true;
-        can_init &= (data != NULL);
-        can_init &= (size   != 0);
-        can_init &= (length <= size);
-        assert(can_init);
-
-        this->data   = (byte*)data;
-        this->size   = size;
-        this->length = length;
     }
 
     SLD_BUFFER_IMPL_CONSTEXPR

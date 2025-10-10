@@ -3,8 +3,6 @@
 #include "sld-memory.hpp"
 #include "sld-memory-reservation.cpp"
 #include "sld-memory-arena.cpp"
-#include "sld-memory-block-allocator.cpp"
-#include "sld-memory-stack-allocator.cpp"
 
 namespace sld {
 
