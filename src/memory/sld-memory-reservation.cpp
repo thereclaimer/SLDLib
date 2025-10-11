@@ -10,11 +10,11 @@ namespace sld {
         void) {
 
         bool is_valid = true;
-        is_valid &= (_start         != NULL);
-        is_valid &= (_size_reserved != 0);
-        is_valid &= (_size_arena    != 0);
+        is_valid &= (this->start         != NULL);
+        is_valid &= (this->size_reserved != 0);
+        is_valid &= (this->size_arena    != 0);
 
-        _last_error.val = (is_valid) 
+        last_error.val = (is_valid) 
             ? memory_error_e_success
             : memory_error_e_invalid_reservation;
 
@@ -46,11 +46,11 @@ namespace sld {
 
         // initialize the reservation 
         // and add it to the list
-        _start             = reservation_start;
-        _size_reserved     = size_reservation;
-        _size_arena        = size_arena; 
-        _last_error.val    = memory_error_e_success;
-        _arenas            = NULL;
+        this->start             = reservation_start;
+        this->size_reserved     = size_reservation;
+        this->size_arena        = size_arena; 
+        this->last_error.val    = memory_error_e_success;
+        this->arenas            = NULL;
         return(true);
    }
     
@@ -61,17 +61,17 @@ namespace sld {
         assert_valid();
 
         // attempt to release the os memory 
-        const bool is_released = os_memory_release((void*)_start, _size_reserved);
+        const bool is_released = os_memory_release((void*)start, this->size_reserved);
         
         if (!is_released) {
-            _last_error.val = memory_error_e_os_failed_to_release;
+            this->last_error.val = memory_error_e_os_failed_to_release;
             return(is_released);
         }
 
-        _arenas         = NULL;
-        _size_reserved  = 0;
-        _size_arena     = 0;
-        _last_error.val = memory_error_e_success;
+        this->arenas         = NULL;
+        this->size_reserved  = 0;
+        this->size_arena     = 0;
+        this->last_error.val = memory_error_e_success;
         return(is_released);
     }
 
@@ -83,22 +83,22 @@ namespace sld {
             bool is_decommitted = true;
 
         for (
-            arena_t* arena = _arenas;
+            arena_t* arena = this->arenas;
             arena != NULL;
-            arena = arena->_next) {
+            arena = arena->next) {
 
             is_decommitted &= arena->decommit(); 
         }
 
-        _last_error.val = (is_decommitted)
+        this->last_error.val = (is_decommitted)
             ? memory_error_e_critical
             : memory_error_e_success;
 
-        _arenas = NULL;
+        this->arenas = NULL;
 
         assert_valid();
 
-        const bool result = (_last_error.val == memory_error_e_success);
+        const bool result = (this->last_error.val == memory_error_e_success);
         return(result);            
     }
 
@@ -109,17 +109,17 @@ namespace sld {
         assert_valid();
 
 
-        const u64 arena_size     = _size_arena; 
+        const u64 arena_size     = this->size_arena; 
         u64       size_committed = 0;
         for (
-            arena_t* arena = _arenas;
+            arena_t* arena = this->arenas;
             arena != NULL;
-            arena = arena->_next) {
+            arena = arena->next) {
             
             size_committed += arena_size;
         }
         
-        _last_error.val = memory_error_e_success;
+        this->last_error.val = memory_error_e_success;
         return(size_committed);
     }
 
@@ -129,7 +129,7 @@ namespace sld {
 
         assert_valid();
         u64 commit_size      = size_committed();
-        u64 size_decommitted = (_size_reserved - commit_size);
+        u64 size_decommitted = (this->size_reserved - commit_size);
         
         return(size_decommitted);
     }
@@ -141,15 +141,15 @@ namespace sld {
         assert_valid();
 
         // find the next free arena
-        const u32 arena_count_max = (_size_reserved / _size_arena);
+        const u32 arena_count_max = (this->size_reserved / this->size_arena);
         void*     commit_start    = NULL;
         for (
             u32 arena_index = 0;
             arena_index < arena_count_max;
             ++arena_index) {
 
-            const u32  arena_offset  = (arena_index * _size_arena);
-            void*      arena_tmp     = (void*)(_start + arena_offset); 
+            const u32  arena_offset  = (arena_index * this->size_arena);
+            void*      arena_tmp     = (void*)(this->start + arena_offset); 
             const bool arena_is_free = os_memory_is_reserved(arena_tmp);
             
             if (arena_is_free) {
@@ -159,24 +159,24 @@ namespace sld {
         }
 
         // attempt to commit memory
-        void* arena_memory = os_memory_commit(commit_start, _size_arena);
+        void* arena_memory = os_memory_commit(commit_start, this->size_arena);
         if (!arena_memory) return(NULL);
 
         constexpr u32 arena_struct_size  = sizeof(arena_t);
 
-        arena_t* next          = _arenas;
+        arena_t* next          = this->arenas;
         arena_t* arena         = (arena_t*)arena_memory;
-        arena->_array          = (byte*)((addr)arena_memory + arena_struct_size);
-        arena->_capacity       = _size_arena        - arena_struct_size; 
-        arena->_reservation    = this;
-        arena->_position       = 0;
-        arena->_save           = 0;
-        arena->_next           = next;
-        arena->_prev           = NULL; 
-        arena->_last_error.val = memory_error_e_success;
+        arena->array           = (byte*)((addr)arena_memory + arena_struct_size);
+        arena->capacity        = this->size_arena        - arena_struct_size; 
+        arena->reservation     = this;
+        arena->position        = 0;
+        arena->save            = 0;
+        arena->next            = next;
+        arena->prev            = NULL; 
+        arena->last_error.val  = memory_error_e_success;
         
-        if (next) next->_prev = arena;
-        _arenas = arena;
+        if (next) next->prev = arena;
+        this->arenas = arena;
 
         return(arena);
     }

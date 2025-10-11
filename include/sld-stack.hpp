@@ -7,7 +7,6 @@
 #define SLD_DATA_STACK_IMPL_STATIC    inline static    auto
 #define SLD_DATA_STACK_IMPL_CONSTEXPR inline constexpr auto stack_t::
 
-
 namespace sld {
 
     //-------------------------------------------------------------------
@@ -45,31 +44,26 @@ namespace sld {
     SLD_DATA_STACK_IMPL_STATIC
     stack_init_from_memory(
         const void* memory,
-        const u32   size) ->  stack_t* 
-        {
+        const u32   size) ->  stack_t* {
 
         constexpr u32 struct_size = sizeof(stack_t); 
-        stack_t* stack = (stack_t*)memory;
+        
+        bool can_init = true;
+        can_init &= (memory != NULL);
+        can_init &= (size   != 0);
+        can_init &= (size   >  struct_size);
 
+        stack_t* stack  = (stack_t*)memory;
+        stack->array    = (byte*)((addr)memory + struct_size);
+        stack->capacity = size - struct_size;
+        stack->position = 0;
+        stack->save     = 0;
 
-
-    }
-
-
-
-    SLD_DATA_STACK_IMPL_CONSTRUCTOR
-    stack_t(
-        byte*     stack_data,
-        const u32 stack_size) {
-
-        array    = stack_data;
-        capacity = stack_size;
-        position = 0;
-        save     = 0;
+        return(stack);
     }
 
     SLD_DATA_STACK_IMPL_INLINE
-    init_from_data(
+    init(
         byte*     stack_data,
         const u32 stack_size) -> void {
 
