@@ -11,6 +11,7 @@
 #   define SLD_MEMORY_DEFAULT_ALIGNMENT 4
 #endif
 
+#define SLD_MEMORY_BLOCK_ALCTR_IMPL_INLINE inline auto block_allocator_t::
 namespace sld {
 
     //-------------------------------------------------------------------
@@ -83,28 +84,31 @@ namespace sld {
     //-------------------------------------------------------------------
     // BLOCK ALLOCATOR
     //-------------------------------------------------------------------
+    struct block_allocator_t {
 
-    class block_allocator_t {
+        addr  memory_start;
+        bool* block_array;
+        u32   block_count;
+        u32   block_size;
 
-    protected:
-        addr  _memory_start;
-        bool* _block_array;
-        u32   _block_count;
-
-    public:
-        block_allocator_t(void* memory, const u32 memory_size, const u32 block_size);
-
+        void  init                  (void* memory, const u32 memory_size, const u32 block_size);
         void  assert_valid          (void);
         void* alloc                 (void);
         void  free                  (void*);
         void  reset                 (void);
-        u32   get_size_total        (void);
-        u32   get_size_used         (void);
-        u32   get_size_free         (void);
-        u32   get_block_count_total (void);
-        u32   get_block_count_used  (void);
-        u32   get_block_count_free  (void);
+
+        SLD_API inline u32 get_size_total        (void);
+        SLD_API inline u32 get_size_used         (void);
+        SLD_API inline u32 get_size_free         (void);
+        SLD_API inline u32 get_block_count_used  (void);
+        SLD_API inline u32 get_block_count_free  (void);
     };
+
+    SLD_MEMORY_BLOCK_ALCTR_IMPL_INLINE
+    get_size_total(void) -> u32 {
+
+        return(block_count * block_size);
+    }
 
     //-------------------------------------------------------------------
     // POOL ALLOCATOR

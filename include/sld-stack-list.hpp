@@ -3,10 +3,6 @@
 
 #include "sld.hpp"
 
-#define SLD_STACK_LIST_IMPL_STATIC    template<typename t> inline           auto
-#define SLD_STACK_LIST_IMPL_INLINE    template<typename t> inline           auto stack_list_t<t>::
-#define SLD_STACK_LIST_IMPL_CONSTEXPR template<typename t> inline constexpr auto stack_list_t<t>::
-
 namespace sld {
 
     //-------------------------------------------------------------------
@@ -15,32 +11,31 @@ namespace sld {
 
     template<typename t>
     struct stack_list_t {
-        
         t*  array;
         u32 capacity;
         u32 position;
         u32 save;
-    
-        SLD_API inline           void init          (t* array, const u32 capacity);
-        SLD_API inline constexpr bool is_valid      (void) const;
-        SLD_API inline constexpr void assert_valid  (void) const;
-        SLD_API inline constexpr void reset         (void);
-        SLD_API inline constexpr void reset_to_save (void);
-        SLD_API inline constexpr void save_position (void);
-        SLD_API inline           t*   push_element  (const u32 count);
-        SLD_API inline           bool pull_element  (const u32 count);
     };
 
-    template<typename t> inline stack_list_t<t>* stack_list_init_from_memory(const void* memory, const u32 size);
+    template<typename t> SLD_API_INLINE stack_list_t<t>* stack_list_init_from_memory (const void* memory, const u32 size);
+    template<typename t> SLD_API_INLINE void             stack_list_init_from_aray   (stack_list_t<t>* stack_list, t* array, const u32 capacity);
+    template<typename t> SLD_API_INLINE bool             stack_list_is_valid         (stack_list_t<t>* stack_list);
+    template<typename t> SLD_API_INLINE void             stack_list_assert_valid     (stack_list_t<t>* stack_list);
+    template<typename t> SLD_API_INLINE void             stack_list_reset            (stack_list_t<t>* stack_list);
+    template<typename t> SLD_API_INLINE void             stack_list_reset_to_save    (stack_list_t<t>* stack_list);
+    template<typename t> SLD_API_INLINE void             stack_list_save_position    (stack_list_t<t>* stack_list);
+    template<typename t> SLD_API_INLINE t*               stack_list_push_element     (stack_list_t<t>* stack_list, const u32 count = 1);
+    template<typename t> SLD_API_INLINE bool             stack_list_pull_element     (stack_list_t<t>* stack_list, const u32 count = 1);
 
     //-------------------------------------------------------------------
     // INLINE METHODS
     //-------------------------------------------------------------------
 
-    SLD_STACK_LIST_IMPL_STATIC
+    template<typename t>
+    SLD_API_INLINE stack_list_t<t>*
     stack_list_init_from_memory(
         const void* memory,
-        const u32   size) -> stack_list_t<t>* {
+        const u32   size) ->  {
 
         assert(memory != NULL && size != 0);
 
@@ -48,98 +43,118 @@ namespace sld {
         constexpr u32 size_element = sizeof(t);
         const     u32 size_array   = (size - size_struct); 
 
-        stack_list_t<t>* stack = (stack_list_t<t>*)memory;
+        stack_list_t<t>* stack_list = (stack_list_t<t>*)memory;
 
-        stack->array    = (t*)((addr)memory + struct_size);
-        stack->capacity = size_array / size_element;  
-        stack->position = 0;
-        stack->save     = 0;
-        stack->assert_valid();
+        stack_list->array    = (t*)((addr)memory + struct_size);
+        stack_list->capacity = size_array / size_element;  
+        stack_list->position = 0;
+        stack_list->save     = 0;
 
+        stack_list_assert_valid(stack_list);
         return(stack); 
     }
 
-    SLD_STACK_LIST_IMPL_INLINE
-    init(
-        t*        array,
-        const u32 capacity) -> void {
+    template<typename t>
+    SLD_API_INLINE void
+    stack_list_init_from_array(
+        stack_list_t<t>* stack_list,
+        t*               array,
+        const u32        capacity) {
 
-        this->array    = array;
-        this->capacity = capacity;
-        this->position = 0;
-        this->save     = 0;
-        this->assert_valid();
+        assert(array != NULL && capacity != 0);
+        stack_list_assert_valid(stack_list);
+
+        stack_list->array    = array;
+        stack_list->capacity = capacity;
+        stack_list->position = 0;
+        stack_list->save     = 0;
     }
 
+    template<typename t>
+    SLD_API_INLINE bool
+    stack_list_is_valid(
+        stack_list_t<t>* stack_list) {
 
-    SLD_STACK_LIST_IMPL_CONSTEXPR
-    is_valid(void) const -> bool {
-
-        bool is_valid = true; 
-        is_valid &= (this->array    != NULL);
-        is_valid &= (this->capacity != 0);
-        is_valid &= (this->position <  this->capacity);
-        is_valid &= (this->save     <= this->position);
+        bool is_valid = (stack_list != NULL); 
+        if (is_valid) {
+            is_valid &= (stack_list->array    != NULL);
+            is_valid &= (stack_list->capacity != 0);
+            is_valid &= (stack_list->position <  stack_list->capacity);
+            is_valid &= (stack_list->save     <= stack_list->position);
+        }
         return(is_valid);
     }
 
-    SLD_STACK_LIST_IMPL_CONSTEXPR
-    assert_valid(void) const -> void {
-
-        assert(is_valid());
+    template<typename t>
+    SLD_API_INLINE void
+    stack_list_assert_valid(
+        stack_list_t<t>* stack_list) {
+        assert(stack_list_is_valid(stack_list));
     }
 
-    SLD_STACK_LIST_IMPL_CONSTEXPR    
-    reset(void) -> void {
+    template<typename t>
+    SLD_API_INLINE void    
+    stack_list_reset(
+        stack_list_t<t>* stack_list) {
 
-        assert_valid();
+        stack_list_assert_valid(stack_list);
 
-        this->position = 0;
-        this->save     = 0;
+        stack_list->position = 0;
+        stack_list->save     = 0;
     }
 
-    SLD_STACK_LIST_IMPL_CONSTEXPR    
-    reset_to_save(void) -> void {
+    template<typename t>
+    SLD_API_INLINE void
+    stack_list_reset_to_save(
+        stack_list_t<t>* stack_list) {
 
-        assert_valid();
-        this->position = this->save;
+        stack_list_assert_valid(stack_list);
+        stack_list->position = stack_list->save;
     }
 
-    SLD_STACK_LIST_IMPL_CONSTEXPR    
-    save_position(void) -> void {
+    template<typename t>
+    SLD_API_INLINE    
+    stack_list_save_position(
+        stack_list_t<t*> stack_list) -> void {
 
-        assert_valid();
-        this->save = this->position;
+        stack_list_assert_valid(stack_list);
+        stack_list->save = stack_list->position;
     }
 
-    SLD_STACK_LIST_IMPL_INLINE    
-    push_element(const u32 count) -> t* {
+    template<typename t>
+    SLD_API_INLINE t*
+    stack_list_push_element(
+        stack_list_t<t*> stack_list,
+        const u32        count) {
 
-        assert_valid();
+        stack_list_assert_valid(stack_list);
 
-        const u32 new_position = this->position + count;
+        const u32 new_position = stack_list->position + count;
         
-        bool can_push = (new_position <= this->capacity); 
+        bool can_push = (new_position <= stack_list->capacity); 
         if (!can_push) return(NULL);
 
-        t* ptr = &this->array[this->position];
-        this->position = new_position;
+        t* ptr = &stack_list->array[stack_list->position];
+        stack_list->position = new_position;
 
         return(ptr);
     }
 
-    SLD_STACK_LIST_IMPL_INLINE
-    pull_element(const u32 count) -> bool {
+    template<typename t>
+    SLD_API_INLINE bool
+    stack_list_pull_element(
+        stack_list_t<t*> stack_list,
+        const u32        count) {
 
-        assert_valid();
+        stack_list_assert_valid(stack_list);
 
-        bool can_pull = (count <= this->position);
+        bool can_pull = (count <= stack_list->position);
         if (can_pull) {
 
-            this->position -= count;
-            if (this->save > this->position) {
-                this->save = 0;
-            }
+            stack_list->position -= count;
+            if (stack_list->save > stack_list->position) {
+                stack_list->save = 0;
+            } 
         }
         
         return(can_pull);
