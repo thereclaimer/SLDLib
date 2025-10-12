@@ -43,8 +43,13 @@ namespace sld {
     // RESERVATION
     //-------------------------------------------------------------------
 
+    struct arena_allocator_t {
+        addr start;
+        u32  arena_size;
+        u32  arena_count;
+    };
+
     struct reservation_t {
-        
         addr           start;
         u64            size_reserved;
         u64            size_arena;
@@ -68,59 +73,45 @@ namespace sld {
     // ARENA
     //-------------------------------------------------------------------
 
-    struct arena_t : stack_t {
-
+    struct arena_t {
         reservation_t* reservation;
-        arena_t*       next;
-        arena_t*       prev;
-        memory_error_t last_error;
+        u32 position;
+        u32 last_error;
+
+    };
+
 
         SLD_API bool                  is_valid             (void) const;
         SLD_API void                  assert_valid         (void) const;
         SLD_API bool                  decommit             (void);
         SLD_API inline memory_error_t get_last_error       (void) { return(last_error); }
-    };
 
     //-------------------------------------------------------------------
     // BLOCK ALLOCATOR
     //-------------------------------------------------------------------
+    
     struct block_allocator_t {
-
-        addr  memory_start;
-        bool* block_array;
+        addr  start;
         u32   block_count;
         u32   block_size;
-
-        void  init                  (void* memory, const u32 memory_size, const u32 block_size);
-        void  assert_valid          (void);
-        void* alloc                 (void);
-        void  free                  (void*);
-        void  reset                 (void);
-
-        SLD_API inline u32 get_size_total        (void);
-        SLD_API inline u32 get_size_used         (void);
-        SLD_API inline u32 get_size_free         (void);
-        SLD_API inline u32 get_block_count_used  (void);
-        SLD_API inline u32 get_block_count_free  (void);
     };
 
-    SLD_MEMORY_BLOCK_ALCTR_IMPL_INLINE
-    get_size_total(void) -> u32 {
-
-        return(block_count * block_size);
-    }
+    SLD_API void  block_allocator_acquire_os_memory   (block_allocator_t* alctr, const u32 size, const u32 granularity);
+    SLD_API void  block_allocator_release_os_memory   (block_allocator_t* alctr);
+    SLD_API void* block_allocator_alloc            (block_allocator_t* alctr);
+    SLD_API void  block_allocator_free             (block_allocator_t* alctr, void* block);
+    SLD_API bool  block_allocator_is_valid         (const block_allocator_t* alctr);
+    SLD_API void  block_allocator_assert_valid     (const block_allocator_t* alctr);
+    SLD_API u32   block_allocator_get_size_total   (const block_allocator_t* alctr);
+    SLD_API u32   block_allocator_get_size_free    (const block_allocator_t* alctr);
+    SLD_API u32   block_allocator_get_size_used    (const block_allocator_t* alctr);
+    SLD_API u32   block_allocator_get_blocks_free  (const block_allocator_t* alctr);
+    SLD_API u32   block_allocator_get_blocks_used  (const block_allocator_t* alctr);
 
     //-------------------------------------------------------------------
     // POOL ALLOCATOR
     //-------------------------------------------------------------------
 
-
-    SLD_API stack_allocator_t*  stack_allocator_init          (const void*               memory,    const u32   size, const u32   granularity = SLD_MEMORY_DEFAULT_ALIGNMENT);
-    SLD_API bool                stack_allocator_validate      (stack_allocator_t*  const allocator);
-    SLD_API void*               stack_allocator_alloc_abs     (stack_allocator_t*  const allocator, const u32   size);
-    SLD_API u32                 stack_allocator_alloc_rel     (stack_allocator_t*  const allocator, const u32   size);
-    SLD_API bool                stack_allocator_free_abs      (stack_allocator_t*  const allocator, void* const memory);
-    SLD_API bool                stack_allocator_free_rel      (stack_allocator_t*  const allocator, const u32   offset);
     
     //-------------------------------------------------------------------
     // ENUMS

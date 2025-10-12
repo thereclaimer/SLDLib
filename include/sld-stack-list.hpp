@@ -62,12 +62,12 @@ namespace sld {
         const u32        capacity) {
 
         assert(array != NULL && capacity != 0);
-        stack_list_assert_valid(stack_list);
 
         stack_list->array    = array;
         stack_list->capacity = capacity;
         stack_list->position = 0;
         stack_list->save     = 0;
+        stack_list_assert_valid(stack_list);
     }
 
     template<typename t>
@@ -154,7 +154,7 @@ namespace sld {
             stack_list->position -= count;
             if (stack_list->save > stack_list->position) {
                 stack_list->save = 0;
-            } 
+            }
         }
         
         return(can_pull);

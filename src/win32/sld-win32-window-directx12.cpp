@@ -21,7 +21,7 @@ namespace sld {
     // OS API
     //-------------------------------------------------------------------
 
-    SLD_OS_API_FUNC const os_window_error_t
+    SLD_API_OS_FUNC const os_window_error_t
     win32_window_directx12_create(
         os_window_handle_t&         window_handle,
         const c8*                   title,
@@ -32,14 +32,14 @@ namespace sld {
         return(error);
     }
 
-    SLD_OS_API_FUNC const os_window_error_t
+    SLD_API_OS_FUNC const os_window_error_t
     win32_window_directx12_update(
         const os_window_handle_t window_handle,
         os_window_update_t&      update) {
 
     }
     
-    SLD_OS_API_FUNC inline const os_window_error_t
+    SLD_API_OS_FUNC inline const os_window_error_t
     win32_window_directx12_swap_buffers(
         const os_window_handle_t window_handle) {
 
@@ -49,7 +49,7 @@ namespace sld {
     // INTERNAL
     //-------------------------------------------------------------------
 
-    SLD_OS_API_INTERNAL LPWNDCLASSA 
+    SLD_API_OS_INTERNAL LPWNDCLASSA 
     win32_window_directx12_get_class(
         void) {
 
@@ -75,7 +75,7 @@ namespace sld {
     }
     
 
-    SLD_OS_API_INTERNAL LRESULT CALLBACK
+    SLD_API_OS_INTERNAL LRESULT CALLBACK
     win32_window_directx12_callback(
         HWND   handle,
         UINT   message,

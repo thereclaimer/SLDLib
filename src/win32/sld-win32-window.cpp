@@ -40,7 +40,7 @@ namespace sld {
     // OS API
     //-------------------------------------------------------------------
 
-    SLD_OS_API_FUNC const os_window_error_t
+    SLD_API_OS_FUNC const os_window_error_t
     win32_window_destroy(
         const os_window_handle_t handle) {
 
@@ -49,7 +49,7 @@ namespace sld {
         return(error);
     }
 
-    SLD_OS_API_FUNC const os_window_error_t
+    SLD_API_OS_FUNC const os_window_error_t
     win32_window_show(
         const os_window_handle_t handle) {
 
@@ -63,7 +63,7 @@ namespace sld {
         return(error);
     }
 
-    SLD_OS_API_FUNC const os_window_error_t
+    SLD_API_OS_FUNC const os_window_error_t
     win32_window_get_size(
         const os_window_handle_t handle,
         os_window_size_t&        size) {
@@ -81,7 +81,7 @@ namespace sld {
         return(error);
     }
 
-    SLD_OS_API_FUNC const os_window_error_t
+    SLD_API_OS_FUNC const os_window_error_t
     win32_window_get_position(
         const os_window_handle_t handle,
         os_window_pos_t&    position) {
@@ -103,7 +103,7 @@ namespace sld {
     // INTERNAL
     //-------------------------------------------------------------------
 
-    SLD_OS_API_INTERNAL const os_window_error_t
+    SLD_API_OS_INTERNAL const os_window_error_t
     win32_window_error_get_last(
         void) {
         
@@ -130,15 +130,15 @@ namespace sld {
         return(error);
     }
 
-    SLD_OS_API_INTERNAL const os_window_error_t
+    SLD_API_OS_INTERNAL const os_window_error_t
     win32_window_error_success(
         void) {
 
-        SLD_OS_API_FUNC const os_window_error_t error = { os_window_error_e_success };
+        SLD_API_OS_FUNC const os_window_error_t error = { os_window_error_e_success };
         return(error);
     }
 
-    SLD_OS_API_INTERNAL const os_window_error_t
+    SLD_API_OS_INTERNAL const os_window_error_t
     win32_window_process_events(
         const os_window_handle_t handle,
         os_window_update_t&      update) {
@@ -226,7 +226,7 @@ namespace sld {
         return(error);
     }
 
-    SLD_OS_API_INTERNAL bool
+    SLD_API_OS_INTERNAL bool
     win32_window_peek_message(
         win32_window_message_peek_args_t& peek_args) {
 

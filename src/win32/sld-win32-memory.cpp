@@ -5,7 +5,7 @@
 
 namespace sld {
     
-    SLD_OS_API_FUNC void*
+    SLD_API_OS_FUNC void*
     win32_memory_reserve(
         void*     start,
         const u64 size) {
@@ -20,7 +20,7 @@ namespace sld {
         return(memory);
     }
 
-    SLD_OS_API_FUNC bool
+    SLD_API_OS_FUNC bool
     win32_memory_release(
         void*     start,
         const u64 size) {
@@ -34,7 +34,7 @@ namespace sld {
         return(result);
     }
 
-    SLD_OS_API_FUNC void*
+    SLD_API_OS_FUNC void*
     win32_memory_commit(
         void*     start,
         const u64 size) {
@@ -49,7 +49,7 @@ namespace sld {
         return(memory);
     }
 
-    SLD_OS_API_FUNC bool
+    SLD_API_OS_FUNC bool
     win32_memory_decommit(
         void*     start,
         const u64 size) {
@@ -63,29 +63,29 @@ namespace sld {
         return(result);
     }
 
-    SLD_OS_API_FUNC u64
+    SLD_API_OS_FUNC u64
     win32_memory_align_to_page(
         const u64 size) {
 
-        SLD_OS_API_FUNC SYSTEM_INFO sys_info;
+        SLD_API_OS_FUNC SYSTEM_INFO sys_info;
         GetSystemInfo(&sys_info);
 
         const u64 size_aligned = size_align_pow_2(size, sys_info.dwPageSize);
         return(size_aligned);
     }
 
-    SLD_OS_API_FUNC u64
+    SLD_API_OS_FUNC u64
     win32_memory_align_to_granularity(
         const u64 size) {
 
-        SLD_OS_API_FUNC SYSTEM_INFO sys_info;
+        SLD_API_OS_FUNC SYSTEM_INFO sys_info;
         GetSystemInfo(&sys_info);
 
         const u64 size_aligned = size_align_pow_2(size, sys_info.dwAllocationGranularity);
         return(size_aligned);
     }
 
-    SLD_OS_API_FUNC bool
+    SLD_API_OS_FUNC bool
     win32_memory_is_reserved(
         void* start) {
 
@@ -102,4 +102,20 @@ namespace sld {
         return(is_reserved); 
     }
 
+    SLD_API_OS_FUNC bool
+    win32_memory_is_committed(
+        void* start) {
+
+        if (!start) return(false);
+
+        MEMORY_BASIC_INFORMATION memory_info;
+        const SIZE_T result = VirtualQuery(
+            start,
+            &memory_info,
+            sizeof(memory_info)
+        );
+
+        const bool is_committed = (memory_info.State == MEM_COMMIT);
+        return(is_committed); 
+    }
 };

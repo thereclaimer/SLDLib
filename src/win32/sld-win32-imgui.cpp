@@ -23,7 +23,7 @@ namespace sld {
     // INTERNAL
     //-------------------------------------------------------------------
 
-    SLD_OS_API_INTERNAL bool
+    SLD_API_OS_INTERNAL bool
     win32_imgui_init_opengl3(
         HWND window_handle) {
 
@@ -42,7 +42,7 @@ namespace sld {
         return(result);        
     }
 
-    SLD_OS_API_INTERNAL bool
+    SLD_API_OS_INTERNAL bool
     win32_imgui_init_directx12(
         void) {
 

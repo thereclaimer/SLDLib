@@ -14,6 +14,7 @@
 #include "sld-memory.cpp"
 #include "sld-memory-reservation.cpp"
 #include "sld-memory-arena.cpp"
+#include "sld-memory-block-allocator.cpp"
 
 #include "sld-input-keyboard.cpp"
 

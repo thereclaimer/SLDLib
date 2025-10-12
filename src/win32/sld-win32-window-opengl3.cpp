@@ -22,7 +22,7 @@ namespace sld {
     // OS API
     //-------------------------------------------------------------------
 
-    SLD_OS_API_FUNC const os_window_error_t
+    SLD_API_OS_FUNC const os_window_error_t
     win32_window_opengl3_create(
         os_window_handle_t&         window_handle,
         const c8*                   title,
@@ -64,7 +64,7 @@ namespace sld {
         return(error);
     }
 
-    SLD_OS_API_FUNC const os_window_error_t 
+    SLD_API_OS_FUNC const os_window_error_t 
     win32_window_opengl3_set_viewport(
         const os_window_handle_t window_handle,
         const os_window_size_t&  size,
@@ -80,7 +80,7 @@ namespace sld {
         return(result);
     }
 
-    SLD_OS_API_FUNC const os_window_error_t 
+    SLD_API_OS_FUNC const os_window_error_t 
     win32_window_opengl3_set_clear_color(
         const os_window_handle_t window_handle,
         const os_window_color_t& color) {
@@ -99,7 +99,7 @@ namespace sld {
         return(result);
     }
 
-    SLD_OS_API_FUNC const os_window_error_t
+    SLD_API_OS_FUNC const os_window_error_t
     win32_window_opengl3_update(
         const os_window_handle_t window_handle,
         os_window_update_t&      update) {
@@ -112,7 +112,7 @@ namespace sld {
         return(error);
     }
     
-    SLD_OS_API_FUNC inline const os_window_error_t
+    SLD_API_OS_FUNC inline const os_window_error_t
     win32_window_opengl3_swap_buffers(
         const os_window_handle_t window_handle) {
 
@@ -135,7 +135,7 @@ namespace sld {
     // INTERNAL
     //-------------------------------------------------------------------
 
-    SLD_OS_API_INTERNAL LPWNDCLASSA 
+    SLD_API_OS_INTERNAL LPWNDCLASSA 
     win32_window_opengl3_get_class(
         void) {
 
@@ -159,7 +159,7 @@ namespace sld {
         return(window_class_ptr);
     }
 
-    SLD_OS_API_INTERNAL LRESULT CALLBACK
+    SLD_API_OS_INTERNAL LRESULT CALLBACK
     win32_window_opengl3_callback(
         HWND   handle,
         UINT   message,
