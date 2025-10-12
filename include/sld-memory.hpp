@@ -40,7 +40,7 @@ namespace sld {
     SLD_API void  memory_copy    (byte*       start_dst, const byte* start_src, const u64 size);
 
     //-------------------------------------------------------------------
-    // RESERVATION
+    // ARENA ALLOCATOR
     //-------------------------------------------------------------------
 
     struct arena_allocator_t {
@@ -48,6 +48,25 @@ namespace sld {
         u32  arena_size;
         u32  arena_count;
     };
+
+    struct arena_t {
+        arena_allocator_t* allocator;
+        u32                position;
+        u32                save;
+    };
+
+    SLD_API void     arena_allocator_reserve_os_memory (arena_allocator_t* alctr);
+    SLD_API arena_t* arena_allocator_release_os_memory (arena_allocator_t* alctr);
+    SLD_API arena_t* arena_allocator_commit_arena      (arena_allocator_t* alctr);
+    SLD_API void     arena_allocator_decommit_arena    (arena_allocator_t* alctr, arena_t* arena);
+
+    SLD_API void  arena_reset     (arena_t* arena);
+    SLD_API void  arena_save      (arena_t* arena);
+    SLD_API void  arena_roll_back (arena_t* arena);
+    SLD_API void* arena_alloc     (arena_t* arena, const u32 size, const u32 alignment = 0);
+    
+    SLD_API template <typename t>
+    void* arena_push_struct(arena_t* arena);
 
     struct reservation_t {
         addr           start;
@@ -96,17 +115,17 @@ namespace sld {
         u32   block_size;
     };
 
-    SLD_API void  block_allocator_acquire_os_memory   (block_allocator_t* alctr, const u32 size, const u32 granularity);
-    SLD_API void  block_allocator_release_os_memory   (block_allocator_t* alctr);
-    SLD_API void* block_allocator_alloc            (block_allocator_t* alctr);
-    SLD_API void  block_allocator_free             (block_allocator_t* alctr, void* block);
-    SLD_API bool  block_allocator_is_valid         (const block_allocator_t* alctr);
-    SLD_API void  block_allocator_assert_valid     (const block_allocator_t* alctr);
-    SLD_API u32   block_allocator_get_size_total   (const block_allocator_t* alctr);
-    SLD_API u32   block_allocator_get_size_free    (const block_allocator_t* alctr);
-    SLD_API u32   block_allocator_get_size_used    (const block_allocator_t* alctr);
-    SLD_API u32   block_allocator_get_blocks_free  (const block_allocator_t* alctr);
-    SLD_API u32   block_allocator_get_blocks_used  (const block_allocator_t* alctr);
+    SLD_API void  block_allocator_reserve_os_memory (block_allocator_t* alctr, const u32 size, const u32 granularity);
+    SLD_API void  block_allocator_release_os_memory (block_allocator_t* alctr);
+    SLD_API void* block_allocator_alloc             (const block_allocator_t* alctr);
+    SLD_API void  block_allocator_free              (const block_allocator_t* alctr, void* block);
+    SLD_API bool  block_allocator_is_valid          (const block_allocator_t* alctr);
+    SLD_API void  block_allocator_assert_valid      (const block_allocator_t* alctr);
+    SLD_API u32   block_allocator_get_size_total    (const block_allocator_t* alctr);
+    SLD_API u32   block_allocator_get_size_free     (const block_allocator_t* alctr);
+    SLD_API u32   block_allocator_get_size_used     (const block_allocator_t* alctr);
+    SLD_API u32   block_allocator_get_blocks_free   (const block_allocator_t* alctr);
+    SLD_API u32   block_allocator_get_blocks_used   (const block_allocator_t* alctr);
 
     //-------------------------------------------------------------------
     // POOL ALLOCATOR
