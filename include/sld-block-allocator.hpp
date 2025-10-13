@@ -15,15 +15,13 @@ namespace sld {
         u32      block_count;
     };
 
-    SLD_API_INLINE void  block_allocator_reserve_os_memory (block_allocator_t* alctr, const u32 size, const u32 granularity);
+    SLD_API_INLINE void  block_allocator_reserve_os_memory (block_allocator_t* alctr, const u32 size_total, const u32 size_block);
     SLD_API_INLINE void  block_allocator_release_os_memory (block_allocator_t* alctr);
     SLD_API_INLINE bool  block_allocator_is_valid          (const block_allocator_t* alctr);
     SLD_API_INLINE bool  block_allocator_is_block_valid    (const block_allocator_t* alctr, const memory_t& block);
     SLD_API_INLINE void  block_allocator_assert_valid      (const block_allocator_t* alctr);
     SLD_API_INLINE void* block_allocator_commit            (const block_allocator_t* alctr);
     SLD_API_INLINE void  block_allocator_decommit          (const block_allocator_t* alctr, void* block);
-    SLD_API_INLINE bool  block_allocator_is_valid          (const block_allocator_t* alctr);
-    SLD_API_INLINE void  block_allocator_assert_valid      (const block_allocator_t* alctr);
     SLD_API_INLINE u32   block_allocator_get_size_total    (const block_allocator_t* alctr);
     SLD_API_INLINE u32   block_allocator_get_size_free     (const block_allocator_t* alctr);
     SLD_API_INLINE u32   block_allocator_get_size_used     (const block_allocator_t* alctr);

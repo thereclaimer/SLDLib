@@ -13,6 +13,7 @@
 
 #include "sld-memory.hpp"
 #include "sld-block-allocator.hpp"
+#include "sld-arena-allocator.hpp"
 
 #include "sld-input-keyboard.cpp"
 
