@@ -110,7 +110,8 @@ namespace sld {
             // make sure this arena is managed by the allocator;
             const addr last_arena_addr = (alctr->memory.addr + alctr->memory.size) - alctr->arena_size; 
             const u32  arena_offset    = (arena_memory.addr  - alctr->memory.addr);
-            is_valid &= (arena_memory.addr < last_arena_addr); 
+            is_valid &= (arena->size       == alctr->arena_size);
+            is_valid &= (arena_memory.addr <  last_arena_addr); 
             is_valid &= ((arena_offset % alctr->arena_size) == 0);
         }
 
