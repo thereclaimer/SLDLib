@@ -11,10 +11,8 @@
 #include "sld-string-cstr.cpp"
 #include "sld-string-wstr.cpp"
 
-#include "sld-memory.cpp"
-#include "sld-memory-reservation.cpp"
-#include "sld-memory-arena.cpp"
-#include "sld-memory-block-allocator.cpp"
+#include "sld-memory.hpp"
+#include "sld-block-allocator.hpp"
 
 #include "sld-input-keyboard.cpp"
 

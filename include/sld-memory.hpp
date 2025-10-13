@@ -3,135 +3,268 @@
 
 #include "sld.hpp"
 #include "sld-stack.hpp"
+#include "sld-os.hpp"
 
-#ifndef    SLD_MEMORY_INTERNAL_STACK_SIZE_KB
-#   define SLD_MEMORY_INTERNAL_STACK_SIZE_KB 128
-#endif 
 #ifndef    SLD_MEMORY_DEFAULT_ALIGNMENT
 #   define SLD_MEMORY_DEFAULT_ALIGNMENT 4
 #endif
 
-#define SLD_MEMORY_BLOCK_ALCTR_IMPL_INLINE inline auto block_allocator_t::
 namespace sld {
-
-    //-------------------------------------------------------------------
-    // TYPES
-    //-------------------------------------------------------------------
-
-    struct memory_error_t : s32_t { };
-    struct memory_t;
-    
-    struct reservation_t;
-    struct arena_t;
-
-    struct allocation_t;
-    struct allocator_base_t;
-
-    struct block_allocator_t;
-    struct stack_allocator_t;
-    struct block_arena_allocator_t;
 
     //-------------------------------------------------------------------
     // API
     //-------------------------------------------------------------------
 
-    SLD_API void  memory_zero    (byte*       start,     const u64   size);
-    SLD_API byte* memory_advance (const byte* start,     const u64   size,      const u64 stride, u64& offset);
-    SLD_API void  memory_copy    (byte*       start_dst, const byte* start_src, const u64 size);
+    constexpr u32 MEMORY_DEFAULT_ALIGNMENT = SLD_MEMORY_DEFAULT_ALIGNMENT;
+
+    struct memory_t;
+    struct memory_os_reservation_t;
+    struct memory_os_commit_t;
+    struct memory_arena_t;
+    using  memory_error_t = s32;
+
+    SLD_API_INLINE          bool  memory_is_valid           (const memory_t& memory);
+    SLD_API_INLINE          void  memory_assert_valid       (const memory_t& memory);
+    SLD_API_INLINE          void* memory_add_offset         (const void*     memory, const u32 offset);
+    SLD_API_INLINE          bool  memory_is_os_committed    (const memory_t& memory);
+    SLD_API_INLINE          bool  memory_is_os_reserved     (const memory_t& memory);
+
+    SLD_API_INLINE          void  memory_os_reserve         (memory_t& memory);
+    SLD_API_INLINE          void  memory_os_release         (memory_t& memory);
+    SLD_API_INLINE          void  memory_os_commit          (memory_t& memory);
+    SLD_API_INLINE          void  memory_os_decommit        (memory_t& memory);
+    SLD_API_INLINE          void  memory_zero               (memory_t& memory);
+    SLD_API_INLINE_TEMPLATE void  memory_zero_struct        (type*     ptr_type);
+    
+    SLD_API_INLINE          bool  memory_arena_is_valid     (const memory_arena_t* arena);
+    SLD_API_INLINE          void  memory_arena_assert_valid (const memory_arena_t* arena);
+    SLD_API_INLINE          void* memory_arena_get_start    (const memory_arena_t* arena);
+    SLD_API_INLINE          void* memory_arena_get_position (const memory_arena_t* arena);
+    SLD_API_INLINE          void  memory_arena_reset        (memory_arena_t*       arena);
+    SLD_API_INLINE          void  memory_arena_save         (memory_arena_t*       arena);
+    SLD_API_INLINE          void  memory_arena_roll_back    (memory_arena_t*       arena);
+    SLD_API_INLINE          void* memory_arena_push_bytes   (memory_arena_t*       arena, const u32 size, const u32 alignment = MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API_INLINE_TEMPLATE type* memory_arena_push_struct  (memory_arena_t*       arena);
 
     //-------------------------------------------------------------------
-    // ARENA ALLOCATOR
+    // DEFINITIONS
     //-------------------------------------------------------------------
 
-    struct arena_allocator_t {
-        addr start;
-        u32  arena_size;
-        u32  arena_count;
+    struct memory_t {
+        union {
+            addr  addr;
+            void* ptr;
+            byte* bytes;
+        };
+        u64   size;
     };
 
-    struct arena_t {
-        arena_allocator_t* allocator;
-        u32                position;
-        u32                save;
-    };
-
-    SLD_API void     arena_allocator_reserve_os_memory (arena_allocator_t* alctr);
-    SLD_API arena_t* arena_allocator_release_os_memory (arena_allocator_t* alctr);
-    SLD_API arena_t* arena_allocator_commit_arena      (arena_allocator_t* alctr);
-    SLD_API void     arena_allocator_decommit_arena    (arena_allocator_t* alctr, arena_t* arena);
-
-    SLD_API void  arena_reset     (arena_t* arena);
-    SLD_API void  arena_save      (arena_t* arena);
-    SLD_API void  arena_roll_back (arena_t* arena);
-    SLD_API void* arena_alloc     (arena_t* arena, const u32 size, const u32 alignment = 0);
-    
-    SLD_API template <typename t>
-    void* arena_push_struct(arena_t* arena);
-
-    struct reservation_t {
-        addr           start;
-        u64            size_reserved;
-        u64            size_arena;
-        arena_t*       arenas;
-        memory_error_t last_error;
-    
-        SLD_API bool                  acquire_system_memory (const u64 size_min_reservation, const u64 size_min_arena = 0);
-        SLD_API bool                  release_system_memory (void);
-        SLD_API bool                  is_valid              (void);
-        SLD_API void                  assert_valid          (void);
-        SLD_API bool                  reset                 (void);
-        SLD_API u64                   size_committed        (void);
-        SLD_API u64                   size_decommitted      (void);
-        SLD_API arena_t*              commit_arena          (void);
-        SLD_API inline arena_t*       get_first_arena       (void) { return(arenas);     }
-        SLD_API inline memory_error_t get_last_error        (void) { return(last_error); }
-        SLD_API inline u32            get_arena_size        (void) { return(size_arena); }
-    }; 
-
-    //-------------------------------------------------------------------
-    // ARENA
-    //-------------------------------------------------------------------
-
-    struct arena_t {
-        reservation_t* reservation;
+    struct memory_arena_t {
+        u32 size;
         u32 position;
-        u32 last_error;
-
+        u32 save;
     };
 
-
-        SLD_API bool                  is_valid             (void) const;
-        SLD_API void                  assert_valid         (void) const;
-        SLD_API bool                  decommit             (void);
-        SLD_API inline memory_error_t get_last_error       (void) { return(last_error); }
-
     //-------------------------------------------------------------------
-    // BLOCK ALLOCATOR
+    // INLINE METHODS
     //-------------------------------------------------------------------
+
+    SLD_API_INLINE bool
+    memory_is_valid(
+        const memory_t& memory) {
+
+        const bool is_valid = (memory.addr != 0 && memory.size != 0);
+    }
+
+    SLD_API_INLINE void
+    memory_assert_valid(
+        const memory_t& memory) {
+
+        assert(memory_is_valid(memory));
+    }
+
+    SLD_API_INLINE void*
+    memory_add_offset(
+        const void* memory,
+        const u32   offset) {
+
+        void* ptr = (void*)((addr)memory + offset);
+        return(ptr);
+    }
+
+    SLD_API_INLINE void
+    memory_os_reserve(memory_t& memory) {
+
+        const u64 requested_size = memory.size;
+        memory.size = os_memory_align_to_granularity (requested_size);
+        memory.ptr  = os_memory_reserve              (NULL, memory.size);
+
+        bool is_valid = true; 
+        is_valid &= (requested_size != 0);
+        is_valid &= (memory.addr    != 0);
+        is_valid &= (memory.size    != 0);
+        is_valid &= (memory.size    >= requested_size);
+        assert(is_valid);
+    }
+
+    SLD_API_INLINE void
+    memory_os_commit(
+        memory_t& memory) {
+
+        const u64 requested_size = memory.size;
+        void*     requested_ptr  = memory.ptr;  
+        memory.size = os_memory_align_to_page (requested_size);
+        memory.ptr  = os_memory_commit        (requested_ptr, memory.size); 
     
-    struct block_allocator_t {
-        addr  start;
-        u32   block_count;
-        u32   block_size;
-    };
+        bool is_valid = true;
+        is_valid &= (requested_size != 0);
+        is_valid &= (requested_ptr  != NULL);
+        is_valid &= (memory.addr    != 0);
+        is_valid &= (memory.size    != 0);
+        is_valid &= (memory.ptr     == requested_ptr);
+        is_valid &= (memory.size    >= requested_size);
+        assert(is_valid);
+    }
 
-    SLD_API void  block_allocator_reserve_os_memory (block_allocator_t* alctr, const u32 size, const u32 granularity);
-    SLD_API void  block_allocator_release_os_memory (block_allocator_t* alctr);
-    SLD_API void* block_allocator_alloc             (const block_allocator_t* alctr);
-    SLD_API void  block_allocator_free              (const block_allocator_t* alctr, void* block);
-    SLD_API bool  block_allocator_is_valid          (const block_allocator_t* alctr);
-    SLD_API void  block_allocator_assert_valid      (const block_allocator_t* alctr);
-    SLD_API u32   block_allocator_get_size_total    (const block_allocator_t* alctr);
-    SLD_API u32   block_allocator_get_size_free     (const block_allocator_t* alctr);
-    SLD_API u32   block_allocator_get_size_used     (const block_allocator_t* alctr);
-    SLD_API u32   block_allocator_get_blocks_free   (const block_allocator_t* alctr);
-    SLD_API u32   block_allocator_get_blocks_used   (const block_allocator_t* alctr);
+    SLD_API_INLINE void
+    memory_zero(memory_t& memory) {
 
-    //-------------------------------------------------------------------
-    // POOL ALLOCATOR
-    //-------------------------------------------------------------------
+        assert(memory.addr != 0 && memory.size != 0);
+        (void)memset(memory.ptr, 0, memory.size);
+    }
 
+    SLD_API_INLINE_TEMPLATE void
+    memory_zero_struct(type* ptr_struct) {
+
+        (void)memset((void*)ptr_struct, 0, sizeof(t));
+    }
+
+    SLD_API_INLINE bool
+    memory_is_committed(
+        const memory_t& memory) {
+
+        memory_assert_valid(memory);
+        const bool is_committed = os_memory_is_committed(memory.ptr);
+        return(is_committed);
+    }
+
+    SLD_API_INLINE bool
+    memory_is_os_reserved(
+        const memory_t& memory) {
+
+        memory_assert_valid(memory);
+        const bool is_reserved = os_memory_is_reserved(memory.ptr);
+        return(is_reserved);
+    }
     
+    SLD_API_INLINE bool
+    memory_arena_is_valid(
+        const memory_arena_t* arena) {
+
+        bool is_valid = (arena != NULL);
+        if (is_valid) {
+
+            is_valid &= os_memory_is_committed((void*)arena);
+            is_valid &= (arena->size     != 0); 
+            is_valid &= (arena->position != 0); 
+            is_valid &= (arena->save     <= arena->position); 
+        }
+        return(is_valid);
+    }
+
+    SLD_API_INLINE void
+    memory_arena_assert_valid(
+        const memory_arena_t* arena) {
+
+        assert(memory_arena_is_valid(arena));
+    }
+
+    SLD_API_INLINE void*
+    memory_arena_get_start(
+        const memory_arena_t* arena) {
+
+        memory_arena_assert_valid(arena);
+        constexpr u32 size_arena_header = sizeof(memory_arena_t);
+        void*         arena_start       = memory_add_offset((void*)arena, size_arena_header); 
+        return(arena_start);
+    }
+
+    SLD_API_INLINE void*
+    memory_arena_get_position(
+        const memory_arena_t* arena) {
+
+        memory_arena_assert_valid(arena);
+        const void* arena_start    = memory_arena_get_start(arena);
+        void*       arena_position = memory_add_offset(arena_start, arena->position);
+        return(arena_position);
+    }
+
+    SLD_API_INLINE void
+    memory_arena_reset(
+        memory_arena_t* arena) {
+
+        memory_arena_assert_valid(arena);
+        arena->position = 0;
+        arena->save     = 0;
+    }
+
+    SLD_API_INLINE void
+    memory_arena_save(
+        memory_arena_t* arena) {
+
+        memory_arena_assert_valid(arena);
+        arena->save = arena->position;
+    }
+
+    SLD_API_INLINE void
+    memory_arena_roll_back(
+        memory_arena_t* arena) {
+
+        memory_arena_assert_valid(arena);
+        arena->position = arena->save;
+    }
+
+    SLD_API_INLINE void*
+    memory_arena_push_bytes(
+        memory_arena_t* arena,
+        const u32       size,
+        const u32       alignment) {
+
+        memory_arena_assert_valid(arena);
+
+        const u32 alignment_pow_2 = size_round_up_pow2 (alignment);
+        const u32 size_aligned    = size_align_pow_2   (size, alignment);
+        const u32 new_position    = arena->position + size_aligned;
+        
+        void* ptr = NULL;
+        if (new_position <= arena->position) {
+
+            ptr = memory_arena_get_position(arena);
+            assert(ptr);
+            
+            arena->position = new_position;
+        } 
+        return(ptr);
+    }
+    
+    SLD_API_INLINE_TEMPLATE type*
+    memory_arena_push_struct(
+        memory_arena_t* arena) {
+
+        memory_arena_assert_valid(arena);
+
+        const u32 struct_size      = sizeof  (type);
+        const u32 struct_alignment = alignof (type);
+         
+        type* ptr = (type*)memory_arena_push_bytes(
+            arena,
+            struct_size,
+            struct_alignment);
+
+        return(ptr);
+    }
+
+
     //-------------------------------------------------------------------
     // ENUMS
     //-------------------------------------------------------------------
@@ -150,15 +283,6 @@ namespace sld {
         memory_error_e_os_failed_to_commit       = -12,
         memory_error_e_os_failed_to_decommit     = -13,
         memory_error_e_critical                  = -14
-    };
-
-    //-------------------------------------------------------------------
-    // DEFINITIONS
-    //-------------------------------------------------------------------
-
-    struct memory_t {
-        addr start;
-        u64  size;
     };
 };
 
