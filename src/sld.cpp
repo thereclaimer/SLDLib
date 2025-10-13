@@ -2,8 +2,6 @@
 
 #include "sld-heap.hpp"
 
-#include "sld-core-heap.cpp"
-
 #include "sld-hash32.cpp"
 #include "sld-hash128.cpp"
 

@@ -1,35 +1,31 @@
-#ifndef SLD_BUFFER_INL
-#define SLD_BUFFER_INL
+#ifndef SLD_BUFFER_HPP
+#define SLD_BUFFER_HPP
 
 #include "sld.hpp"
+#include "sld-memory.hpp"
 
-#define SLD_BUFFER_IMPL_INLINE    inline           auto buffer_t::
-#define SLD_BUFFER_IMPL_STATIC    inline static    auto buffer_t::
-#define SLD_BUFFER_IMPL_CONSTEXPR inline constexpr auto buffer_t::
 
 namespace sld {
 
+
     //-------------------------------------------------------------------
-    // BUFFER
+    // API
     //-------------------------------------------------------------------
 
     struct buffer_t {
-
         byte* data;
         u32   size;
         u32   length;
-
-        inline constexpr bool is_valid       (void);
-        inline constexpr void assert_valid   (void);
-        inline constexpr void reset          (void);
-        inline           void zero           (void);
-        inline byte_t*        index          (const u32   index);
-        inline u32            append         (const byte* src_data, const u32 src_length);
-        inline u32            copy           (const byte* src_data, const u32 src_length);  
-
-        inline byte_t&     operator[] (u32 index);
-        inline const byte& operator[] (u32 index) const;      
     };
+
+    SLD_API_INLINE buffer_t* buffer_init_from_arena (memory_arena_t* arena, const u32 size);
+    SLD_API_INLINE bool      buffer_is_valid        (buffer_t* buffer);
+    SLD_API_INLINE void      buffer_assert_valid    (buffer_t* buffer);
+    SLD_API_INLINE void      buffer_reset           (buffer_t* buffer);
+    SLD_API_INLINE void      buffer_zero            (buffer_t* buffer);
+    SLD_API_INLINE byte_t*   buffer_index           (buffer_t* buffer, const u32   index);
+    SLD_API_INLINE u32       buffer_append          (buffer_t* buffer, const byte* src_data, const u32 src_length);
+    SLD_API_INLINE u32       buffer_copy            (buffer_t* buffer, const byte* src_data, const u32 src_length);  
 
     //-------------------------------------------------------------------
     // INLINE METHODS
@@ -146,8 +142,4 @@ namespace sld {
     }
 };
 
-#undef SLD_BUFFER_IMPL_INLINE
-#undef SLD_BUFFER_IMPL_STATIC
-#undef SLD_BUFFER_IMPL_CONSTEXPR
-
-#endif //SLD_BUFFER_INL
+#endif //SLD_BUFFER_HPP

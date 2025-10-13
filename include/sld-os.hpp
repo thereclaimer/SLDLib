@@ -5,7 +5,6 @@
 #include "sld-buffer.hpp"
 #include "sld-geometry.hpp"
 #include "sld-graphics.hpp"
-#include "sld-queue.hpp"
 #include "sld-input.hpp"
 
 /**********************************************************************************/

@@ -44,8 +44,8 @@ namespace sld {
         SLD_API inline constexpr u32  get_count_used      (void) const;
     };
 
-    template<typename t> SLD_API inline queue_t<t>* queue_init_from_arena  (arena_t* const arena,  const u32 capacity);
-    template<typename t> SLD_API inline queue_t<t>* queue_init_from_memory (void*    const memory, const u32 capacity);
+    template<typename t> SLD_API inline queue_t<t>* queue_init_from_arena  (memory_arena_t* arena,  const u32 capacity);
+    template<typename t> SLD_API inline queue_t<t>* queue_init_from_memory (void*           const memory, const u32 capacity);
 
     //-------------------------------------------------------------------
     // STATIC METHODS
@@ -53,7 +53,7 @@ namespace sld {
 
     SLD_QUEUE_IMPL_STATIC 
     queue_init_from_arena(
-        arena_t* const arena,
+        memory_arena_t* const arena,
         const u32      capacity) -> queue_t<t>* {
 
         // check args
