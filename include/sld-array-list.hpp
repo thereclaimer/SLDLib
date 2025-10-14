@@ -3,10 +3,6 @@
 
 #include "sld.hpp"
 
-#define SLD_ARRAY_LIST_IMPL_INLINE    template<typename t> inline           auto array_list_t<t>::
-#define SLD_ARRAY_LIST_IMPL_STATIC    template<typename t> inline static    auto array_list_t<t>::
-#define SLD_ARRAY_LIST_IMPL_CONSTEXPR template<typename t> inline constexpr auto array_list_t<t>::
-
 namespace sld {
 
     //-------------------------------------------------------------------
@@ -224,16 +220,7 @@ namespace sld {
         return(sizeof(t));
     }
 
-    SLD_ARRAY_LIST_IMPL_INLINE
-    operator[] (
-        u32 index) -> t& {
-
-        
-    }
 };
 
-#undef SLD_ARRAY_LIST_IMPL_INLINE
-#undef SLD_ARRAY_LIST_IMPL_STATIC
-#undef SLD_ARRAY_LIST_IMPL_CONSTEXPR
 
 #endif //SLD_ARRAY_HPP

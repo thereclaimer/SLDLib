@@ -128,7 +128,7 @@ namespace sld {
 
     SLD_API_INLINE arena_t*
     arena_allocator_commit(
-        arena_allocator_t* alctr) {
+        const arena_allocator_t* alctr) {
 
         arena_allocator_assert_valid(alctr);
 

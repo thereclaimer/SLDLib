@@ -24,7 +24,7 @@ namespace sld {
     SLD_API_INLINE          void     arena_save         (arena_t*        arena);
     SLD_API_INLINE          void     arena_roll_back    (arena_t*        arena);
     SLD_API_INLINE          void*    arena_push_bytes   (arena_t*        arena, const u64 size, const u64 alignment = MEMORY_DEFAULT_ALIGNMENT);
-    SLD_API_INLINE_TEMPLATE type*    arena_push_struct  (arena_t*        arena);
+    SLD_API_INLINE_TEMPLATE type*    arena_push_struct  (arena_t*        arena, const u32 count = 1);
 
     SLD_API_INLINE arena_t*
     arena_from_memory(
@@ -150,16 +150,19 @@ namespace sld {
     
     SLD_API_INLINE_TEMPLATE type*
     arena_push_struct(
-        arena_t* arena) {
+        arena_t*  arena,
+        const u32 count) {
 
         arena_assert_valid(arena);
+        assert(count != 0);
 
-        const u64 struct_size      = sizeof  (type);
-        const u64 struct_alignment = alignof (type);
+        const u64 struct_alignment  = alignof (type);
+        const u64 struct_size       = sizeof  (type);
+        const u64 struct_array_size = (struct_size * count); 
          
         type* ptr = (type*)arena_push_bytes(
             arena,
-            struct_size,
+            struct_array_size,
             struct_alignment);
 
         return(ptr);
