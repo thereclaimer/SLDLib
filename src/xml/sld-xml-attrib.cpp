@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sld-xml-internal.cpp"
+#include "sld-xml-internal.hpp"
 
 namespace sld {
 

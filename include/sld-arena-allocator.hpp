@@ -2,6 +2,7 @@
 #define SLD_ARENA_ALLOCATOR_HPP
 
 #include "sld-memory.hpp"
+#include "sld-arena.hpp"
 
 namespace sld {
 
@@ -15,18 +16,18 @@ namespace sld {
         u32      arena_count;
     };
 
-    SLD_API_INLINE void            arena_allocator_reserve_os_memory (arena_allocator_t*       alctr, const u32 size_total, const u32 size_arena);
-    SLD_API_INLINE void            arena_allocator_release_os_memory (arena_allocator_t*       alctr);
-    SLD_API_INLINE bool            arena_allocator_is_valid          (const arena_allocator_t* alctr);
-    SLD_API_INLINE bool            arena_allocator_is_arena_valid    (const arena_allocator_t* alctr, const memory_arena_t* arena);
-    SLD_API_INLINE void            arena_allocator_assert_valid      (const arena_allocator_t* alctr);
-    SLD_API_INLINE memory_arena_t* arena_allocator_commit            (const arena_allocator_t* alctr);
-    SLD_API_INLINE void            arena_allocator_decommit          (const arena_allocator_t* alctr, memory_arena_t* arena);
-    SLD_API_INLINE u32             arena_allocator_get_size_total    (const arena_allocator_t* alctr);
-    SLD_API_INLINE u32             arena_allocator_get_size_free     (const arena_allocator_t* alctr);
-    SLD_API_INLINE u32             arena_allocator_get_size_used     (const arena_allocator_t* alctr);
-    SLD_API_INLINE u32             arena_allocator_get_arenas_free   (const arena_allocator_t* alctr);
-    SLD_API_INLINE u32             arena_allocator_get_arenas_used   (const arena_allocator_t* alctr);
+    SLD_API_INLINE void     arena_allocator_reserve_os_memory (arena_allocator_t*       alctr, const u32 size_total, const u32 size_arena);
+    SLD_API_INLINE void     arena_allocator_release_os_memory (arena_allocator_t*       alctr);
+    SLD_API_INLINE bool     arena_allocator_is_valid          (const arena_allocator_t* alctr);
+    SLD_API_INLINE bool     arena_allocator_is_arena_valid    (const arena_allocator_t* alctr, const arena_t* arena);
+    SLD_API_INLINE void     arena_allocator_assert_valid      (const arena_allocator_t* alctr);
+    SLD_API_INLINE arena_t* arena_allocator_commit            (const arena_allocator_t* alctr);
+    SLD_API_INLINE void     arena_allocator_decommit          (const arena_allocator_t* alctr, arena_t* arena);
+    SLD_API_INLINE u32      arena_allocator_get_size_total    (const arena_allocator_t* alctr);
+    SLD_API_INLINE u32      arena_allocator_get_size_free     (const arena_allocator_t* alctr);
+    SLD_API_INLINE u32      arena_allocator_get_size_used     (const arena_allocator_t* alctr);
+    SLD_API_INLINE u32      arena_allocator_get_arenas_free   (const arena_allocator_t* alctr);
+    SLD_API_INLINE u32      arena_allocator_get_arenas_used   (const arena_allocator_t* alctr);
 
     //-------------------------------------------------------------------
     // INLINE METHODS
@@ -96,15 +97,15 @@ namespace sld {
     SLD_API_INLINE bool
     arena_allocator_is_arena_valid(
         const arena_allocator_t* alctr,
-        const memory_arena_t*    arena) {
+        const arena_t*           arena) {
 
         bool is_valid = true;
         is_valid &= arena_allocator_is_valid (alctr); 
-        is_valid &= memory_arena_is_valid    (arena); 
+        is_valid &= arena_is_valid    (arena); 
 
         if (is_valid) {
 
-            const memory_t arena_memory = memory_arena_to_memory(arena);
+            const memory_t arena_memory = arena_to_memory(arena);
             memory_assert_valid(arena_memory);
 
             // make sure this arena is managed by the allocator;
@@ -125,7 +126,7 @@ namespace sld {
         assert(arena_allocator_is_valid(alctr));
     }
 
-    SLD_API_INLINE memory_arena_t*
+    SLD_API_INLINE arena_t*
     arena_allocator_commit(
         arena_allocator_t* alctr) {
 
@@ -135,7 +136,7 @@ namespace sld {
         arena_memory.size = alctr->arena_size;
         arena_memory.addr = alctr->memory.addr;
 
-        memory_arena_t* arena = NULL;
+        arena_t* arena = NULL;
         for (
             u32 arena = 0;
                 arena < alctr->arena_count;
@@ -145,11 +146,11 @@ namespace sld {
             if (is_free) {
                 memory_os_commit(arena_memory);
 
-                memory_arena_t* arena = memory_to_arena(arena_memory);
+                arena_t* arena = arena_from_memory(arena_memory);
                 arena->position = 0;
                 arena->save = 0;
-                arena->size = arena_memory.size - sizeof(memory_arena_t);
-                memory_arena_assert_valid(arena);
+                arena->size = arena_memory.size - sizeof(arena_t);
+                arena_assert_valid(arena);
             }
             arena_memory.addr += alctr->arena_size;
         }
@@ -160,13 +161,13 @@ namespace sld {
     SLD_API_INLINE void
     arena_allocator_decommit(
         arena_allocator_t* alctr,
-        memory_arena_t*    arena) {
+        arena_t*    arena) {
 
         bool can_free = arena_allocator_is_arena_valid (alctr, arena); 
         assert(can_free);
 
         // free the arena
-        memory_t arena_memory = memory_arena_to_memory(arena);
+        memory_t arena_memory = arena_to_memory(arena);
         arena->size     = 0;
         arena->position = 0;
         arena->save     = 0;

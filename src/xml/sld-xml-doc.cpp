@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sld-xml-internal.cpp"
+#include "sld-xml-internal.hpp"
 
 namespace sld {
 
@@ -19,7 +19,6 @@ namespace sld {
         const u64 buffer_length = xml_doc_buffer_length(doc);
 
         assert(doc);
-
 
         const pugi::xml_parse_result result = doc->load_buffer(
             (void*)buffer->data,
@@ -65,60 +64,57 @@ namespace sld {
         return(length);
     }
 
-    SLD_API bool
+    SLD_API xml_node_t* 
     xml_doc_get_child_node(
-        xml_doc_t* const  doc,
-        const xml_utf8_t* child_name,
-        xml_node_t*       child_node) {
+        xml_doc_t* const doc,
+        const xml_utf8_t* child_name) {
 
         bool is_valid = true;
         is_valid &= (doc        != NULL);
         is_valid &= (child_name != NULL);
-        is_valid &= (child_node != NULL);
         assert(is_valid);
 
-        pugi::xml_node pugi_node = doc->child(child_name); 
+        pugi::xml_node pugi_node  = doc->child(child_name); 
+        xml_node_t*    child_node = xml_doc_push_node(doc);
         *child_node = *((xml_node_t*)&pugi_node);
+        child_node->doc = doc;
 
-        return(pugi_node != NULL);
+        return(child_node);
     }
 
-    SLD_API bool
+    SLD_API xml_node_t*
     xml_doc_get_or_add_child_node(
         xml_doc_t* const  doc,
-        const xml_utf8_t* child_name,
-        xml_node_t*       child_node) {
+        const xml_utf8_t* child_name) {
 
         bool is_valid = true;
         is_valid &= (doc        != NULL);
         is_valid &= (child_name != NULL);
-        is_valid &= (child_node != NULL);
         assert(is_valid);
 
-        pugi::xml_node pugi_node = doc->child(child_name);
+        xml_node_t*    child_node = xml_doc_push_node(doc);
+        pugi::xml_node pugi_node  = doc->child(child_name);
         if (pugi_node == NULL) {
             pugi_node = doc->append_child(child_name);            
         }
-
         *child_node = *((xml_node_t*)&pugi_node);
-        return(pugi_node != NULL);
+        return(child_node);
     }
 
-    SLD_API bool
+    SLD_API xml_node_t*
     xml_doc_add_child_node(
         xml_doc_t* const  doc,
-        const xml_utf8_t* child_name,
-        xml_node_t*       child_node) {
+        const xml_utf8_t* child_name) {
 
         bool is_valid = true;
         is_valid &= (doc        != NULL);
         is_valid &= (child_name != NULL);
-        is_valid &= (child_node != NULL);
         assert(is_valid);
 
-        pugi::xml_node pugi_node = doc->append_child(child_name);
+        pugi::xml_node pugi_node  = doc->append_child(child_name);
+        xml_node_t*    child_node = xml_doc_push_node(doc); 
         *child_node = *((xml_node_t*)&pugi_node);
-        return(pugi_node != NULL);
+        return(child_node);
     }
 
     SLD_API u32
@@ -139,5 +135,23 @@ namespace sld {
         }
     
         return(count);
+    }
+    
+    SLD_INTERNAL xml_node_t*
+    xml_doc_push_node(
+        xml_doc_t* xml_doc) {
+
+        auto node = stack_push_struct<xml_node_t>(xml_doc->stack);
+        assert(node);
+        return(node);
+    }
+
+    SLD_INTERNAL xml_attrib_t*
+    xml_doc_push_attrib(
+        xml_doc_t* xml_doc) {
+
+        auto attrib = stack_push_struct<xml_attrib_t>(xml_doc->stack);
+        assert(attrib);
+        return(attrib);
     }
 };

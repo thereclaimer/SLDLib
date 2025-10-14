@@ -15,18 +15,19 @@ namespace sld {
         u32      block_count;
     };
 
-    SLD_API_INLINE void  block_allocator_reserve_os_memory (block_allocator_t* alctr, const u32 size_total, const u32 size_block);
-    SLD_API_INLINE void  block_allocator_release_os_memory (block_allocator_t* alctr);
-    SLD_API_INLINE bool  block_allocator_is_valid          (const block_allocator_t* alctr);
-    SLD_API_INLINE bool  block_allocator_is_block_valid    (const block_allocator_t* alctr, const memory_t& block);
-    SLD_API_INLINE void  block_allocator_assert_valid      (const block_allocator_t* alctr);
-    SLD_API_INLINE void* block_allocator_commit            (const block_allocator_t* alctr);
-    SLD_API_INLINE void  block_allocator_decommit          (const block_allocator_t* alctr, void* block);
-    SLD_API_INLINE u32   block_allocator_get_size_total    (const block_allocator_t* alctr);
-    SLD_API_INLINE u32   block_allocator_get_size_free     (const block_allocator_t* alctr);
-    SLD_API_INLINE u32   block_allocator_get_size_used     (const block_allocator_t* alctr);
-    SLD_API_INLINE u32   block_allocator_get_blocks_free   (const block_allocator_t* alctr);
-    SLD_API_INLINE u32   block_allocator_get_blocks_used   (const block_allocator_t* alctr);
+    SLD_API_INLINE void     block_allocator_reserve_os_memory (block_allocator_t* alctr, const u32 size_total, const u32 size_block);
+    SLD_API_INLINE void     block_allocator_release_os_memory (block_allocator_t* alctr);
+    SLD_API_INLINE bool     block_allocator_is_valid          (const block_allocator_t* alctr);
+    SLD_API_INLINE bool     block_allocator_is_block_valid    (const block_allocator_t* alctr, const memory_t& block);
+    SLD_API_INLINE void     block_allocator_assert_valid      (const block_allocator_t* alctr);
+    SLD_API_INLINE void*    block_allocator_commit            (const block_allocator_t* alctr);
+    SLD_API_INLINE memory_t block_allocator_commit_memory     (const block_allocator_t* alctr);
+    SLD_API_INLINE void     block_allocator_decommit          (const block_allocator_t* alctr, void* block);
+    SLD_API_INLINE u32      block_allocator_get_size_total    (const block_allocator_t* alctr);
+    SLD_API_INLINE u32      block_allocator_get_size_free     (const block_allocator_t* alctr);
+    SLD_API_INLINE u32      block_allocator_get_size_used     (const block_allocator_t* alctr);
+    SLD_API_INLINE u32      block_allocator_get_blocks_free   (const block_allocator_t* alctr);
+    SLD_API_INLINE u32      block_allocator_get_blocks_used   (const block_allocator_t* alctr);
 
     //-------------------------------------------------------------------
     // API
@@ -122,8 +123,8 @@ namespace sld {
     }
 
     SLD_API_INLINE void*
-    block_allocator_alloc(
-        block_allocator_t* alctr) {
+    block_allocator_commit(
+        const block_allocator_t* alctr) {
 
         block_allocator_assert_valid(alctr);
 
@@ -147,10 +148,21 @@ namespace sld {
         return(NULL);
     }
     
+    SLD_API_INLINE memory_t
+    block_allocator_commit_memory(
+        const block_allocator_t* alctr) {
+        
+        memory_t memory;
+        memory.ptr  = block_allocator_commit(alctr);
+        memory.size = alctr->block_size;
+        return(memory);
+    }
+
+
     SLD_API_INLINE void
     block_allocator_free(
-        block_allocator_t* alctr,
-        void*              block) {
+        const block_allocator_t* alctr,
+        void*                    block) {
 
         bool can_free = true;
         can_free &= block_allocator_is_valid(alctr);

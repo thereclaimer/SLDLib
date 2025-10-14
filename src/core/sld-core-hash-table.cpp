@@ -4,7 +4,7 @@
 
 namespace sld {
 
-    SLD_FUNC bool
+    SLD_INTERNAL bool
     hash_table_validate(
         const hash_table_t& hash_table) {
 
@@ -19,7 +19,7 @@ namespace sld {
         return(is_valid);
     }
 
-    SLD_FUNC bool
+    SLD_INTERNAL bool
     hash_table_validate_key(
         const hash_table_t&     hash_table,
         const hash_table_key_t& key) {
@@ -32,7 +32,7 @@ namespace sld {
         return(is_valid);
     }
 
-    SLD_FUNC bool
+    SLD_INTERNAL bool
     hash_table_validate_value(
         const hash_table_t&         hash_table,
         const hash_table_value_t&   value) {
@@ -53,7 +53,7 @@ namespace sld {
         return(is_valid);
     }
 
-    SLD_FUNC const u32
+    SLD_INTERNAL const u32
     hash_table_memory_size(
         const hash_table_t& hash_table) {
 
@@ -64,7 +64,7 @@ namespace sld {
         return(size_total);
     }
     
-    SLD_FUNC bool
+    SLD_INTERNAL bool
     hash_table_memory_init(
         hash_table_t&   hash_table,
         const memory_t& memory) {
@@ -83,7 +83,7 @@ namespace sld {
         hash_table.array.value =   (byte*)(memory.start + size_hash);
     }
     
-    SLD_FUNC bool
+    SLD_INTERNAL bool
     hash_table_reset(
         hash_table_t& hash_table) {
 
@@ -96,21 +96,21 @@ namespace sld {
         return(is_valid);
     }
     
-    SLD_FUNC bool
+    SLD_INTERNAL bool
     hash_table_remove(
         hash_table_t&           hash_table,
         const hash_table_key_t& key) {
 
     }
     
-    SLD_FUNC bool
+    SLD_INTERNAL bool
     hash_table_remove_at(
         hash_table_t& hash_table,
         const u32     index) {
 
     }
     
-    SLD_FUNC byte*
+    SLD_INTERNAL byte*
     hash_table_insert(
         hash_table_t&     hash_table,
         hash_table_key_t& key) {
@@ -133,7 +133,7 @@ namespace sld {
         return(value);
     }
     
-    SLD_FUNC byte*
+    SLD_INTERNAL byte*
     hash_table_insert_at(
         hash_table_t&     hash_table,
         hash_table_key_t& key,
@@ -165,7 +165,7 @@ namespace sld {
         return(src);
     }
     
-    SLD_FUNC bool
+    SLD_INTERNAL bool
     hash_table_search(
         const hash_table_t&     hash_table,
         const hash_table_key_t& key,
@@ -186,7 +186,7 @@ namespace sld {
         return(is_found);
     }
     
-    SLD_FUNC bool
+    SLD_INTERNAL bool
     hash_table_get_hash_at(
         const hash_table_t& hash_table,
         const u32           index,
@@ -203,7 +203,7 @@ namespace sld {
         return(is_valid);
     }
     
-    SLD_FUNC bool
+    SLD_INTERNAL bool
     hash_table_get_value_at(
         const hash_table_t& hash_table,
         hash_table_value_t& value) {
