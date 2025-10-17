@@ -92,6 +92,25 @@ namespace sld {
         return(child);
     }
 
+    SLD_API xml_node_t*
+    xml_node_get_or_add_child(
+        xml_node_t*       node,
+        const xml_utf8_t* name) {
+
+        bool is_valid = true;
+        is_valid &= (node  != NULL); 
+        is_valid &= (name  != NULL);
+        assert(is_valid);
+
+        xml_node_t*    child_node = xml_doc_push_node(node->doc);
+        pugi::xml_node pugi_node  = node->child(name);
+        if (pugi_node == NULL) {
+            pugi_node = node->append_child(name);            
+        }
+        *child_node = *((xml_node_t*)&pugi_node);
+        return(child_node);
+    }
+
     SLD_API u32
     xml_node_get_child_count(
         xml_node_t* const node,

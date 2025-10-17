@@ -2,7 +2,6 @@
 #define SLD_OS_HPP
 
 #include "sld.hpp"
-#include "sld-buffer.hpp"
 #include "sld-geometry.hpp"
 #include "sld-graphics.hpp"
 #include "sld-input.hpp"
@@ -10,6 +9,7 @@
 /**********************************************************************************/
 /* OS                                                                             */
 /**********************************************************************************/
+
 
 #define    SLD_API_OS          extern        // os api declaration
 #define    SLD_API_OS_FUNC     static        // os api function
@@ -417,9 +417,12 @@ namespace sld {
     using os_file_read_async_f     = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_async_context_t& context);    
     using os_file_write_async_f    = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_async_context_t& context);    
 
-    struct os_file_buffer_t : buffer_t {
-        u64 cursor;
-        u64 transferred;
+    struct os_file_buffer_t {
+        byte* data;
+        u64   size;
+        u64   length;
+        u64   cursor;
+        u64   transferred;
     };
 
     struct os_file_os_context_t {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sld-memory.hpp"
+#include "sld-arena.hpp"
 #include "sld-block-allocator.hpp"
 #include "sld-arena-allocator.hpp"
 
@@ -8,8 +9,8 @@
 #include "sld-hash128.cpp"
 
 #include "sld-win32.cpp"
-#include "sld-string-cstr.cpp"
-#include "sld-string-wstr.cpp"
+#include "sld-cstr.hpp"
+#include "sld-wstr.hpp"
 
 #include "sld-input-keyboard.cpp"
 

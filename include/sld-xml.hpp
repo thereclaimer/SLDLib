@@ -6,9 +6,13 @@
 #include "sld-buffer.hpp"
 #include "sld-stack.hpp"
 
-#ifndef    SLD_XML_MEMORY_MIN_SIZE_KB
-#   define SLD_XML_MEMORY_MIN_SIZE_KB 512
-#endif 
+#ifndef    SLD_XML_MEMORY_SIZE_KB
+#   define SLD_XML_MEMORY_SIZE_KB 512
+#endif
+#ifndef    SLD_XML_MEMORY_ALLOCATION_GRANULARITY_KB
+#   define SLD_XML_MEMORY_ALLOCATION_GRANULARITY_KB 32
+#endif
+
 
 namespace sld {
 
@@ -18,9 +22,10 @@ namespace sld {
     struct xml_node_t;
     struct xml_attrib_t;
 
-    constexpr u64 XML_MEMORY_MIN_SIZE = size_kilobytes(SLD_XML_MEMORY_MIN_SIZE_KB); 
+    constexpr u64 XML_MEMORY_SIZE                   = size_kilobytes(SLD_XML_MEMORY_SIZE_KB); 
+    constexpr u64 XML_MEMORY_ALLOCATION_GRANULARITY = size_kilobytes(SLD_XML_MEMORY_ALLOCATION_GRANULARITY_KB); 
 
-    SLD_API void          xml_init                      (const u64 memory_size = XML_MEMORY_MIN_SIZE);
+    SLD_API void          xml_init                      (const u64 memory_size = XML_MEMORY_SIZE, const u64 allocation_granularity = XML_MEMORY_ALLOCATION_GRANULARITY);
 
     SLD_API xml_doc_t*    xml_doc_create                (void);
     SLD_API xml_doc_t*    xml_doc_destroy               (xml_doc_t* doc);
@@ -38,6 +43,7 @@ namespace sld {
     SLD_API xml_node_t*   xml_node_get_prev_sibling     (xml_node_t* node, const xml_utf8_t* name);
     SLD_API xml_node_t*   xml_node_add_child            (xml_node_t* node, const xml_utf8_t* name);
     SLD_API xml_node_t*   xml_node_get_child            (xml_node_t* node, const xml_utf8_t* name);
+    SLD_API xml_node_t*   xml_node_get_or_add_child     (xml_node_t* node, const xml_utf8_t* name);
     SLD_API u32           xml_node_get_child_count      (xml_node_t* node, const xml_utf8_t* name);
     SLD_API u32           xml_node_get_attrib_count     (xml_node_t* node, const xml_utf8_t* name);
     SLD_API xml_attrib_t* xml_node_get_attrib           (xml_node_t* node, const xml_utf8_t* name);

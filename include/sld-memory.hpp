@@ -4,17 +4,11 @@
 #include "sld.hpp"
 #include "sld-os.hpp"
 
-#ifndef    SLD_MEMORY_DEFAULT_ALIGNMENT
-#   define SLD_MEMORY_DEFAULT_ALIGNMENT 4
-#endif
-
 namespace sld {
 
     //-------------------------------------------------------------------
-    // API
+    // MEMORY API
     //-------------------------------------------------------------------
-
-    constexpr u32 MEMORY_DEFAULT_ALIGNMENT = SLD_MEMORY_DEFAULT_ALIGNMENT;
 
     struct memory_t {
         union {
@@ -22,23 +16,21 @@ namespace sld {
             void* ptr;
             byte* bytes;
         };
-        u64   size;
+        u64 size;
     };
 
-    using  memory_error_t = s32;
-
-    SLD_API_INLINE          bool            memory_is_valid           (const memory_t& memory);
-    SLD_API_INLINE          void            memory_assert_valid       (const memory_t& memory);
-    SLD_API_INLINE          memory_t        memory_add_offset         (const memory_t& memory, const u32 offset);
-    SLD_API_INLINE          bool            memory_is_os_committed    (const memory_t& memory);
-    SLD_API_INLINE          bool            memory_is_os_reserved     (const memory_t& memory);
-    SLD_API_INLINE          void            memory_os_reserve         (memory_t& memory);
-    SLD_API_INLINE          void            memory_os_release         (memory_t& memory);
-    SLD_API_INLINE          void            memory_os_commit          (memory_t& memory);
-    SLD_API_INLINE          void            memory_os_decommit        (memory_t& memory);
-    SLD_API_INLINE          u32             memory_copy               (memory_t& memory_dst, const memory_t& memory_src);        
-    SLD_API_INLINE          void            memory_zero               (memory_t& memory);
-    SLD_API_INLINE_TEMPLATE void            memory_zero_struct        (type*     ptr_type);
+    SLD_API_INLINE          bool     memory_is_valid           (const memory_t& memory);
+    SLD_API_INLINE          void     memory_assert_valid       (const memory_t& memory);
+    SLD_API_INLINE          memory_t memory_add_offset         (const memory_t& memory, const u32 offset);
+    SLD_API_INLINE          bool     memory_is_os_committed    (const memory_t& memory);
+    SLD_API_INLINE          bool     memory_is_os_reserved     (const memory_t& memory);
+    SLD_API_INLINE          void     memory_os_reserve         (memory_t& memory);
+    SLD_API_INLINE          void     memory_os_release         (memory_t& memory);
+    SLD_API_INLINE          void     memory_os_commit          (memory_t& memory);
+    SLD_API_INLINE          void     memory_os_decommit        (memory_t& memory);
+    SLD_API_INLINE          u32      memory_copy               (memory_t& memory_dst, const memory_t& memory_src);        
+    SLD_API_INLINE          void     memory_zero               (memory_t& memory);
+    SLD_API_INLINE_TEMPLATE void     memory_zero_struct        (type*     ptr_type);
 
     //-------------------------------------------------------------------
     // INLINE METHODS
@@ -49,6 +41,7 @@ namespace sld {
         const memory_t& memory) {
 
         const bool is_valid = (memory.addr != 0 && memory.size != 0);
+        return(is_valid);
     }
 
     SLD_API_INLINE void

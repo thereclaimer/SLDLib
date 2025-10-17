@@ -89,7 +89,6 @@ namespace sld {
             is_valid &= (alctr->memory.addr != 0);  
             is_valid &= (alctr->arena_count != 0);  
             is_valid &= (alctr->arena_size  != 0);
-            is_valid &= size_is_pow_2(alctr->arena_size);
         }
         return(is_valid);
     }

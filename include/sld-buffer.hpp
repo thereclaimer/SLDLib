@@ -3,6 +3,7 @@
 
 #include "sld.hpp"
 #include "sld-memory.hpp"
+#include "sld-arena.hpp"
 
 namespace sld {
 
@@ -16,12 +17,14 @@ namespace sld {
         u32   length;
     };
 
-    SLD_API_INLINE bool     buffer_is_valid        (buffer_t* buffer);
-    SLD_API_INLINE void     buffer_assert_valid    (buffer_t* buffer);
-    SLD_API_INLINE void     buffer_reset           (buffer_t* buffer);
-    SLD_API_INLINE void     buffer_zero            (buffer_t* buffer);
-    SLD_API_INLINE u32      buffer_append          (buffer_t* buffer, const byte* src_data, const u32 src_length);
-    SLD_API_INLINE u32      buffer_copy            (buffer_t* buffer, const byte* src_data, const u32 src_length);  
+    SLD_API_INLINE buffer_t* buffer_init_from_memory  (const void* memory, const u32 size);
+    SLD_API_INLINE buffer_t* buffer_arena_alloc       (arena_t*    arena,  const u32 size);
+    SLD_API_INLINE bool      buffer_is_valid          (const buffer_t* buffer);
+    SLD_API_INLINE void      buffer_assert_valid      (const buffer_t* buffer);
+    SLD_API_INLINE void      buffer_reset             (buffer_t* buffer);
+    SLD_API_INLINE void      buffer_zero              (buffer_t* buffer);
+    SLD_API_INLINE u32       buffer_append            (buffer_t* buffer, const byte* src_data, const u32 src_length);
+    SLD_API_INLINE u32       buffer_copy              (buffer_t* buffer, const byte* src_data, const u32 src_length);  
 
     //-------------------------------------------------------------------
     // INLINE METHODS
@@ -47,6 +50,17 @@ namespace sld {
         buffer_assert_valid(buffer);
 
         return(buffer);
+    }
+
+    SLD_API_INLINE buffer_t*
+    buffer_arena_alloc(
+        arena_t*  arena,
+        const u32 size) {
+
+        const u32 total_size = sizeof(buffer_t) + size;
+        void*     memory     = arena_push_bytes(arena, total_size);
+        buffer_t* buffer     = buffer_init_from_memory(memory, total_size);
+        return(buffer);         
     }
 
     SLD_API_INLINE bool

@@ -5,6 +5,10 @@
 
 namespace sld {
 
+    //-------------------------------------------------------------------
+    // ARENA API
+    //-------------------------------------------------------------------
+
     struct arena_t {
         u64 size;
         u64 position;
@@ -23,8 +27,12 @@ namespace sld {
     SLD_API_INLINE          void     arena_reset        (arena_t*        arena);
     SLD_API_INLINE          void     arena_save         (arena_t*        arena);
     SLD_API_INLINE          void     arena_roll_back    (arena_t*        arena);
-    SLD_API_INLINE          void*    arena_push_bytes   (arena_t*        arena, const u64 size, const u64 alignment = MEMORY_DEFAULT_ALIGNMENT);
+    SLD_API_INLINE          void*    arena_push_bytes   (arena_t*        arena, const u64 size, const u64 alignment = 0);
     SLD_API_INLINE_TEMPLATE type*    arena_push_struct  (arena_t*        arena, const u32 count = 1);
+
+    //-------------------------------------------------------------------
+    // ARENA INLINE METHODS
+    //-------------------------------------------------------------------
 
     SLD_API_INLINE arena_t*
     arena_from_memory(
@@ -43,9 +51,8 @@ namespace sld {
         bool is_valid = (arena != NULL);
         if (is_valid) {
 
-            is_valid &= os_memory_is_committed((void*)arena);
             is_valid &= (arena->size     != 0); 
-            is_valid &= (arena->position != 0); 
+            is_valid &= (arena->position <  arena->size); 
             is_valid &= (arena->save     <= arena->position); 
         }
         return(is_valid);

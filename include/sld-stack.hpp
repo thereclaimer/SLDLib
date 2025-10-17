@@ -21,7 +21,7 @@ namespace sld {
     constexpr u64 STACK_HEADER_SIZE       = sizeof(stack_t);
 
     SLD_API_INLINE          stack_t* stack_init_from_memory (memory_t& memory);
-    SLD_API_INLINE          stack_t* stack_init_from_arena  (arena_t*  arena, const u64 capacity);
+    SLD_API_INLINE          stack_t* stack_arena_alloc  (arena_t*  arena, const u64 capacity);
     SLD_API_INLINE          void     stack_init_from_array  (stack_t*  stack, const u64 capacity, byte* array);
     SLD_API_INLINE          byte*    stack_push_bytes       (stack_t*  stack, const u64 size, const u64 alignment = STACK_DEFAULT_ALIGNMENT);
     SLD_API_INLINE          bool     stack_pull_bytes       (stack_t*  stack, const u64 size, const u64 alignment = STACK_DEFAULT_ALIGNMENT);
@@ -72,7 +72,7 @@ namespace sld {
     }
 
     SLD_API_INLINE stack_t*
-    stack_init_from_arena(
+    stack_arena_alloc(
         arena_t*  arena,
         const u64 capacity) {
 
