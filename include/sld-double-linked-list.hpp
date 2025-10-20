@@ -17,25 +17,23 @@ namespace sld {
     template<typename type> struct dl_node_t;
     template<typename type> struct dl_list_t;
 
-    SLD_API_INLINE_TEMPLATE dl_list_t<type>* dl_list_arena_alloc       (arena_t* arena); 
-    SLD_API_INLINE_TEMPLATE dl_node_t<type>* dl_node_arena_alloc       (arena_t* arena); 
-    SLD_API_INLINE_TEMPLATE bool             dl_list_is_valid          (const dl_list_t<type>* list, const dl_node_t<type>* node = NULL);
-    SLD_API_INLINE_TEMPLATE void             dl_list_assert_valid      (const dl_list_t<type>* list, const dl_node_t<type>* node = NULL);
-    SLD_API_INLINE_TEMPLATE bool             dl_list_does_node_exist   (const dl_list_t<type>* list, const type&            node_data);
-    SLD_API_INLINE_TEMPLATE bool             dl_list_is_empty          (const dl_list_t<type>* list);
-    SLD_API_INLINE_TEMPLATE u32              dl_list_get_count         (const dl_list_t<type>* list);
-    SLD_API_INLINE_TEMPLATE bool             dl_list_can_insert        (const dl_list_t<type>* list);
-    SLD_API_INLINE_TEMPLATE bool             dl_list_insert_at_head    (dl_list_t<type>* list, dl_node_t<type>* node);
-    SLD_API_INLINE_TEMPLATE bool             dl_list_insert_at_tail    (dl_list_t<type>* list, dl_node_t<type>* node);
-    SLD_API_INLINE_TEMPLATE bool             dl_list_insert_a_after_b  (dl_list_t<type>* list, dl_node_t<type>* node_a, dl_node_t<type>* node_b);
-    SLD_API_INLINE_TEMPLATE bool             dl_list_insert_a_before_b (dl_list_t<type>* list, dl_node_t<type>* node_a, dl_node_t<type>* node_b);
+    SLD_API_INLINE_TEMPLATE bool dl_list_is_valid          (const dl_list_t<type>* list, const type* node = NULL);
+    SLD_API_INLINE_TEMPLATE void dl_list_assert_valid      (const dl_list_t<type>* list, const type* node = NULL);
+    SLD_API_INLINE_TEMPLATE bool dl_list_is_empty          (const dl_list_t<type>* list);
+    SLD_API_INLINE_TEMPLATE u32  dl_list_get_count         (const dl_list_t<type>* list);
+    SLD_API_INLINE_TEMPLATE bool dl_list_can_insert        (const dl_list_t<type>* list);
+    SLD_API_INLINE_TEMPLATE bool dl_list_insert_at_head    (dl_list_t<type>* list, dl_node_t<type>* node);
+    SLD_API_INLINE_TEMPLATE bool dl_list_insert_at_tail    (dl_list_t<type>* list, dl_node_t<type>* node);
+    SLD_API_INLINE_TEMPLATE void dl_list_remove            (dl_list_t<type>* list, dl_node_t<type>* node);
+    SLD_API_INLINE_TEMPLATE bool dl_list_insert_a_after_b  (dl_list_t<type>* list, dl_node_t<type>* node_a, dl_node_t<type>* node_b);
+    SLD_API_INLINE_TEMPLATE bool dl_list_insert_a_before_b (dl_list_t<type>* list, dl_node_t<type>* node_a, dl_node_t<type>* node_b);
 
-    template<typename type>
+    template<typename type>    
     struct dl_node_t {
         dl_list_t<type>* list;
         dl_node_t*       next;          
-        dl_node_t*       prev;          
-        type             data;
+        dl_node_t*       prev;
+        type             data;        
     };
 
     template<typename type>
@@ -49,38 +47,6 @@ namespace sld {
     // DOUBLE LINKED LIST INLINE METHODS
     //-------------------------------------------------------------------
 
-    SLD_API_INLINE_TEMPLATE dl_list_t<type>*
-    dl_list_arena_alloc(
-        arena_t* arena) {
-
-        auto list = arena_push_struct<dl_list_t<type>>(arena);
-        return(list);
-    }
-
-    SLD_API_INLINE_TEMPLATE dl_node_t<type>*
-    dl_node_arena_alloc(
-        arena_t* arena) {
-
-        const u32 push_size = (
-            sizeof(dl_node_t<type>) + 
-            sizeof(type)
-        );
-
-        const bool can_push = arena_can_push(arena, push_size);
-        if (!can_push) return(NULL);
-
-        dl_node_t<type>* node = push_struct<dl_node_t<type>>(arena);
-        type*            data = arena_push_struct<type>(arena);
-    
-        // we just verified we should be able to allocate
-        assert(node != NULL && data != NULL);
-
-        node->list = NULL;
-        node->next = NULL;
-        node->prev = NULL;
-        node->data = data;
-        return(node);
-    }
 
     SLD_API_INLINE_TEMPLATE bool
     dl_list_is_valid(
@@ -93,9 +59,6 @@ namespace sld {
             list->head != NULL ? list->tail != NULL : true && // if we have a head, we need a tail
             list->head == NULL ? list->tail == NULL : true    // if there is no head, there should be no tail
         );
-        if (is_valid && list->node_count_max == 0) {
-            list->node_count_max = SL_LIST_DEFAULT_MAX_COUNT;            
-        }
         return(is_valid);
     }
 
@@ -125,7 +88,7 @@ namespace sld {
 
         u32 count = 0;
         for (
-            sl_node_t<type>* node = list->head;
+            dl_node_t<type>* node = list->head;
             (
                 node  != NULL &&
                 node  != list->tail &&
@@ -146,31 +109,6 @@ namespace sld {
         const u32  count      = dl_list_get_count(list);
         const bool can_insert = count < list->node_count_max;
         return(can_insert); 
-    }
-
-    SLD_API_INLINE_TEMPLATE bool
-    dl_list_does_node_exist(
-        const dl_list_t<type>* list,
-        const type&            node_data) {
-
-        dl_list_assert_valid(list);
-
-        u32  count       = 0;
-        bool does_exist = false;
-        for (
-            dl_node_t<type>* current_node = list->head;
-            (
-                does_exist   == false      &&
-                current_node != NULL       &&
-                current_node != list->tail &&
-                count        <  list->node_count_max
-            );
-            current_node = current_node->next) {
-
-            does_exist == (node_data == current_node->data);
-            ++count;
-        }
-        return(does_exist);
     }
 
     SLD_API_INLINE_TEMPLATE bool
@@ -197,7 +135,7 @@ namespace sld {
         return(can_insert);
     }
     
-    SLD_API_INLINE_TEMPLATE void
+    SLD_API_INLINE_TEMPLATE bool
     dl_list_insert_at_tail(
         dl_list_t<type>* list,
         dl_node_t<type>* node) {
@@ -212,7 +150,7 @@ namespace sld {
                 node->prev = NULL;
             }
             else {
-                sl_node_t<type>* old_tail = list->tail;
+                dl_node_t<type>* old_tail = list->tail;
                 old_tail->next = node->next;
                 node->prev     = old_tail;
                 list->tail     = node;
@@ -223,6 +161,22 @@ namespace sld {
         return(can_insert);
     }
 
+    SLD_API_INLINE_TEMPLATE void
+    dl_list_remove(
+        dl_list_t<type>* list,
+        dl_node_t<type>* node) {
+
+        dl_list_assert_valid(list, node);
+
+        dl_node_t* next = node->next;
+        dl_node_t* prev = node->prev;
+
+        if (next) next->prev = prev;
+        if (prev) prev->next = next;
+
+        node->next = NULL;
+        node->prev = NULL;
+    }
 
     SLD_API_INLINE_TEMPLATE bool
     dl_list_insert_a_after_b(
