@@ -46,18 +46,18 @@ namespace sld {
     typedef uint16_t u16;
     typedef uint32_t u32;
     typedef uint64_t u64;
-    
+
     // floats
     typedef float    f32;
     typedef double   f64;
-    
+
     // booleans
     typedef int8_t   b8;
     typedef int16_t  b16;
     typedef int32_t  b32;
     typedef int64_t  b64;
 
-    // chars  
+    // chars
     typedef char      c8;
     typedef char16_t  c16;
     typedef char32_t  c32;
@@ -95,20 +95,17 @@ namespace sld {
     struct  addr_t { addr val; };
     struct  vptr_t { vptr val; };
 
-
-
-
     //-------------------------------------------------------------------
     // SIZE UTILITIES
     //-------------------------------------------------------------------
-    
+
     SLD_UTILITY const u64 size_kilobytes   (const u64 n_kilobytes)               { return (n_kilobytes * 1024);                                                         }
     SLD_UTILITY const u64 size_megabytes   (const u64 n_megabytes)               { return (n_megabytes * 1024 * 1024);                                                  }
     SLD_UTILITY const u64 size_gigabytes   (const u64 n_gigabytes)               { return (n_gigabytes * 1024 * 1024 * 1024);                                           }
     SLD_UTILITY const u64 size_align       (const u64 size, const u64 alignment) { return ((alignment == 0) ? size : (size + alignment - 1) / (alignment * alignment)); }
     SLD_UTILITY const u64 size_align_pow_2 (const u64 size, const u64 alignment) { return ((alignment == 0) ? size : (size + alignment - 1) & ~(alignment - 1));        }
-    SLD_UTILITY bool      size_is_pow_2    (const u64 size)                      { return (((size > 0) && ((size & (size - 1)) == 0)));                                 }               
-    
+    SLD_UTILITY bool      size_is_pow_2    (const u64 size)                      { return (((size > 0) && ((size & (size - 1)) == 0)));                                 }
+
     SLD_UTILITY const u64
     size_round_up_pow2(
         const u64 size) {
@@ -122,16 +119,16 @@ namespace sld {
             pow2 |= pow2 >> 8;
             pow2 |= pow2 >> 16;
             pow2 |= pow2 >> 32;
-            pow2++; 
-        } 
-        
+            pow2++;
+        }
+
         return(pow2);
     }
 
     //-------------------------------------------------------------------
     // BITWISE UTILITIES
     //-------------------------------------------------------------------
-    
+
     SLD_UTILITY u32  bit_value     (const u32 bit)                                     { return (1 << bit);                                            }
     SLD_UTILITY bool bit_test      (const u32 bit, const u32 value)                    { return ((value >> bit) & 1);                                  }
     SLD_UTILITY void bit_set_high  (const u32 bit, u32&      value)                    { value |=  (1 << bit);                                         }
