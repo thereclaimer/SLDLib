@@ -78,6 +78,15 @@ namespace sld {
     }
 
     SLD_API_INLINE void
+    memory_os_release(
+        memory_t& memory) {
+
+        assert(memory.ptr != NULL && memory.size != 0);
+        const bool did_release = os_memory_release(memory.ptr, memory.size);
+        assert(did_release);
+    }
+
+    SLD_API_INLINE void
     memory_os_commit(
         memory_t& memory) {
 
@@ -128,7 +137,7 @@ namespace sld {
     SLD_API_INLINE_TEMPLATE void
     memory_zero_struct(type* ptr_struct) {
 
-        (void)memset((void*)ptr_struct, 0, sizeof(t));
+        (void)memset((void*)ptr_struct, 0, sizeof(type));
     }
 
     SLD_API_INLINE bool

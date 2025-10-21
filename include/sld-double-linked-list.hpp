@@ -17,16 +17,17 @@ namespace sld {
     template<typename type> struct dl_node_t;
     template<typename type> struct dl_list_t;
 
-    SLD_API_INLINE_TEMPLATE bool dl_list_is_valid          (const dl_list_t<type>* list, const type* node = NULL);
-    SLD_API_INLINE_TEMPLATE void dl_list_assert_valid      (const dl_list_t<type>* list, const type* node = NULL);
-    SLD_API_INLINE_TEMPLATE bool dl_list_is_empty          (const dl_list_t<type>* list);
-    SLD_API_INLINE_TEMPLATE u32  dl_list_get_count         (const dl_list_t<type>* list);
-    SLD_API_INLINE_TEMPLATE bool dl_list_can_insert        (const dl_list_t<type>* list);
-    SLD_API_INLINE_TEMPLATE bool dl_list_insert_at_head    (dl_list_t<type>* list, dl_node_t<type>* node);
-    SLD_API_INLINE_TEMPLATE bool dl_list_insert_at_tail    (dl_list_t<type>* list, dl_node_t<type>* node);
-    SLD_API_INLINE_TEMPLATE void dl_list_remove            (dl_list_t<type>* list, dl_node_t<type>* node);
-    SLD_API_INLINE_TEMPLATE bool dl_list_insert_a_after_b  (dl_list_t<type>* list, dl_node_t<type>* node_a, dl_node_t<type>* node_b);
-    SLD_API_INLINE_TEMPLATE bool dl_list_insert_a_before_b (dl_list_t<type>* list, dl_node_t<type>* node_a, dl_node_t<type>* node_b);
+    SLD_API_INLINE_TEMPLATE dl_list_t<type>* dl_list_arena_alloc       (arena_t* arena, const u32 list_count = 1, const u32 max_count = DL_LIST_DEFAULT_MAX_COUNT); 
+    SLD_API_INLINE_TEMPLATE bool             dl_list_is_valid          (const dl_list_t<type>* list, const type* node = NULL);
+    SLD_API_INLINE_TEMPLATE void             dl_list_assert_valid      (const dl_list_t<type>* list, const type* node = NULL);
+    SLD_API_INLINE_TEMPLATE bool             dl_list_is_empty          (const dl_list_t<type>* list);
+    SLD_API_INLINE_TEMPLATE u32              dl_list_get_count         (const dl_list_t<type>* list);
+    SLD_API_INLINE_TEMPLATE bool             dl_list_can_insert        (const dl_list_t<type>* list);
+    SLD_API_INLINE_TEMPLATE bool             dl_list_insert_at_head    (dl_list_t<type>* list, dl_node_t<type>* node);
+    SLD_API_INLINE_TEMPLATE bool             dl_list_insert_at_tail    (dl_list_t<type>* list, dl_node_t<type>* node);
+    SLD_API_INLINE_TEMPLATE void             dl_list_remove            (dl_list_t<type>* list, dl_node_t<type>* node);
+    SLD_API_INLINE_TEMPLATE bool             dl_list_insert_a_after_b  (dl_list_t<type>* list, dl_node_t<type>* node_a, dl_node_t<type>* node_b);
+    SLD_API_INLINE_TEMPLATE bool             dl_list_insert_a_before_b (dl_list_t<type>* list, dl_node_t<type>* node_a, dl_node_t<type>* node_b);
 
     template<typename type>    
     struct dl_node_t {
@@ -47,6 +48,31 @@ namespace sld {
     // DOUBLE LINKED LIST INLINE METHODS
     //-------------------------------------------------------------------
 
+    SLD_API_INLINE_TEMPLATE dl_list_t<type>*
+    dl_list_arena_alloc(
+        arena_t*  arena,
+        const u32 list_count,
+        const u32 max_node_count) {
+
+        assert(max_node_count != 0 && list_count != 0);
+
+        const u32 push_size = (list_count * sizeof(dl_list_t<type>)); 
+
+        auto list = arena_push_struct<dl_list_t<type>>(arena, list_count);
+        assert(list);
+
+        for (
+            u32 index = 0;
+            index < list_count;
+            ++index) {
+
+            list[index].head           = NULL;
+            list[index].tail           = NULL;
+            list[index].node_count_max = max_node_count;
+        }
+
+        return(list);
+    }
 
     SLD_API_INLINE_TEMPLATE bool
     dl_list_is_valid(
@@ -168,8 +194,8 @@ namespace sld {
 
         dl_list_assert_valid(list, node);
 
-        dl_node_t* next = node->next;
-        dl_node_t* prev = node->prev;
+        dl_node_t<type>* next = node->next;
+        dl_node_t<type>* prev = node->prev;
 
         if (next) next->prev = prev;
         if (prev) prev->next = next;

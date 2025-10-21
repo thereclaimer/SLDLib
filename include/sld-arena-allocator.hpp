@@ -69,10 +69,6 @@ namespace sld {
 
         arena_allocator_assert_valid(alctr);
         memory_os_release(alctr->memory);
-        alctr->memory.addr = 0;
-        alctr->memory.size = 0;
-        alctr->arena_count = 0;
-        alctr->arena_size  = 0;
     }
 
     SLD_API_INLINE bool
@@ -135,26 +131,26 @@ namespace sld {
         arena_memory.size = alctr->arena_size;
         arena_memory.addr = alctr->memory.addr;
 
-        arena_t* arena = NULL;
         for (
-            u32 arena = 0;
-                arena < alctr->arena_count;
-              ++arena) {
+            u32 arena_index = 0;
+                arena_index < alctr->arena_count;
+              ++arena_index) {
 
             const bool is_free = memory_is_os_reserved(arena_memory);
             if (is_free) {
                 memory_os_commit(arena_memory);
 
-                arena_t* arena = arena_from_memory(arena_memory);
+                arena_t* arena  = arena_from_memory(arena_memory);
                 arena->position = 0;
-                arena->save = 0;
-                arena->size = arena_memory.size - sizeof(arena_t);
+                arena->save     = 0;
+                arena->size     = (arena_memory.size - sizeof(arena_t));
                 arena_assert_valid(arena);
+                return(arena);
             }
             arena_memory.addr += alctr->arena_size;
         }
 
-        return(arena);
+        return(NULL);
     }
     
     SLD_API_INLINE void

@@ -27,9 +27,13 @@ namespace sld {
 
         bool result = VirtualFree(
             start,
-            size,
+            0, // size isn't needed for this api
             MEM_RELEASE
         );
+
+        if (!result) {
+            const u32 error = GetLastError();
+        }
 
         return(result);
     }

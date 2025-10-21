@@ -174,7 +174,7 @@ namespace sld {
         const u64 new_position    = arena->position + size_aligned;
         
         void* ptr = NULL;
-        if (new_position <= arena->position) {
+        if (new_position <= arena->size) {
 
             ptr = arena_get_position(arena);
             assert(ptr);
