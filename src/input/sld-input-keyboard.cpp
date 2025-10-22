@@ -22,14 +22,14 @@ namespace sld {
         input_keyboard_t*     keyboard,
         const input_keycode_t keycode) {
 
-        input_keyboard_validate(keyboard);
+        // input_keyboard_validate(keyboard);
 
-        if (keyboard->key_count.down == INPUT_ARRAY_SIZE_KEYCODE) return;
+        // if (keyboard->key_count.down == INPUT_ARRAY_SIZE_KEYCODE) return;
 
-        const u8 index = keyboard->key_count.down; 
+        // const u8 index = keyboard->key_count.down; 
 
-        keyboard->keycode_array.down[index] = keycode;
-        ++keyboard->key_count.down;
+        // keyboard->keycode_array.down[index] = keycode;
+        // ++keyboard->key_count.down;
     }
 
     SLD_API void
@@ -37,14 +37,14 @@ namespace sld {
         input_keyboard_t*     keyboard,
         const input_keycode_t keycode) {
 
-        input_keyboard_validate(keyboard);
+        // input_keyboard_validate(keyboard);
 
-        if (keyboard->key_count.up == INPUT_ARRAY_SIZE_KEYCODE) return;
+        // if (keyboard->key_count.up == INPUT_ARRAY_SIZE_KEYCODE) return;
 
-        const u8 index = keyboard->key_count.up; 
+        // const u8 index = keyboard->key_count.up; 
 
-        keyboard->keycode_array.up[index] = keycode;
-        ++keyboard->key_count.up;
+        // keyboard->keycode_array.up[index] = keycode;
+        // ++keyboard->key_count.up;
     }
 
     SLD_API void
