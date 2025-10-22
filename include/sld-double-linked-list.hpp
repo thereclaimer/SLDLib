@@ -18,8 +18,8 @@ namespace sld {
     template<typename type> struct dl_list_t;
 
     SLD_API_INLINE_TEMPLATE dl_list_t<type>* dl_list_arena_alloc       (arena_t* arena, const u32 list_count = 1, const u32 max_count = DL_LIST_DEFAULT_MAX_COUNT); 
-    SLD_API_INLINE_TEMPLATE bool             dl_list_is_valid          (const dl_list_t<type>* list, const type* node = NULL);
-    SLD_API_INLINE_TEMPLATE void             dl_list_assert_valid      (const dl_list_t<type>* list, const type* node = NULL);
+    SLD_API_INLINE_TEMPLATE bool             dl_list_is_valid          (const dl_list_t<type>* list, const dl_node_t<type>* node = NULL);
+    SLD_API_INLINE_TEMPLATE void             dl_list_assert_valid      (const dl_list_t<type>* list, const dl_node_t<type>* node = NULL);
     SLD_API_INLINE_TEMPLATE bool             dl_list_is_empty          (const dl_list_t<type>* list);
     SLD_API_INLINE_TEMPLATE u32              dl_list_get_count         (const dl_list_t<type>* list);
     SLD_API_INLINE_TEMPLATE bool             dl_list_can_insert        (const dl_list_t<type>* list);
@@ -102,7 +102,7 @@ namespace sld {
 
         dl_list_assert_valid(list);
 
-        const bool is_empty = (list->head != NULL && list->tail != NULL);
+        const bool is_empty = (list->head == NULL && list->tail == NULL);
         return(is_empty);
     }
 
