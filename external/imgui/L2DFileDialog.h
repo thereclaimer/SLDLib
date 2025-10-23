@@ -39,24 +39,26 @@ namespace FileDialog {
 		None
 	};
 
-	static bool file_dialog_open = false;
+	static bool           file_dialog_open      = false;
 	static FileDialogType file_dialog_open_type = FileDialogType::OpenFile;
 
-	void ShowFileDialog(bool* open, char* buffer, [[maybe_unused]] unsigned int buffer_size, FileDialogType type = FileDialogType::OpenFile) {
-		static int file_dialog_file_select_index = 0;
-		static int file_dialog_folder_select_index = 0;
-		static std::string file_dialog_current_path = std::filesystem::current_path().string();
-		static std::string file_dialog_current_file = "";
-		static std::string file_dialog_current_folder = "";
-		static char file_dialog_error[500] = "";
-		static FileDialogSortOrder file_name_sort_order = FileDialogSortOrder::None;
-		static FileDialogSortOrder size_sort_order = FileDialogSortOrder::None;
-		static FileDialogSortOrder date_sort_order = FileDialogSortOrder::None;
-		static FileDialogSortOrder type_sort_order = FileDialogSortOrder::None;
+	void ShowFileDialog(
+		char*          buffer, 
+		unsigned int   buffer_size,
+		FileDialogType type = FileDialogType::OpenFile) {
+		static int                 file_dialog_file_select_index   = 0;
+		static int                 file_dialog_folder_select_index = 0;
+		static std::string         file_dialog_current_path        = std::filesystem::current_path().string();
+		static std::string         file_dialog_current_file        = "";
+		static std::string         file_dialog_current_folder      = "";
+		static char                file_dialog_error[500]          = "";
+		static FileDialogSortOrder file_name_sort_order            = FileDialogSortOrder::None;
+		static FileDialogSortOrder size_sort_order                 = FileDialogSortOrder::None;
+		static FileDialogSortOrder date_sort_order                 = FileDialogSortOrder::None;
+		static FileDialogSortOrder type_sort_order                 = FileDialogSortOrder::None;
+		static bool                initial_path_set                = false;
 
-		static bool initial_path_set = false;
-
-		if (open) {
+		if (file_dialog_open) {
 			// Check if there was already something in the buffer. If so, try to use that path (if it exists).
 			// If it doesn't exist, just put them into the current path.
 			if (!initial_path_set && strlen(buffer) > 0) {
@@ -87,12 +89,8 @@ namespace FileDialog {
 			std::vector<std::filesystem::directory_entry> folders;
 
 			for (auto& p : std::filesystem::directory_iterator(file_dialog_current_path)) {
-				if (p.is_directory()) {
-					folders.push_back(p);
-				}
-				else {
-					files.push_back(p);
-				}
+				if (p.is_directory()) folders.push_back(p);
+				else                  files.push_back(p);
 			}
 
 			ImGui::Text("%s", file_dialog_current_path.c_str());
@@ -356,9 +354,9 @@ namespace FileDialog {
 		}
 	}
 
-	void ShowFileDialog_s(bool* open, char* buffer, FileDialogType type = FileDialogType::OpenFile)
+	void ShowFileDialog_s(char* buffer, FileDialogType type = FileDialogType::OpenFile)
 	{
-		ShowFileDialog(open, buffer, 500, type);
+		ShowFileDialog(buffer, 500, type);
 	}
 
 }
