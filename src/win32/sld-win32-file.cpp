@@ -266,6 +266,16 @@ namespace sld {
         return(error_code);
     }
 
+    SLD_API_OS_FUNC bool
+    win32_file_dialog_open(
+        const cchar*             path,
+        const os_window_handle_t window_handle) {
+
+        return(false);
+
+    }
+
+
     //-------------------------------------------------------------------
     // INTERNAL
     //-------------------------------------------------------------------

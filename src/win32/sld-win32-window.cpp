@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include <stdio.h>
 #include "sld-os.hpp"
 
 #if SLD_OS_GRAPHICS_CONTEXT_TYPE == SLD_OS_GRAPHICS_CONTEXT_OPENGL
@@ -84,7 +85,7 @@ namespace sld {
     SLD_API_OS_FUNC const os_window_error_t
     win32_window_get_position(
         const os_window_handle_t handle,
-        os_window_pos_t&    position) {
+        os_window_pos_t&         position) {
 
         RECT window_rect;
 
@@ -95,6 +96,67 @@ namespace sld {
         const os_window_error_t error = (result == true) 
             ? win32_window_error_success  ()
             : win32_window_error_get_last ();
+
+        return(error);
+    }
+
+    SLD_API_OS_FUNC const os_window_error_t
+    win32_window_open_file_dialog(
+        const os_window_handle_t handle,
+        os_window_dialog_t&      dialog) {
+
+        constexpr s32   sprintf_s_fail      = -1; 
+        constexpr u32   filter_buffer_size  = 1024;
+        constexpr u32   filter_stride_desc  = filter_buffer_size / sizeof(os_window_dialog_file_filter_t::desc);   
+        constexpr u32   filter_stride_ext   = filter_buffer_size / sizeof(os_window_dialog_file_filter_t::ext);   
+        constexpr u32   filter_stride_total = filter_stride_desc + filter_stride_ext; 
+        constexpr u32   filter_count_max    = filter_buffer_size / filter_stride_total;
+        static    cchar filter_buffer[filter_buffer_size];
+
+
+        if (dialog.filter.count != 0) {
+            assert(dialog.filter.array != NULL && dialog.filter.count <= filter_count_max);
+
+            u32 bytes_written   = 0;
+            u32 bytes_remaining = filter_buffer_size; 
+            for (
+                u32 index = 0;
+                index < dialog.filter.count;
+                ++index) {
+
+                const cchar* src_desc    = dialog.filter.array[index].desc;
+                const cchar* src_ext     = dialog.filter.array[index].ext;
+                const u32    length_desc = strnlen_s(src_dest, filter_stride_desc);
+                const u32    length_ext  = strnlen_s(src_ext,  filter_stride_ext);
+
+                cchar* dst_filter = &filter_buffer[bytes_written];
+                                
+                const s32 filter_bytes_written = sprintf_s(dst_filter, bytes_remaining, "%s\0");
+                assert(filter_bytes_written != sprintf_s_fail);
+
+            }
+        } else {
+        }
+
+        // initialize the dialog
+        OPENFILENAME ofn;       
+        ZeroMemory(&ofn, sizeof(ofn));
+        ofn.lStructSize  = sizeof(ofn);
+        ofn.hwndOwner    = (HWND)handle.val; 
+        ofn.lpstrFile    = dialog.path_selection.buffer;
+        ofn.nMaxFile     = dialog.path_selection.size; 
+        ofn.nFilterIndex = 1;
+        ofn.Flags        = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOLONGNAMES | OFN_NONETWORKBUTTON | OFN_EXPLORER;
+        ofn.lpstrFilter  = (dialog.filter.count == 0)
+            ? "All Files\0*.*\0Text Files\0*.txt\0"
+            : NULL;
+
+        // display the dialog
+        dialog.did_select = GetOpenFileName(&ofn);
+        
+        os_window_error_t error = (dialog.did_select)
+            ? win32_window_error_success()  
+            : win32_window_error_get_last();
 
         return(error);
     }
@@ -175,11 +237,11 @@ namespace sld {
 
                         update.events.val |= os_window_event_e_key_down; 
                         
-                        const input_keycode_t keycode = win32_input_translate_keycode(
-                            msg_peek_args.message.wParam,
-                            msg_peek_args.message.lParam);
+                        // const input_keycode_t keycode = win32_input_translate_keycode(
+                        //     msg_peek_args.message.wParam,
+                        //     msg_peek_args.message.lParam);
 
-                        input_keyboard_add_key_down(update.keyboard, keycode);
+                        // input_keyboard_add_key_down(update.keyboard, keycode);
 
                     } break;
 
@@ -188,11 +250,11 @@ namespace sld {
                     
                         update.events.val |= os_window_event_e_key_up;
                         
-                        const input_keycode_t keycode = win32_input_translate_keycode(
-                            msg_peek_args.message.wParam,
-                            msg_peek_args.message.lParam);
+                        // const input_keycode_t keycode = win32_input_translate_keycode(
+                        //     msg_peek_args.message.wParam,
+                        //     msg_peek_args.message.lParam);
 
-                        input_keyboard_add_key_up(update.keyboard, keycode);
+                        // input_keyboard_add_key_up(update.keyboard, keycode);
 
                     } break;
 
