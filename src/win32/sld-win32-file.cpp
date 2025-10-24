@@ -246,6 +246,26 @@ namespace sld {
         return(error);
     }
 
+    SLD_API_OS_INTERNAL const os_file_error_t
+    win32_file_get_working_directory(
+        os_file_path_cstr_t& file_path) {
+
+        constexpr u32 buffer_size = sizeof(os_file_path_cstr_t::buffer);
+        
+        DWORD result = GetCurrentDirectory(buffer_size, (LPSTR)file_path.buffer);
+
+        const bool did_succeed = (
+            result != 0 ||
+            result <= buffer_size
+        );
+
+        const os_file_error_t error_code = (did_succeed)
+            ? win32_file_error_success()
+            : win32_file_get_error_code(result);
+        
+        return(error_code);
+    }
+
     //-------------------------------------------------------------------
     // INTERNAL
     //-------------------------------------------------------------------

@@ -70,5 +70,6 @@ namespace sld {
     os_file_read_f                   os_file_read                   = win32_file_read; 
     os_file_write_f                  os_file_write                  = win32_file_write; 
     os_file_read_async_f             os_file_read_async             = win32_file_read_async; 
-    os_file_write_async_f            os_file_write_async            = win32_file_write_async; 
+    os_file_write_async_f            os_file_write_async            = win32_file_write_async;
+    os_file_get_working_directory_f  os_file_get_working_directory  = win32_file_get_working_directory; 
 };

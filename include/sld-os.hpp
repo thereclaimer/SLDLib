@@ -395,6 +395,8 @@ namespace sld {
     // FILES
     //-------------------------------------------------------------------
 
+    constexpr u32 OS_FILE_PATH_SIZE = 256;
+
     struct os_file_handle_t : os_handle_t { };
     struct os_file_flags_t  : os_flags_t  { };
     struct os_file_error_t  : os_error_t  { };
@@ -409,13 +411,19 @@ namespace sld {
     struct os_file_os_context_t;
     struct os_file_async_context_t;
 
-    using os_file_async_callback_f = void                  (*) (const void* data, const os_file_error_t error, const u32 bytes_transferred);
-    using os_file_open_f           = const os_file_error_t (*) (os_file_handle_t&      file_handle, const c8* path, const os_file_config_t& config);
-    using os_file_size_f           = const os_file_error_t (*) (const os_file_handle_t file_handle, u64& size);
-    using os_file_read_f           = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
-    using os_file_write_f          = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
-    using os_file_read_async_f     = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_async_context_t& context);    
-    using os_file_write_async_f    = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_async_context_t& context);    
+    struct os_file_path_cstr_t {
+        cchar buffer[OS_FILE_PATH_SIZE];
+    };
+
+    using os_file_async_callback_f        = void                  (*) (const void* data, const os_file_error_t error, const u32 bytes_transferred);
+    using os_file_open_f                  = const os_file_error_t (*) (os_file_handle_t&      file_handle, const c8* path, const os_file_config_t& config);
+    using os_file_size_f                  = const os_file_error_t (*) (const os_file_handle_t file_handle, u64& size);
+    using os_file_read_f                  = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
+    using os_file_write_f                 = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer);    
+    using os_file_read_async_f            = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_async_context_t& context);    
+    using os_file_write_async_f           = const os_file_error_t (*) (const os_file_handle_t file_handle, os_file_buffer_t& buffer, os_file_async_context_t& context);    
+
+    using os_file_get_working_directory_f = const os_file_error_t (*) (os_file_path_cstr_t& file_path); 
 
     struct os_file_buffer_t {
         byte* data;
@@ -598,6 +606,7 @@ namespace sld {
     SLD_API_OS os_file_write_f                  os_file_write;
     SLD_API_OS os_file_read_async_f             os_file_read_async;
     SLD_API_OS os_file_write_async_f            os_file_write_async;
+    SLD_API_OS os_file_get_working_directory_f  os_file_get_working_directory;
 
     SLD_API_OS os_thread_create_f               os_thread_create;
     SLD_API_OS os_thread_destroy_f              os_thread_destroy;
